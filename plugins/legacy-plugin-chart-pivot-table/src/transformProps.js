@@ -25,6 +25,8 @@ export default function transformProps(chartProps) {
   const granularity = extractTimegrain(rawFormData);
   let { numberFormat } = formData;
 
+  console.log("Custom fix by Dodo Engineering");
+  
   if (!numberFormat && chartProps.datasource && chartProps.datasource.metrics) {
     chartProps.datasource.metrics.forEach(metric => {
       if (metric.metric_name === chartProps.formData.metrics[0] && metric.d3format) {
