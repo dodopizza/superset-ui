@@ -18,6 +18,13 @@
  */
 import { formatNumber } from '@superset-ui/core';
 
+/**
+ * gets an array of metrics and an object with formats
+ * returns a format as a string or null
+ */
+const getCleanFormat = (arr: string[], formatsObject: Record<string, any>) =>
+  arr.map(item => (formatsObject[item] ? formatsObject[item] : null)).filter(i => i)[0] || null;
+
 function formatCellValue(
   i: number,
   cols: string[],
@@ -28,7 +35,11 @@ function formatCellValue(
   dateFormatter: any,
 ) {
   const metric: string = cols[i];
-  const format: string = columnFormats[metric] || numberFormat || '.3s';
+
+  const format: string = Array.isArray(metric)
+    ? getCleanFormat(metric, columnFormats)
+    : columnFormats[metric] || numberFormat || '.3s';
+
   let textContent: string = tdText;
   let sortAttributeValue: any = tdText;
 

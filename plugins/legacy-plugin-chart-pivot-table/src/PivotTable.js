@@ -79,7 +79,6 @@ function PivotTable(element, props) {
   // queryData data is a string of html with a single table element
   container.innerHTML = html;
 
-  const cols = Array.isArray(columns[0]) ? columns.map(col => col[0]) : columns;
   const dateRegex = /^__timestamp:(-?\d*\.?\d*)$/;
 
   $container.find('th').each(function formatTh() {
@@ -97,7 +96,12 @@ function PivotTable(element, props) {
           const tdText = $(this).text();
           const { textContent, sortAttributeValue } = formatCellValue(
             index,
-            cols,
+            /**
+             * there was a check for columns being an array, and if true, return the first element
+             * the patch involes parsing that array in formatCellValue and get a clean format
+             * by itterating thru the values and getting a non empty value with format in it
+             */
+            columns,
             tdText,
             columnFormats,
             numberFormat,
