@@ -19,11 +19,20 @@
 import { formatNumber } from '@superset-ui/core';
 
 /**
- * gets an array of metrics and an object with formats
- * returns a format as a string or null
+ *
+ * @param arr - array of metrics
+ * @param formatsObject - object with formats
+ * @returns - a format as string or null
  */
 const getCleanFormat = (arr: string[], formatsObject: Record<string, any>) =>
   arr.map(item => (formatsObject[item] ? formatsObject[item] : null)).filter(i => i)[0] || null;
+
+/**
+ *
+ * @param value - value as string
+ * @returns - '0' or original value
+ */
+const cleanUpZero = (value: string) => (value && Number(value) === 0 ? '0' : value);
 
 function formatCellValue(
   i: number,
@@ -59,7 +68,9 @@ function formatCellValue(
     }
   }
 
-  return { textContent, sortAttributeValue };
+  const cleanedUpTextContent = cleanUpZero(textContent);
+
+  return { textContent: cleanedUpTextContent, sortAttributeValue };
 }
 
 function formatDateCellValue(text: string, verboseMap: any, dateRegex: RegExp, dateFormatter: any) {
