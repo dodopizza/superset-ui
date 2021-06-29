@@ -49,12 +49,14 @@ function formatCellValue(
     ? getCleanFormat(metric, columnFormats)
     : columnFormats[metric] || numberFormat || '.3s';
 
+  const finalFormat = format || numberFormat;
+
   let textContent: string = tdText;
   let sortAttributeValue: any = tdText;
 
   if (parseFloat(tdText)) {
     const parsedValue = parseFloat(tdText);
-    textContent = formatNumber(format, parsedValue);
+    textContent = formatNumber(finalFormat, parsedValue);
     sortAttributeValue = parsedValue;
   } else {
     const regexMatch = dateRegex.exec(tdText);

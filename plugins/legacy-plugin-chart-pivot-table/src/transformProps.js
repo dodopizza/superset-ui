@@ -18,20 +18,26 @@
  */
 export default function transformProps(chartProps) {
   const { height, datasource, formData, queriesData } = chartProps;
-  const { timeGrainSqla, groupby, dateFormat } = formData;
-  const { columnFormats, verboseMap } = datasource;
+  const { timeGrainSqla, groupby, dateFormat, metrics } = formData;
+  const { columnFormats, verboseMap, metrics: chartPropsDatasourceMetrics } = datasource;
   let { numberFormat } = formData;
 
   // eslint-disable-next-line no-console
   console.log('Custom fix by Dodo Engineering');
 
-  if (!numberFormat && chartProps.datasource && chartProps.datasource.metrics) {
-    chartProps.datasource.metrics.forEach(metric => {
-      if (metric.metric_name === chartProps.formData.metrics[0] && metric.d3format) {
-        numberFormat = metric.d3format;
-      }
+  const findMetric = (arr, metricName) => arr.filter(metric => metric.metric_name === metricName);
+
+  if (!numberFormat && chartProps.datasource && chartPropsDatasourceMetrics) {
+    metrics.forEach(metricName => {
+      const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metricName);
+
+      if (foundMetric && foundMetric.d3format) numberFormat = foundMetric.d3format;
+      else numberFormat = null;
     });
   }
+
+  // eslint-disable-next-line no-console
+  console.log(columnFormats);
 
   return {
     columnFormats,
