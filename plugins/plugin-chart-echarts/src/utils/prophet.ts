@@ -39,7 +39,7 @@ export const extractProphetValuesFromTooltipParams = (
 ): Record<string, ProphetValue> => {
   const values: Record<string, ProphetValue> = {};
   params.forEach(param => {
-    const { marker, seriesId, value } = param;
+    const { marker, seriesId, seriesName, seriesType, value } = param;
     const context = extractForecastSeriesContext(seriesId);
     const numericValue = (value as [Date, number])[1];
     if (numericValue) {
@@ -55,6 +55,13 @@ export const extractProphetValuesFromTooltipParams = (
         prophetValues.forecastLower = numericValue;
       if (context.type === ForecastSeriesEnum.ForecastUpper)
         prophetValues.forecastUpper = numericValue;
+
+      // used in tooltip to identify correct d3 formatting
+      values[context.name] = {
+        ...values[context.name],
+        seriesType,
+        seriesName,
+      };
     }
   });
   return values;
