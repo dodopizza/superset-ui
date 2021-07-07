@@ -53,10 +53,18 @@ import {
 import { TIMESERIES_CONSTANTS } from '../constants';
 
 export default function transformProps(chartProps: ChartProps): EchartsProps {
-  const { width, height, formData, queriesData } = chartProps;
+  const { width, height, formData, queriesData, datasource } = chartProps;
+  const { columnFormats, metrics: chartPropsDatasourceMetrics } = datasource;
   const { annotation_data: annotationData_, data: data1 = [] } = queriesData[0];
   const { data: data2 = [] } = queriesData[1];
   const annotationData = annotationData_ || {};
+
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering');
+  // eslint-disable-next-line no-console
+  console.log(columnFormats);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
 
   const {
     area,
@@ -82,8 +90,6 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     stackB,
     truncateYAxis,
     tooltipTimeFormat,
-    yAxisFormat,
-    yAxisFormatSecondary,
     xAxisShowMinLabel,
     xAxisShowMaxLabel,
     xAxisTimeFormat,
@@ -97,6 +103,12 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     xAxisLabelRotation,
   }: EchartsMixedTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
 
+  const { metrics, metricsB } = formData;
+  let { yAxisFormat, yAxisFormatSecondary } = formData;
+
+  const yAxisFormatOriginal = yAxisFormat;
+  const yAxisFormatSecondaryOriginal = yAxisFormatSecondary;
+
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rawSeriesA = extractTimeseriesSeries(rebaseTimeseriesDatum(data1), {
     fillNeighborValue: stack ? 0 : undefined,
@@ -106,8 +118,53 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   });
 
   const series: SeriesOption[] = [];
-  const formatter = getNumberFormatter(contributionMode ? ',.0%' : yAxisFormat);
-  const formatterSecondary = getNumberFormatter(contributionMode ? ',.0%' : yAxisFormatSecondary);
+
+  /**
+   * Used for tooltip for d3 formating
+   */
+  const getCorrectFormat = (
+    sType: string | undefined,
+    sName: string | undefined,
+    yAxisFormat: string | undefined,
+    yAxisFormatSecondary: string | undefined,
+  ) => {
+    if (sType === seriesType && sName)
+      return !yAxisFormat ? (columnFormats ? columnFormats[sName] : '') : yAxisFormat;
+    if (sType === seriesTypeB && sName)
+      return !yAxisFormatSecondary
+        ? columnFormats
+          ? columnFormats[sName]
+          : ''
+        : yAxisFormatSecondary;
+    return '';
+  };
+
+  /**
+   * Needed for yAxis for d3 formating
+   */
+  const findMetric = (arr: any[], metricName: string) =>
+    arr.filter(metric => metric.metric_name === metricName);
+
+  if (!yAxisFormat && chartProps.datasource && chartPropsDatasourceMetrics) {
+    metrics.forEach((metricName: string) => {
+      const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metricName);
+
+      if (foundMetric && foundMetric.d3format) yAxisFormat = foundMetric.d3format;
+      else yAxisFormat = null;
+    });
+  }
+
+  if (!yAxisFormatSecondary && chartProps.datasource && chartPropsDatasourceMetrics) {
+    metricsB.forEach((metricName: string) => {
+      const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metricName);
+
+      if (foundMetric && foundMetric.d3format) yAxisFormatSecondary = foundMetric.d3format;
+      else yAxisFormatSecondary = null;
+    });
+  }
+
+  const primaryFormatter = getNumberFormatter(contributionMode ? ',.0%' : yAxisFormat);
+  const secondaryFormatter = getNumberFormatter(contributionMode ? ',.0%' : yAxisFormatSecondary);
 
   rawSeriesA.forEach(entry => {
     const transformedSeries = transformSeries(entry, colorScale, {
@@ -187,7 +244,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         max,
         minorTick: { show: true },
         minorSplitLine: { show: minorSplitLine },
-        axisLabel: { formatter },
+        axisLabel: { formatter: primaryFormatter },
         scale: truncateYAxis,
         name: yAxisTitle,
       },
@@ -199,7 +256,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         minorTick: { show: true },
         splitLine: { show: false },
         minorSplitLine: { show: minorSplitLine },
-        axisLabel: { formatter: formatterSecondary },
+        axisLabel: { formatter: secondaryFormatter },
         scale: truncateYAxis,
         name: yAxisTitleSecondary,
       },
@@ -218,11 +275,21 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
+
+          const correctFormat = getCorrectFormat(
+            value.seriesType,
+            value.seriesName,
+            yAxisFormatOriginal,
+            yAxisFormatSecondaryOriginal,
+          );
+
+          const formatFunction = getNumberFormatter(correctFormat);
+
           rows.push(
             formatProphetTooltipSeries({
               ...value,
               seriesName: key,
-              formatter,
+              formatter: formatFunction,
             }),
           );
         });

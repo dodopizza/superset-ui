@@ -62,6 +62,8 @@ export type ProphetValue = {
   forecastTrend?: number;
   forecastLower?: number;
   forecastUpper?: number;
+  seriesType?: string;
+  seriesName?: string;
 };
 
 export type EchartsLegendFormData = {
