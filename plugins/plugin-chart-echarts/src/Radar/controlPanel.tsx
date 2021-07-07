@@ -39,14 +39,8 @@ import { DEFAULT_FORM_DATA } from './types';
 import { legendOrientationControl, legendTypeControl, showLegendControl } from '../controls';
 import { LABEL_POSITION } from '../constants';
 
-const {
-  labelType,
-  labelPosition,
-  numberFormat,
-  showLabels,
-  isCircle,
-  emitFilter,
-} = DEFAULT_FORM_DATA;
+const { labelType, labelPosition, numberFormat, showLabels, isCircle, emitFilter } =
+  DEFAULT_FORM_DATA;
 
 const radarMetricMaxValue: { name: string; config: ControlFormItemSpec } = {
   name: 'radarMetricMaxValue',
@@ -191,7 +185,8 @@ const config: ControlPanelConfig = {
                 [GenericDataType.NUMERIC]: [[radarMetricMaxValue]],
               },
               mapStateToProps(explore, control, chart) {
-                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) ?? [];
+                // TODO: try to do this with a loader later
+                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) || [];
                 const metricColumn = values.map(value => {
                   if (typeof value === 'string') {
                     return value;
