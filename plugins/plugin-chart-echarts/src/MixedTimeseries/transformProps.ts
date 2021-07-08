@@ -60,9 +60,9 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const annotationData = annotationData_ || {};
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering');
+  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885)');
   // eslint-disable-next-line no-console
-  console.log(columnFormats);
+  console.log('formats from metrics', columnFormats);
   // eslint-disable-next-line no-console
   console.groupEnd();
 
@@ -102,8 +102,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     richTooltip,
     xAxisLabelRotation,
   }: EchartsMixedTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
-
-  const { metrics, metricsB } = formData;
+  const { metrics, metricsB, groupby, groupbyB } = formData;
   let { yAxisFormat, yAxisFormatSecondary } = formData;
 
   const yAxisFormatOriginal = yAxisFormat;
@@ -122,20 +121,71 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   /**
    * Used for tooltip for d3 formating
    */
+  const findMetricNameInArray = (metrics: string[], srsNames: string[], originalSName: string) => {
+    let metricName = originalSName;
+
+    metrics.forEach((metr: string) => {
+      const index = srsNames?.indexOf(metr);
+      if (index >= 0 && srsNames) metricName = srsNames[index];
+    });
+
+    return metricName;
+  };
+
+  const getMetricNameFromGroups = (sType: string, sName: string) => {
+    if (sType === seriesType)
+      return {
+        metricName: findMetricNameInArray(metrics, sName?.split(','), sName),
+        queryGroup: 'A',
+      };
+    if (sType === seriesTypeB)
+      return {
+        metricName: findMetricNameInArray(metricsB, sName?.split(','), sName),
+        queryGroup: 'B',
+      };
+
+    return { metricName: '', queryGroup: '' };
+  };
+
   const getCorrectFormat = (
-    sType: string | undefined,
-    sName: string | undefined,
+    sType: string,
+    sName: string,
     yAxisFormat: string | undefined,
     yAxisFormatSecondary: string | undefined,
+    groupArrayA: string[] | [],
+    groupArrayB: string[] | [],
   ) => {
+    /**
+     * If there is a group in a query, we need to identify to which type A or B this group
+     * and metric belongs to.
+     */
+    if (groupArrayA.length || groupArrayB.length) {
+      const overrideMetricParams = getMetricNameFromGroups(sType, sName);
+      const { metricName, queryGroup } = overrideMetricParams;
+
+      if (metricName && queryGroup === 'A') {
+        return !yAxisFormat ? (columnFormats ? columnFormats[metricName] : '') : yAxisFormat;
+      }
+
+      if (metricName && queryGroup === 'B') {
+        return !yAxisFormatSecondary
+          ? columnFormats
+            ? columnFormats[metricName]
+            : ''
+          : yAxisFormatSecondary;
+      }
+    }
+
     if (sType === seriesType && sName)
       return !yAxisFormat ? (columnFormats ? columnFormats[sName] : '') : yAxisFormat;
+
     if (sType === seriesTypeB && sName)
       return !yAxisFormatSecondary
         ? columnFormats
           ? columnFormats[sName]
           : ''
         : yAxisFormatSecondary;
+
     return '';
   };
 
@@ -269,19 +319,23 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         const prophetValue = !richTooltip ? [params] : params;
 
         const rows: Array<string> = [`${tooltipFormatter(value)}`];
-        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
-          prophetValue,
-        );
+        const prophetValues: Record<string, ProphetValue> =
+          extractProphetValuesFromTooltipParams(prophetValue);
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
+          let correctFormat = '.3s';
 
-          const correctFormat = getCorrectFormat(
-            value.seriesType,
-            value.seriesName,
-            yAxisFormatOriginal,
-            yAxisFormatSecondaryOriginal,
-          );
+          if (value.seriesType && value.seriesName) {
+            correctFormat = getCorrectFormat(
+              value.seriesType,
+              value.seriesName,
+              yAxisFormatOriginal,
+              yAxisFormatSecondaryOriginal,
+              groupby,
+              groupbyB,
+            );
+          }
 
           const formatFunction = getNumberFormatter(correctFormat);
 
