@@ -54,17 +54,11 @@ import { TIMESERIES_CONSTANTS } from '../constants';
 
 export default function transformProps(chartProps: ChartProps): EchartsProps {
   const { width, height, formData, queriesData, datasource } = chartProps;
-  const { columnFormats, metrics: chartPropsDatasourceMetrics } = datasource;
+  const { metrics: chartPropsDatasourceMetrics } = datasource;
   const { annotation_data: annotationData_, data: data1 = [] } = queriesData[0];
   const { data: data2 = [] } = queriesData[1];
   const annotationData = annotationData_ || {};
-
-  // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885)');
-  // eslint-disable-next-line no-console
-  console.log('formats from metrics', columnFormats);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
+  const { columnFormats } = datasource;
 
   const {
     area,
@@ -108,6 +102,17 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const yAxisFormatOriginal = yAxisFormat;
   const yAxisFormatSecondaryOriginal = yAxisFormatSecondary;
 
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885)');
+  // eslint-disable-next-line no-console
+  console.log('metrics:', columnFormats);
+  // eslint-disable-next-line no-console
+  console.log('groups:', 'A ->', groupby, 'B ->', groupbyB);
+  // eslint-disable-next-line no-console
+  console.log('yAxis:', 'A ->', yAxisFormatOriginal, 'B ->', yAxisFormatSecondaryOriginal);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rawSeriesA = extractTimeseriesSeries(rebaseTimeseriesDatum(data1), {
     fillNeighborValue: stack ? 0 : undefined,
@@ -121,32 +126,42 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   /**
    * Used for tooltip for d3 formating
    */
-  const findMetricNameInArray = (metrics: string[], srsNames: string[], originalSName: string) => {
+  const findMetricNameInArray = (metrics: string[], originalSName: string) => {
     let metricName = originalSName;
 
-    metrics.forEach((metr: string) => {
-      const index = srsNames?.indexOf(metr);
-      if (index >= 0 && srsNames) metricName = srsNames[index];
-    });
+    // We either get ['count'] or ['count', 'LA']
+    const srsNames = originalSName.split(',');
+
+    // we default the metric name to the metrics[0] A or B
+    if (srsNames.length === 1) metricName = metrics[0];
+    else {
+      // we find the metric name in array
+      metrics.forEach((metr: string) => {
+        const index = srsNames?.indexOf(metr);
+        if (index >= 0 && srsNames) metricName = srsNames[index];
+      });
+    }
 
     return metricName;
   };
 
-  const getMetricNameFromGroups = (sType: string, sName: string) => {
-    if (sType === seriesType)
-      return {
-        metricName: findMetricNameInArray(metrics, sName?.split(','), sName),
-        queryGroup: 'A',
-      };
-    if (sType === seriesTypeB)
-      return {
-        metricName: findMetricNameInArray(metricsB, sName?.split(','), sName),
-        queryGroup: 'B',
-      };
+  const getMetricNameFromGroups = (sType: string, sName: string) => ({
+    metricName: findMetricNameInArray(sType === seriesType ? metrics : metricsB, sName),
+    queryGroup: sType === seriesType ? 'A' : 'B',
+  });
 
-    return { metricName: '', queryGroup: '' };
-  };
+  const getD3OrOriginalFormat = (
+    originalFormat: string | undefined,
+    metricName: string,
+    columnFormats?: {
+      [key: string]: string;
+    },
+  ) => (!originalFormat ? (columnFormats ? columnFormats[metricName] : '') : originalFormat);
 
+  /**
+   * If there is a group in a query, we need to identify to which type A or B this group
+   * and metric belongs to.
+   */
   const getCorrectFormat = (
     sType: string,
     sName: string,
@@ -156,37 +171,25 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     groupArrayB: string[] | [],
   ) => {
     /**
-     * If there is a group in a query, we need to identify to which type A or B this group
-     * and metric belongs to.
+     * If there is a group present - we parse groups array with metrics names
+     * to indetify what metrics are behind those metrics names
      */
+
     if (groupArrayA.length || groupArrayB.length) {
       const overrideMetricParams = getMetricNameFromGroups(sType, sName);
       const { metricName, queryGroup } = overrideMetricParams;
-
-      if (metricName && queryGroup === 'A') {
-        return !yAxisFormat ? (columnFormats ? columnFormats[metricName] : '') : yAxisFormat;
-      }
-
-      if (metricName && queryGroup === 'B') {
-        return !yAxisFormatSecondary
-          ? columnFormats
-            ? columnFormats[metricName]
-            : ''
-          : yAxisFormatSecondary;
-      }
+      return getD3OrOriginalFormat(
+        queryGroup === 'A' ? yAxisFormat : yAxisFormatSecondary,
+        metricName,
+        columnFormats,
+      );
     }
 
-    if (sType === seriesType && sName)
-      return !yAxisFormat ? (columnFormats ? columnFormats[sName] : '') : yAxisFormat;
-
-    if (sType === seriesTypeB && sName)
-      return !yAxisFormatSecondary
-        ? columnFormats
-          ? columnFormats[sName]
-          : ''
-        : yAxisFormatSecondary;
-
-    return '';
+    return getD3OrOriginalFormat(
+      sType === seriesType ? yAxisFormat : yAxisFormatSecondary,
+      sName,
+      columnFormats,
+    );
   };
 
   /**
@@ -324,6 +327,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
+          // falback format is defined
           let correctFormat = '.3s';
 
           if (value.seriesType && value.seriesName) {
