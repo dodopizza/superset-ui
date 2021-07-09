@@ -129,10 +129,11 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const findMetricNameInArray = (metrics: string[], originalSName: string) => {
     let metricName = originalSName;
 
-    // We either get ['count'] or ['count', 'LA']
+    // We either get ['count'] or ['count', 'LA'] or ['LA', '2003']
     const srsNames = originalSName.split(',');
 
     // we default the metric name to the metrics[0] A or B
+    if (metrics.length === 1) metricName = metrics[0];
     if (srsNames.length === 1) metricName = metrics[0];
     else {
       // we find the metric name in array
