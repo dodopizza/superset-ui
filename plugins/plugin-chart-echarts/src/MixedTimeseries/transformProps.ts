@@ -133,8 +133,8 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     const srsNames = originalSName.split(',');
 
     // we default the metric name to the metrics[0] A or B
-    if (metrics.length === 1) metricName = metrics[0];
     if (srsNames.length === 1) metricName = metrics[0];
+    if (metrics.length === 1) metricName = metrics[0];
     else {
       // we find the metric name in array
       metrics.forEach((metr: string) => {
