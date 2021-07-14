@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react/sort-prop-types */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -177,6 +178,7 @@ const propTypes = {
   onError: PropTypes.func,
   showLegend: PropTypes.bool,
   showMarkers: PropTypes.bool,
+  showValues: PropTypes.bool,
   useRichTooltip: PropTypes.bool,
   vizType: PropTypes.oneOf([
     'area',
@@ -284,6 +286,7 @@ function nvd3Vis(element, props) {
     showLabels,
     showLegend,
     showMarkers,
+    showValues,
     sizeField,
     useRichTooltip,
     vizType,
@@ -780,6 +783,36 @@ function nvd3Vis(element, props) {
         setTimeout(() => {
           svg.selectAll('.nv-point').style('stroke-opacity', 1).style('fill-opacity', 1);
         }, 10);
+      });
+    }
+
+    // https://github.com/d3/d3-selection/blob/main/README.md#selection_insert
+    // <text x="0" y="0" fill="grey" font-size="18" font-weight="900">10</text>
+    // https://stackoverflow.com/questions/13029571/d3-js-how-to-insert-new-sibling-elements
+    // https://stackoverflow.com/questions/42714091/elements-appended-to-svg-with-d3-are-not-appearing
+    // https://observablehq.com/@d3/connected-scatterplot
+    // https://bl.ocks.org/veltman/87596f5a256079b95eb9
+    if (showValues) {
+      svg.selectAll('.nv-point').each(function (_, index) {
+        console.log('data', data);
+        const xmlns = 'http://www.w3.org/2000/svg';
+        // eslint-disable-next-line no-unused-vars
+        const position = this.getAttribute('transform');
+        const textElementWrapperG = document.createElementNS(xmlns, 'g');
+        const textElement = document.createElementNS(xmlns, 'text');
+        // const textElement = label;
+        // textElement.setAttributeNS(null, 'x', 0);
+        // textElement.setAttributeNS(null, 'y', -15);
+        textElement.setAttributeNS(null, 'dy', '-0.6em');
+        textElement.setAttributeNS(null, 'dx', '-0.6em');
+        textElement.setAttributeNS(null, 'id', `some-id-${index}`);
+        textElement.setAttributeNS(null, 'stroke', 'black');
+        textElement.append(index);
+
+        textElementWrapperG.setAttributeNS(null, 'transform', position);
+        textElementWrapperG.append(textElement);
+
+        this.parentNode.append(textElementWrapperG);
       });
     }
 

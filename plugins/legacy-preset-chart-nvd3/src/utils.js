@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -312,8 +313,11 @@ export function wrapTooltip(chart) {
     chart.useInteractiveGuideline && chart.useInteractiveGuideline()
       ? chart.interactiveLayer
       : chart;
+
   const tooltipGeneratorFunc = tooltipLayer.tooltip.contentGenerator();
+
   tooltipLayer.tooltip.contentGenerator(d => {
+    console.log('d', d);
     let tooltip = `<div>`;
     tooltip += tooltipGeneratorFunc(d);
     tooltip += '</div>';

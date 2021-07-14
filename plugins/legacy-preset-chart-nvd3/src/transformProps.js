@@ -67,6 +67,7 @@ export default function transformProps(chartProps) {
     showLabels,
     showLegend,
     showMarkers,
+    showValues,
     size,
     stackedStyle,
     vizType,
@@ -97,7 +98,21 @@ export default function transformProps(chartProps) {
     yAxis2Format,
   } = formData;
 
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering  (feat/2587073-line)');
+  // eslint-disable-next-line no-console
+  console.log('formData:', formData);
+  // // eslint-disable-next-line no-console
+  console.log('chartProps:', chartProps);
+  // // eslint-disable-next-line no-console
+  // console.log('groups:', 'A ->', groupby, 'B ->', groupbyB);
+  // // eslint-disable-next-line no-console
+  // console.log('yAxis:', 'A ->', yAxisFormatOriginal, 'B ->', yAxisFormatSecondaryOriginal);
+  // // eslint-disable-next-line no-console
+  console.groupEnd();
+
   const rawData = queriesData[0].data || [];
+  console.log('rawData:', rawData);
   const data = Array.isArray(rawData)
     ? rawData.map(row => ({
         ...row,
@@ -163,6 +178,7 @@ export default function transformProps(chartProps) {
     showLabels,
     showLegend,
     showMarkers,
+    showValues,
     sizeField: size,
     useRichTooltip: richTooltip,
     vizType,

@@ -68,6 +68,17 @@ export const showMarkers: CustomControlItem = {
   },
 };
 
+export const showValues: CustomControlItem = {
+  name: 'show_values',
+  config: {
+    type: 'CheckboxControl',
+    label: t('Show Values'),
+    renderTrigger: true,
+    default: false,
+    description: t('Show values on the lines without needing to hover over the graph'),
+  },
+};
+
 export const leftMargin: CustomControlItem = {
   name: 'left_margin',
   config: {

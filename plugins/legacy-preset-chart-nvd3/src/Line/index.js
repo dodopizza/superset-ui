@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -36,6 +37,8 @@ const metadata = new ChartMetadata({
   thumbnail,
   useLegacyApi: true,
 });
+
+console.log('metadata', metadata);
 
 export default class LineChartPlugin extends ChartPlugin {
   constructor() {

@@ -34,6 +34,7 @@ import {
   richTooltip,
   leftMargin,
   showMarkers,
+  showValues,
   timeSeriesSection,
 } from '../NVD3Controls';
 
@@ -63,6 +64,7 @@ const config: ControlPanelConfig = {
         [showLegend],
         [richTooltip],
         [showMarkers],
+        [showValues],
         [lineInterpolation],
       ],
     },
