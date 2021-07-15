@@ -62,6 +62,7 @@ export default function transformProps(chartProps) {
     richTooltip,
     sendTimeRange,
     showBarValue,
+    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,
@@ -122,6 +123,15 @@ export default function transformProps(chartProps) {
     markers = tokenizeToNumericArray(markers);
   }
 
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering (feat/2617751)');
+  // eslint-disable-next-line no-console
+  console.log('metric: =>', metric, 'metric2: =>', metric2);
+  // eslint-disable-next-line no-console
+  console.log('metrics', metrics);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+
   return {
     width,
     height,
@@ -158,6 +168,7 @@ export default function transformProps(chartProps) {
     ranges,
     reduceXTicks,
     showBarValue,
+    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,
