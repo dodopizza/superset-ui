@@ -64,6 +64,8 @@ export type EchartsMixedTimeseriesFormData = {
   rowLimitB: number;
   seriesType: EchartsTimeseriesSeriesType;
   seriesTypeB: EchartsTimeseriesSeriesType;
+  showValuesA: boolean;
+  showValuesB: boolean;
   stack: boolean;
   stackB: boolean;
   yAxisIndex?: number;
@@ -101,6 +103,8 @@ export const DEFAULT_FORM_DATA: EchartsMixedTimeseriesFormData = {
   seriesType: TIMESERIES_DEFAULTS.seriesType,
   seriesTypeB: TIMESERIES_DEFAULTS.seriesType,
   stack: TIMESERIES_DEFAULTS.stack,
+  showValuesA: TIMESERIES_DEFAULTS.showValuesA,
+  showValuesB: TIMESERIES_DEFAULTS.showValuesB,
   stackB: TIMESERIES_DEFAULTS.stack,
   yAxisIndex: 0,
   yAxisIndexB: 0,

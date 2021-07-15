@@ -48,6 +48,8 @@ const {
   rowLimit,
   seriesType,
   stack,
+  showValuesA,
+  showValuesB,
   truncateYAxis,
   yAxisBounds,
   zoomable,
@@ -251,6 +253,30 @@ const config: ControlPanelConfig = {
         ['color_scheme', 'label_colors'],
         ...createCustomizeSection(t('Query A'), ''),
         ...createCustomizeSection(t('Query B'), 'B'),
+        [
+          {
+            name: 'showValuesA',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show values A'),
+              renderTrigger: true,
+              default: showValuesA,
+              description: t('Show values for the chart without hovering'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'showValuesB',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show values B'),
+              renderTrigger: true,
+              default: showValuesB,
+              description: t('Show values for the chart without hovering'),
+            },
+          },
+        ],
         [
           {
             name: 'zoomable',

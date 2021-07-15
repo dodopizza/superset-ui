@@ -80,6 +80,8 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     seriesType,
     seriesTypeB,
     showLegend,
+    showValuesA,
+    showValuesB,
     stack,
     stackB,
     truncateYAxis,
@@ -103,13 +105,15 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const yAxisFormatSecondaryOriginal = yAxisFormatSecondary;
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885)');
+  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885, feat/2617781)');
   // eslint-disable-next-line no-console
   console.log('metrics:', columnFormats);
   // eslint-disable-next-line no-console
   console.log('groups:', 'A ->', groupby, 'B ->', groupbyB);
   // eslint-disable-next-line no-console
   console.log('yAxis:', 'A ->', yAxisFormatOriginal, 'B ->', yAxisFormatSecondaryOriginal);
+  // eslint-disable-next-line no-console
+  console.log('showValues:', 'A ->', showValuesA, 'B ->', showValuesB);
   // eslint-disable-next-line no-console
   console.groupEnd();
 
@@ -275,6 +279,42 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
 
   const addYAxisLabelOffset = !!(yAxisTitle || yAxisTitleSecondary);
   const chartPadding = getPadding(showLegend, legendOrientation, addYAxisLabelOffset, zoomable);
+  const alteredSeries = series.map((ser, index) => ({
+    ...ser,
+    label: {
+      show: index === 0 ? showValuesA : showValuesB,
+      formatter: (params: any) => {
+        const prophetValue = [params];
+        let finalValue;
+
+        const prophetValues: Record<string, ProphetValue> =
+          extractProphetValuesFromTooltipParams(prophetValue);
+
+        Object.keys(prophetValues).forEach(key => {
+          const value = prophetValues[key];
+          // falback format is defined
+          let correctFormat = '.3s';
+
+          if (value.seriesType && value.seriesName) {
+            correctFormat = getCorrectFormat(
+              value.seriesType,
+              value.seriesName,
+              yAxisFormatOriginal,
+              yAxisFormatSecondaryOriginal,
+              groupby,
+              groupbyB,
+            );
+          }
+
+          const formatFunction = getNumberFormatter(correctFormat);
+
+          finalValue = formatFunction(value.observation);
+        });
+        return finalValue;
+      },
+    },
+  }));
+
   const echartOptions: EChartsOption = {
     useUTC: true,
     grid: {
@@ -368,7 +408,8 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         .map(entry => entry.name || '')
         .concat(extractAnnotationLabels(annotationLayers, annotationData)),
     },
-    series: dedupSeries(series),
+    // @ts-ignore
+    series: dedupSeries(alteredSeries),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,
