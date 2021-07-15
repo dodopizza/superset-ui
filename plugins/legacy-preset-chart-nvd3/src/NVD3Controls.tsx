@@ -292,6 +292,17 @@ export const showBarValue: CustomControlItem = {
   },
 };
 
+export const showBarValueSeparately: CustomControlItem = {
+  name: 'show_bar_value_separately',
+  config: {
+    type: 'CheckboxControl',
+    label: t('Bar Values separately'),
+    default: false,
+    renderTrigger: true,
+    description: t('Show the value in each series'),
+  },
+};
+
 export const barStacked: CustomControlItem = {
   name: 'bar_stacked',
   config: {

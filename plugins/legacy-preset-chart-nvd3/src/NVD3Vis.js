@@ -44,6 +44,7 @@ import {
   computeYDomain,
   computeStackedYDomain,
   drawBarValues,
+  drawBarValuesSeparately,
   generateBubbleTooltipContent,
   generateCompareTooltipContent,
   generateMultiLineTooltipContent,
@@ -209,6 +210,7 @@ const propTypes = {
   // 'bar' or 'dist-bar'
   isBarStacked: PropTypes.bool,
   showBarValue: PropTypes.bool,
+  showBarValueSeparately: PropTypes.bool,
   // 'bar', 'dist-bar' or 'column'
   reduceXTicks: PropTypes.bool,
   // 'bar', 'dist-bar' or 'area'
@@ -279,6 +281,7 @@ function nvd3Vis(element, props) {
     ranges,
     reduceXTicks = false,
     showBarValue,
+    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,
@@ -520,6 +523,13 @@ function nvd3Vis(element, props) {
       drawBarValues(svg, data, isBarStacked, yAxisFormat);
       chart.dispatch.on('stateChange.drawBarValues', () => {
         drawBarValues(svg, data, isBarStacked, yAxisFormat);
+      });
+    }
+
+    if (showBarValueSeparately) {
+      drawBarValuesSeparately(svg, data, isBarStacked, yAxisFormat);
+      chart.dispatch.on('stateChange.drawBarValuesSeparately', () => {
+        drawBarValuesSeparately(svg, data, isBarStacked, yAxisFormat);
       });
     }
 

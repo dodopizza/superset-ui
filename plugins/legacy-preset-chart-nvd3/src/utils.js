@@ -45,6 +45,80 @@ export function getTimeOrNumberFormatter(format) {
   return format === 'smart_date' ? smartDateFormatter : getNumberFormatter(format);
 }
 
+export function drawBarValuesSeparately(svg, data, stacked, axisFormat) {
+  const format = getNumberFormatter(axisFormat);
+
+  const separateStackedValues =
+    stacked && data.length !== 0
+      ? data[0].values.map((bar, iBar) => {
+          const bars = data.filter(series => !series.disabled).map(series => series.values[iBar]);
+          const series0 = [];
+          const series1 = [];
+
+          bars.forEach((series, index) => {
+            if (index === 0) series0.push(series);
+            else series1.push(series);
+          });
+
+          return [d3.sum(series0, d => d.y), d3.sum(series1, d => d.y)];
+        })
+      : [];
+
+  svg.selectAll('.bar-chart-label-group-separately').remove();
+  setTimeout(() => {
+    svg.selectAll('.bar-chart-label-group-separately').remove();
+    const groupLabels = svg
+      .select('g.nv-barsWrap')
+      .append('g')
+      .attr('class', 'bar-chart-label-group-separately');
+
+    const handleLabel = (rectObj, d, index, groupLabels, seriesIndex) => {
+      const transformAttr = rectObj.attr('transform');
+      const xPos = parseFloat(rectObj.attr('x'));
+      const yPos = parseFloat(rectObj.attr('y'));
+      const rectWidth = parseFloat(rectObj.attr('width'));
+      const rectHeight = parseFloat(rectObj.attr('height'));
+
+      const textEls = groupLabels
+        .append('text')
+        .text(format(stacked ? separateStackedValues[index][seriesIndex] : d.y))
+        .attr('transform', transformAttr)
+        .attr('class', 'bar-chart-label');
+
+      // fine tune text position
+      const bbox = textEls.node().getBBox();
+
+      const labelWidth = bbox.width;
+      const labelHeight = bbox.height;
+
+      textEls.attr(
+        'style',
+        `font-size: ${labelHeight + 1 > rectHeight ? rectHeight - 3 : 14}px; pointer-events: none;`,
+      );
+
+      textEls.attr('x', xPos + rectWidth / 2 - labelWidth / 2);
+
+      textEls.attr('y', yPos + (rectHeight + labelHeight / 2) / 2);
+    };
+
+    svg
+      .selectAll('g.nv-group.nv-series-0')
+      .selectAll('rect')
+      .each(function each(d, index) {
+        const rectObj = d3.select(this);
+        handleLabel(rectObj, d, index, groupLabels, 0);
+      });
+
+    svg
+      .selectAll('g.nv-group.nv-series-1')
+      .selectAll('rect')
+      .each(function each(d, index) {
+        const rectObj = d3.select(this);
+        handleLabel(rectObj, d, index, groupLabels, 1);
+      });
+  }, ANIMATION_TIME);
+}
+
 export function drawBarValues(svg, data, stacked, axisFormat) {
   const format = getNumberFormatter(axisFormat);
   const countSeriesDisplayed = data.filter(d => !d.disabled).length;
