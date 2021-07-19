@@ -52,15 +52,16 @@ export function drawBarValuesSeparately(svg, data, stacked, axisFormat) {
     stacked && data.length !== 0
       ? data[0].values.map((bar, iBar) => {
           const bars = data.filter(series => !series.disabled).map(series => series.values[iBar]);
-          const series0 = [];
-          const series1 = [];
+          let seriesObj = {};
 
           bars.forEach((series, index) => {
-            if (index === 0) series0.push(series);
-            else series1.push(series);
+            seriesObj = {
+              ...seriesObj,
+              [index]: series,
+            };
           });
 
-          return [d3.sum(series0, d => d.y), d3.sum(series1, d => d.y)];
+          return Object.values(seriesObj).map(series => series.y);
         })
       : [];
 
@@ -93,7 +94,9 @@ export function drawBarValuesSeparately(svg, data, stacked, axisFormat) {
 
       textEls.attr(
         'style',
-        `font-size: ${labelHeight + 1 > rectHeight ? rectHeight - 3 : 14}px; pointer-events: none;`,
+        `font-size: ${
+          labelHeight + 1 > rectHeight && rectHeight <= 13 ? rectHeight - 3 : 12
+        }px; pointer-events: none;`,
       );
 
       textEls.attr('x', xPos + rectWidth / 2 - labelWidth / 2);
@@ -102,19 +105,22 @@ export function drawBarValuesSeparately(svg, data, stacked, axisFormat) {
     };
 
     svg
-      .selectAll('g.nv-group.nv-series-0')
+      .selectAll('g.nv-group')
       .selectAll('rect')
       .each(function each(d, index) {
         const rectObj = d3.select(this);
-        handleLabel(rectObj, d, index, groupLabels, 0);
-      });
+        const parent = d3.select(this.parentNode)[0] || [];
+        const parentNode = parent[0];
+        const parentNodeClassnames = parentNode.className ? parentNode.className.baseVal : '';
 
-    svg
-      .selectAll('g.nv-group.nv-series-1')
-      .selectAll('rect')
-      .each(function each(d, index) {
-        const rectObj = d3.select(this);
-        handleLabel(rectObj, d, index, groupLabels, 1);
+        const classNamesArray = parentNodeClassnames.split(' ');
+        let seriesIndex = '';
+
+        classNamesArray.forEach(className => {
+          if (className.includes('nv-series-')) seriesIndex = className.split('nv-series-')[1];
+        });
+
+        handleLabel(rectObj, d, index, groupLabels, Number(seriesIndex));
       });
   }, ANIMATION_TIME);
 }
