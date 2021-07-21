@@ -77,7 +77,8 @@ export function formatPieLabel({
 }
 
 export default function transformProps(chartProps: EchartsPieChartProps): PieChartTransformedProps {
-  const { formData, height, hooks, ownState, queriesData, width } = chartProps;
+  const { formData, height, hooks, ownState, queriesData, width, datasource } = chartProps;
+  const { metrics: chartPropsDatasourceMetrics, columnFormats } = datasource;
   const { data = [] } = queriesData[0];
   const coltypeMapping = getColtypesMapping(queriesData[0]);
 
@@ -93,7 +94,6 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     legendOrientation,
     legendType,
     metric = '',
-    numberFormat,
     dateFormat,
     outerRadius,
     showLabels,
@@ -101,8 +101,29 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     showLabelsThreshold,
     emitFilter,
   }: EchartsPieFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_PIE_FORM_DATA, ...formData };
+  let { numberFormat } = formData;
   const metricLabel = getMetricLabel(metric);
   const minShowLabelAngle = (showLabelsThreshold || 0) * 3.6;
+
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering (feat/2630862)');
+  // eslint-disable-next-line no-console
+  console.log('metric: =>', metric);
+  // eslint-disable-next-line no-console
+  console.log('columnFormats: =>', columnFormats);
+  // eslint-disable-next-line no-console
+  console.log('numberFormat: =>', numberFormat);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+
+  const findMetric = (arr: any[], metricName: string) =>
+    arr.filter(metric => metric.metric_name === metricName);
+
+  if (!numberFormat && chartProps.datasource && chartPropsDatasourceMetrics && metric) {
+    const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metric);
+
+    if (foundMetric && foundMetric.d3format) numberFormat = foundMetric.d3format;
+  }
 
   const keys = data.map(datum =>
     extractGroupbyLabel({
