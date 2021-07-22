@@ -124,7 +124,7 @@ export default function transformProps(chartProps) {
   }
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (feat/2617751)');
+  console.groupCollapsed('Custom fix by Dodo Engineering (feat/2617751, feat/2631472)');
   // eslint-disable-next-line no-console
   console.log('metric: =>', metric, 'metric2: =>', metric2);
   // eslint-disable-next-line no-console

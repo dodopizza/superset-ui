@@ -25,6 +25,7 @@ import {
   bottomMargin,
   xTicksLayout,
   showBarValue,
+  showBarValueSeparately,
   barStacked,
   reduceXTicks,
   yAxisLabel,
@@ -77,6 +78,7 @@ const config: ControlPanelConfig = {
         ['label_colors'],
         [showLegend],
         [showBarValue],
+        [showBarValueSeparately],
         [barStacked],
         [
           {
