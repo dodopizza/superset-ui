@@ -26,9 +26,9 @@ import {
   // NumberFormatter,
 } from '@superset-ui/core';
 import { EChartsOption, BarSeriesOption } from 'echarts';
-import { uniq, props } from 'ramda';
+
 import {
-  DEFAULT_FORM_DATA as DEFAULT_PIE_FORM_DATA,
+  DEFAULT_FORM_DATA,
   EchartsBarChartProps,
   EchartsBarFormData,
   // EchartsBarLabelType,
@@ -54,10 +54,10 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
     showValues,
     stack,
-    contribution,
+    contribution = false,
     yAxisBounds,
     showLegend,
-  }: EchartsBarFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_PIE_FORM_DATA, ...formData };
+  }: EchartsBarFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_FORM_DATA, ...formData };
 
   const { metrics, groupby, columns } = formData;
   let { yAxisFormat } = formData;
@@ -116,12 +116,15 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   let alteredTransformedData = {};
 
+  const getValuesFromObj = (arr: string[] | undefined, obj: Record<string, any>) =>
+    arr ? arr.map(propName => obj[propName] || null) : [null];
+
   console.log('transformedData', transformedData);
 
   transformedData.forEach((data: any) => {
     const dataName = data.name;
     // @ts-ignore
-    const columnName = props(columns, data.value).join(', ');
+    const columnName = getValuesFromObj(columns, data.value).join(', ');
     const dataValue = data.value;
 
     alteredTransformedData = {
@@ -147,6 +150,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   Object.keys(alteredTransformedData).forEach(key => {
     // @ts-ignore
     const value = alteredTransformedData[key];
+    console.log('alteredTransformedData value key', value, key);
     Object.keys(value).forEach(keyV => {
       const val = value[keyV];
       namesForLegend.push({ key: keyV, [groupby[0]]: val[groupby[0]] });
@@ -248,7 +252,13 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       }
     });
 
-    return uniq(final).sort((a: any, b: any) => {
+    const uniqValues = [...new Set(final)];
+
+    console.log('final', final);
+    console.log('uniqValues', uniqValues);
+    console.log('___');
+
+    return uniqValues.sort((a: any, b: any) => {
       if (a[groupby[0]] < b[groupby[0]]) return -1;
       if (a[groupby[0]] > b[groupby[0]]) return 1;
       return 0;

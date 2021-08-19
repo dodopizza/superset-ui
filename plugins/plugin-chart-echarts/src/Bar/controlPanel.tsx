@@ -32,28 +32,28 @@ const config: ControlPanelConfig = {
         ['columns'],
         ['row_limit'],
         ['timeseries_limit_metric'],
-        [
-          {
-            name: 'order_desc',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Sort Descending'),
-              default: true,
-              description: t('Whether to sort descending or ascending'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'contribution',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Contribution'),
-              default: false,
-              description: t('Compute the contribution to the total'),
-            },
-          },
-        ],
+        // [
+        //   {
+        //     name: 'order_desc',
+        //     config: {
+        //       type: 'CheckboxControl',
+        //       label: t('Sort Descending'),
+        //       default: true,
+        //       description: t('Whether to sort descending or ascending'),
+        //     },
+        //   },
+        // ],
+        // [
+        //   {
+        //     name: 'contribution',
+        //     config: {
+        //       type: 'CheckboxControl',
+        //       label: t('Contribution'),
+        //       default: false,
+        //       description: t('Compute the contribution to the total'),
+        //     },
+        //   },
+        // ],
       ],
     },
     {
@@ -99,29 +99,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        // ['color_scheme'],
-        // ['label_colors'],
-        // [showLegend],
-        // [showBarValue],
-        // [showBarValueSeparately],
-        // [barStacked],
-        [
-          {
-            name: 'order_bars',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Sort Bars'),
-              default: false,
-              renderTrigger: true,
-              description: t('Sort bars by x labels.'),
-            },
-          },
-        ],
         ['y_axis_format'],
-        // [yAxisLabel],
-        // [showControls, null],
-        // [yAxisShowMinmax],
-        // [yAxisBounds],
       ],
     },
     // {
