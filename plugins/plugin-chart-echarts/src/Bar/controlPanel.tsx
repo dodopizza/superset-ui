@@ -43,23 +43,37 @@ const config: ControlPanelConfig = {
         //     },
         //   },
         // ],
-        // [
-        //   {
-        //     name: 'contribution',
-        //     config: {
-        //       type: 'CheckboxControl',
-        //       label: t('Contribution'),
-        //       default: false,
-        //       description: t('Compute the contribution to the total'),
-        //     },
-        //   },
-        // ],
+        [
+          {
+            name: 'contribution',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Contribution'),
+              default: false,
+              description: t('Compute the contribution to the total'),
+            },
+          },
+        ],
       ],
     },
     {
       label: t('Chart Options'),
       expanded: true,
       controlSetRows: [
+        // ['color_scheme'],
+        [
+          {
+            name: 'isSeriesDate',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Is series date format'),
+              renderTrigger: true,
+              // TODO: move to a variable
+              default: false,
+              description: t('Temp solution'),
+            },
+          },
+        ],
         [
           {
             name: 'showValues',
@@ -96,6 +110,18 @@ const config: ControlPanelConfig = {
               // TODO: move to a variable
               default: false,
               description: t('Whether to display a legend for the chart'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'order_bars',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Sort Bars'),
+              default: false,
+              renderTrigger: true,
+              description: t('Sort bars by x labels.'),
             },
           },
         ],
