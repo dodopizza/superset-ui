@@ -21,11 +21,11 @@ import {
   // DataRecordValue,
   // getMetricLabel,
   getNumberFormatter,
-  getTimeFormatter,
+  // getTimeFormatter,
   // NumberFormats,
   // NumberFormatter,
 } from '@superset-ui/core';
-import { EChartsOption, BarSeriesOption } from 'echarts';
+import { EChartsOption /* BarSeriesOption */ } from 'echarts';
 import moment from 'moment';
 
 import {
@@ -110,7 +110,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   const formatter = getNumberFormatter(contribution ? ',.0%' : yAxisFormat);
 
   const getValuesFromObj = (arr: string[] | number[] | undefined, obj: Record<string, any>) =>
-    arr ? arr.map(propName => obj[propName] || null) : [null];
+    arr ? arr.map((propName: any) => obj[propName] || null) : [null];
 
   const groupByArrayByObjKey = (xs: any, key: string) =>
     xs.reduce((rv: any, x: any) => {
