@@ -25,6 +25,30 @@ const createElValue = (value: string) => `<span
       font-weight: 900;
     ">${value}</span>`;
 
+const transformLabelForNull = (str: string) => {
+  if (!str) return '';
+  if (!str.includes('<') && !str.includes('>')) return str;
+
+  let finalString = str;
+  let needLeftArrow = false;
+  let needRightArrow = false;
+
+  if (str.includes('<')) {
+    finalString = finalString.split('<').join('');
+    needLeftArrow = true;
+  }
+
+  if (str.includes('>')) {
+    finalString = finalString.split('>').join('');
+    needRightArrow = true;
+  }
+
+  if (needLeftArrow) finalString = `&lt;${finalString}`;
+  if (needRightArrow) finalString = `${finalString}&gt;`;
+
+  return finalString;
+};
+
 export const createTooltipElement = ({
   axisValueLabel,
   values,
@@ -35,7 +59,7 @@ export const createTooltipElement = ({
   let finalValue = `
   <div style="margin: 0px 0 0; line-height: 1">
     <div style="font-size: 14px; color: #666; font-weight: 400; line-height: 1">
-      ${axisValueLabel}
+      ${transformLabelForNull(axisValueLabel)}
     </div>
     <div style="margin: 10px 0 0; line-height: 1">
   `;

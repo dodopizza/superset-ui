@@ -22,7 +22,7 @@ import {
   // getMetricLabel,
   getNumberFormatter,
   // getTimeFormatter,
-  // NumberFormats,
+  NumberFormats,
   // NumberFormatter,
 } from '@superset-ui/core';
 import { EChartsOption /* BarSeriesOption */ } from 'echarts';
@@ -53,18 +53,22 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     emitFilter,
     // numberFormat,
 
-    showValues,
+    // showValuesTotal,
+    showValuesSeparately,
     stack,
     contribution = false,
     yAxisBounds,
     // showLegend = false,
-    // orderBars = false,
+    orderBars = false,
+    // orderDesc = false,
     isSeriesDate,
   }: EchartsBarFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_FORM_DATA, ...formData };
 
   const { metrics, groupby, columns } = formData;
   let { yAxisFormat } = formData;
   const yAxisFormatOriginal = yAxisFormat;
+
+  const FALLBACK_NAME = '<NULL>';
 
   // eslint-disable-next-line no-console
   console.groupCollapsed('Custom fix by Dodo Engineering (feat-2666390)');
@@ -106,8 +110,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   // const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
   // console.log('colorFn', colorFn);
-
-  const formatter = getNumberFormatter(contribution ? ',.0%' : yAxisFormat);
+  const formatter = getNumberFormatter(contribution ? NumberFormats.PERCENT_1_POINT : yAxisFormat);
 
   const getValuesFromObj = (arr: string[] | number[] | undefined, obj: Record<string, any>) =>
     arr ? arr.map((propName: any) => obj[propName] || null) : [null];
@@ -124,37 +127,47 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     const convertedValues = [] as any;
 
     arr.forEach(element => {
-      convertedValues.push(element / sum);
+      // we are rounding this, so that javascript will calculate correctly (100.00002 -> 100)
+      convertedValues.push(Number((element / sum).toFixed(3)));
     });
+
     return convertedValues;
   };
 
   const convertDate = (date: Date) => moment(date).format('YYYY-MM-DD');
 
-  const addMissingData = (values: any[], expectedNames: string[]) => {
-    const t = expectedNames.map(name => {
+  const addMissingData = (values: any[], expectedNames: string[]) =>
+    expectedNames.map(name => {
       const found = values.find(v => v.dataName === name);
 
       // we need to fill empty space with 0 values, or data will be shifted
-      const fallbackObj = { dataName: name, dataValue: 0 };
+      const fallbackObj = { dataName: name, dataValue: 0 /* dataMetricName: finalMetrics[0] */ };
       return found || fallbackObj;
     });
-    return t;
-  };
 
   const seriesesVals = [] as any;
   const seriesesValsOriginal = [] as any;
 
   const expectedDataNames = [] as any;
 
-  const originalData = data
+  const sortedData = !orderBars
+    ? data
+    : data.sort((a: any, b: any) => {
+        if (a[groupby[0]] < b[groupby[0]]) return -1;
+        if (a[groupby[0]] > b[groupby[0]]) return 1;
+        return 0;
+      });
+
+  const originalData = sortedData
     .map(datum => {
       const value = getValuesFromObj(groupby, datum)[0];
-      seriesesVals.push(isSeriesDate ? convertDate(new Date(value)) : value);
-      seriesesValsOriginal.push(value);
+      const checkedValue = value || FALLBACK_NAME;
+
+      seriesesVals.push(isSeriesDate ? convertDate(new Date(checkedValue)) : checkedValue);
+      seriesesValsOriginal.push(checkedValue);
 
       const groupedValues = groupby?.map(groupingKey => {
-        // groupingKey = Date (series) -> only 1 supported now
+        // groupingKey = Date (series) -> only 1 is supported now
         /**
          * preparing a name for the graph:
          * - SUM(SalesWithDiscount), Delivery|Dine-in|Takeaway
@@ -174,7 +187,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
             dataName,
             dataValue: datum[metricName] || 0,
             dataMetricName: metricName,
-            [groupingKey]: datum[groupingKey],
+            [groupingKey]: datum[groupingKey] || FALLBACK_NAME,
           };
         });
 
@@ -228,19 +241,10 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
     almostFinalValues.push(addMissingDataResult);
   });
-  // TODO: make it pretty
-  const uniqueSeriesNames = [...new Set(seriesesValsOriginal)].sort((a: any, b: any) => {
-    if (a < b) return -1;
-    if (a > b) return 1;
-    return 0;
-  });
 
   // TODO: make it pretty
-  const uniqueSeriesNamesDate = [...new Set(seriesesVals)].sort((a: any, b: any) => {
-    if (a < b) return -1;
-    if (a > b) return 1;
-    return 0;
-  });
+  const uniqueSeriesNames = [...new Set(seriesesValsOriginal)];
+  const uniqueSeriesNamesDate = [...new Set(seriesesVals)];
 
   const uniqFinalValues = [...new Set(almostFinalValues.flat())];
   const groupByArray = groupByArrayByObjKey(uniqFinalValues, 'dataName');
@@ -258,13 +262,11 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     finalyParsedData.push(pureObject);
   });
 
-  const sorted = finalyParsedData.sort((a: any, b: any) => {
-    if (a.name < b.name) return -1;
-    if (a.name > b.name) return 1;
-    return 0;
-  });
+  const sorted = finalyParsedData;
 
   console.group('2');
+  console.log('uniqueSeriesNames', uniqueSeriesNames);
+  console.log('uniqueSeriesNamesDate', uniqueSeriesNamesDate);
   console.log('uniqFinalValues', uniqFinalValues);
   console.log('groupByArray', groupByArray);
   console.log('finalyParsedData', finalyParsedData);
@@ -334,27 +336,28 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       type: 'bar',
       stack: stack ? 'total' : '',
       emphasis: {
-        focus: 'series',
+        focus: contribution ? 'none' : 'series',
       },
       label: {
-        show: showValues,
+        show: showValuesSeparately,
         position: 'top',
         formatter: (params: any) => {
           const { data, seriesType, seriesName } = params;
           if (data === 0) return '';
 
-          let correctFormat = '.3s';
+          let correctFormat = NumberFormats.SI_3_DIGIT;
           if (seriesType && seriesName) {
             correctFormat = getCorrectFormat(seriesType, seriesName, yAxisFormatOriginal);
           }
 
-          const formatFunction = getNumberFormatter(contribution ? ',.0%' : correctFormat);
+          const formatFunction = getNumberFormatter(
+            contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
+          );
           const value = formatFunction(data);
 
           return value;
         },
       },
-      clip: true,
     }));
 
   const series: any[] = getSeries(sorted);
@@ -414,10 +417,12 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
         const { axisValueLabel } = params[0];
 
         const values = params.map((p: any) => {
-          let correctFormat = '.3s';
+          let correctFormat = NumberFormats.SI_3_DIGIT;
           correctFormat = getCorrectFormat(p.seriesType, p.seriesName, yAxisFormatOriginal);
 
-          const formatFunction = getNumberFormatter(contribution ? ',.0%' : correctFormat);
+          const formatFunction = getNumberFormatter(
+            contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
+          );
 
           return {
             value: p.data ? formatFunction(p.data) : '',

@@ -32,17 +32,17 @@ const config: ControlPanelConfig = {
         ['columns'],
         ['row_limit'],
         ['timeseries_limit_metric'],
-        // [
-        //   {
-        //     name: 'order_desc',
-        //     config: {
-        //       type: 'CheckboxControl',
-        //       label: t('Sort Descending'),
-        //       default: true,
-        //       description: t('Whether to sort descending or ascending'),
-        //     },
-        //   },
-        // ],
+        [
+          {
+            name: 'order_desc',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Sort Descending'),
+              default: true,
+              description: t('Whether to sort descending or ascending'),
+            },
+          },
+        ],
         [
           {
             name: 'contribution',
@@ -74,12 +74,25 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        // [
+        //   {
+        //     name: 'showValuesTotal',
+        //     config: {
+        //       type: 'CheckboxControl',
+        //       label: t('Show values total'),
+        //       renderTrigger: true,
+        //       // TODO: move to a variable
+        //       default: false,
+        //       description: t('Show total value for the chart without hovering'),
+        //     },
+        //   },
+        // ],
         [
           {
-            name: 'showValues',
+            name: 'showValuesSeparately',
             config: {
               type: 'CheckboxControl',
-              label: t('Show values'),
+              label: t('Show values separately'),
               renderTrigger: true,
               // TODO: move to a variable
               default: false,
