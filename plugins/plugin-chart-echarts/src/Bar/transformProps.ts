@@ -260,7 +260,25 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   const uniqueSeriesNamesDate = [...new Set(seriesesVals)];
 
   const uniqFinalValues = [...new Set(almostFinalValues.flat())];
+
   const groupByArray = groupByArrayByObjKey(uniqFinalValues, 'dataName');
+
+  const groupByArrayForTotal = groupByArrayByObjKey(uniqFinalValues, groupby[0]);
+
+  const seriesTotals = [] as any;
+
+  Object.keys(groupByArrayForTotal).forEach(key => {
+    if (key !== 'undefined') {
+      const value = groupByArrayForTotal[key];
+
+      const pureObject = {
+        totalSum: calculateSum(value.map((vv: any) => vv.dataValue)),
+        name: key,
+      } as any;
+
+      seriesTotals.push(pureObject);
+    }
+  });
 
   const finalyParsedData = [] as any;
 
@@ -342,25 +360,41 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     return tt;
   };
 
-  const dealWithSeriesLabels = () => {
-    const startupObj = {
-      show: showValuesSeparately,
-      position: showValuesTotal ? 'inside' : 'top',
-      formatter: (params: any) => {
-        const { data, seriesType, seriesName } = params;
-        if (data === 0) return '';
+  const formatValue = (dataValue: number, seriesType: string, seriesName: string) => {
+    let correctFormat = NumberFormats.SI_3_DIGIT;
 
-        let correctFormat = NumberFormats.SI_3_DIGIT;
-        if (seriesType && seriesName) {
-          correctFormat = getCorrectFormat(seriesType, seriesName, yAxisFormatOriginal);
+    if (seriesType && seriesName) {
+      correctFormat = getCorrectFormat(seriesType, seriesName, yAxisFormatOriginal);
+    }
+
+    const formatFunction = getNumberFormatter(
+      contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
+    );
+    const value = formatFunction(dataValue);
+    return value;
+  };
+
+  const dealWithSeriesLabels = (totalComponentsCount: number) => {
+    const startupObj = {
+      show: showValuesSeparately || showValuesTotal,
+      position: showValuesSeparately ? 'inside' : 'top',
+      formatter: (params: any) => {
+        if (showValuesTotal && !showValuesSeparately) {
+          const { data, seriesType, seriesName, dataIndex, componentIndex } = params;
+          let dataValue = data;
+
+          if (componentIndex === totalComponentsCount - 1) {
+            const sumObj = seriesTotals[dataIndex];
+            dataValue = sumObj.totalSum;
+            return formatValue(dataValue, seriesType, seriesName);
+          }
+
+          return '';
         }
 
-        const formatFunction = getNumberFormatter(
-          contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
-        );
-        const value = formatFunction(data);
-
-        return value;
+        const { data, seriesType, seriesName } = params;
+        const dataValue = data;
+        return formatValue(dataValue, seriesType, seriesName);
       },
     };
 
@@ -379,8 +413,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       emphasis: {
         focus: contribution ? 'none' : 'series',
       },
-      // label: dealWithSeriesLabels(index === preparedSeriesData.length - 1),
-      label: dealWithSeriesLabels(),
+      label: dealWithSeriesLabels(preparedSeriesData.length),
     }));
 
   const series: any[] = getSeries(sorted);
@@ -433,7 +466,8 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     // @ts-ignore
     dataZoom: dataZoomConfig,
     tooltip: {
-      trigger: 'axis', // item
+      trigger: 'axis',
+      // trigger: 'item',
       axisPointer: {
         type: 'shadow',
       },
