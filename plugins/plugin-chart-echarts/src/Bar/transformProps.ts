@@ -17,7 +17,7 @@
  * under the License.
  */
 import {
-  // CategoricalColorNamespace,
+  CategoricalColorNamespace,
   // DataRecordValue,
   // getMetricLabel,
   getNumberFormatter,
@@ -47,13 +47,13 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   // const coltypeMapping = getColtypesMapping(queriesData[0]);
 
   const {
-    // colorScheme,
+    colorScheme,
     // dateFormat,
     // showLabels,
     emitFilter,
     // numberFormat,
 
-    // showValuesTotal,
+    showValuesTotal,
     showValuesSeparately,
     stack,
     contribution = false,
@@ -107,9 +107,8 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       if (foundMetric && foundMetric.d3format) yAxisFormat = foundMetric.d3format;
     });
   }
-  // const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
+  const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
-  // console.log('colorFn', colorFn);
   const formatter = getNumberFormatter(contribution ? NumberFormats.PERCENT_1_POINT : yAxisFormat);
 
   const getValuesFromObj = (arr: string[] | number[] | undefined, obj: Record<string, any>) =>
@@ -122,14 +121,29 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       return rv;
     }, {});
 
-  const convertToPercentages = function (arr: number[]) {
-    const sum = arr.reduce((previousValue: any, currentValue: any) => previousValue + currentValue);
+  const calculateSum = (arr: number[]) =>
+    arr.reduce((previousValue: any, currentValue: any) => previousValue + currentValue);
+
+  const convertToPercentages = (arr: number[]) => {
+    const transformedArray = arr.map(n => Number(n.toFixed(20)));
+    const sum = calculateSum(transformedArray);
     const convertedValues = [] as any;
 
-    arr.forEach(element => {
+    transformedArray.forEach(element => {
       // we are rounding this, so that javascript will calculate correctly (100.00002 -> 100)
-      convertedValues.push(Number((element / sum).toFixed(3)));
+      const number = element / sum;
+      const roundedNumber = Number(number.toFixed(20));
+
+      convertedValues.push(roundedNumber);
     });
+
+    if (calculateSum(convertedValues) !== 1) {
+      console.groupCollapsed('NOT 100%:', calculateSum(convertedValues));
+      console.log('arr: => ', arr);
+      console.log('transformedArray: => ', transformedArray);
+      console.log('convertedValues: => ', convertedValues);
+      console.groupEnd();
+    }
 
     return convertedValues;
   };
@@ -141,7 +155,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       const found = values.find(v => v.dataName === name);
 
       // we need to fill empty space with 0 values, or data will be shifted
-      const fallbackObj = { dataName: name, dataValue: 0 /* dataMetricName: finalMetrics[0] */ };
+      const fallbackObj = { dataName: name, dataValue: 0, dataSumInSeries: 0 };
       return found || fallbackObj;
     });
 
@@ -232,7 +246,6 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   Object.keys(groupByArrayDate).forEach(key => {
     const value = groupByArrayDate[key];
-
     const transformedWithContribution = contribution
       ? transformForContribution(value, 'dataMetricName')
       : value;
@@ -329,35 +342,45 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     return tt;
   };
 
+  const dealWithSeriesLabels = () => {
+    const startupObj = {
+      show: showValuesSeparately,
+      position: showValuesTotal ? 'inside' : 'top',
+      formatter: (params: any) => {
+        const { data, seriesType, seriesName } = params;
+        if (data === 0) return '';
+
+        let correctFormat = NumberFormats.SI_3_DIGIT;
+        if (seriesType && seriesName) {
+          correctFormat = getCorrectFormat(seriesType, seriesName, yAxisFormatOriginal);
+        }
+
+        const formatFunction = getNumberFormatter(
+          contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
+        );
+        const value = formatFunction(data);
+
+        return value;
+      },
+    };
+
+    return startupObj;
+  };
+
   const getSeries = (preparedSeriesData: { name: any; data: any[] }[]) =>
     preparedSeriesData.map(ser => ({
       data: ser.data,
       name: ser.name,
       type: 'bar',
+      itemStyle: {
+        color: colorFn(ser.name),
+      },
       stack: stack ? 'total' : '',
       emphasis: {
         focus: contribution ? 'none' : 'series',
       },
-      label: {
-        show: showValuesSeparately,
-        position: 'top',
-        formatter: (params: any) => {
-          const { data, seriesType, seriesName } = params;
-          if (data === 0) return '';
-
-          let correctFormat = NumberFormats.SI_3_DIGIT;
-          if (seriesType && seriesName) {
-            correctFormat = getCorrectFormat(seriesType, seriesName, yAxisFormatOriginal);
-          }
-
-          const formatFunction = getNumberFormatter(
-            contribution ? NumberFormats.PERCENT_1_POINT : correctFormat,
-          );
-          const value = formatFunction(data);
-
-          return value;
-        },
-      },
+      // label: dealWithSeriesLabels(index === preparedSeriesData.length - 1),
+      label: dealWithSeriesLabels(),
     }));
 
   const series: any[] = getSeries(sorted);
@@ -373,7 +396,8 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   // default to 0-100% range when doing row-level contribution chart
   if (contribution && stack) {
     if (min === undefined) min = 0;
-    if (max === undefined) max = 1;
+    // TODO: need to use library to parse the percentages. sometimes the % sum = 0.9999 or 1.0001
+    if (max === undefined) max = 1.002;
   }
 
   const dataZoomConfig = [

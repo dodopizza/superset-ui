@@ -60,7 +60,7 @@ const config: ControlPanelConfig = {
       label: t('Chart Options'),
       expanded: true,
       controlSetRows: [
-        // ['color_scheme'],
+        ['color_scheme'],
         [
           {
             name: 'isSeriesDate',
@@ -74,19 +74,19 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        // [
-        //   {
-        //     name: 'showValuesTotal',
-        //     config: {
-        //       type: 'CheckboxControl',
-        //       label: t('Show values total'),
-        //       renderTrigger: true,
-        //       // TODO: move to a variable
-        //       default: false,
-        //       description: t('Show total value for the chart without hovering'),
-        //     },
-        //   },
-        // ],
+        [
+          {
+            name: 'showValuesTotal',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show values total'),
+              renderTrigger: true,
+              // TODO: move to a variable
+              default: false,
+              description: t('Show total value for the chart without hovering'),
+            },
+          },
+        ],
         [
           {
             name: 'showValuesSeparately',
