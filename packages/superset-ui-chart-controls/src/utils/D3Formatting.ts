@@ -19,7 +19,7 @@
 import { t, smartDateFormatter, NumberFormats } from '@superset-ui/core';
 
 // D3 specific formatting config
-export const D3_FORMAT_DOCS = 'D3 format syntax: https://github.com/d3/d3-format';
+export const D3_FORMAT_DOCS = t('D3 format syntax: https://github.com/d3/d3-format');
 
 // input choices & options
 export const D3_FORMAT_OPTIONS: [string, string][] = [
@@ -29,6 +29,7 @@ export const D3_FORMAT_OPTIONS: [string, string][] = [
   ['.1s', '.1s (12345.432 => 10k)'],
   ['.3s', '.3s (12345.432 => 12.3k)'],
   [',.1%', ',.1% (12345.432 => 1,234,543.2%)'],
+  ['.2%', '.2% (12345.432 => 1234543.20%)'],
   ['.3%', '.3% (12345.432 => 1234543.200%)'],
   ['.4r', '.4r (12345.432 => 12350)'],
   [',.3f', ',.3f (12345.432 => 12,345.432)'],

@@ -22,9 +22,11 @@ import {
   AnnotationOpacity,
   CategoricalColorScale,
   EventAnnotationLayer,
+  FilterState,
   getTimeFormatter,
   IntervalAnnotationLayer,
   isTimeseriesAnnotationResult,
+  NumberFormatter,
   smartDateDetailedFormatter,
   smartDateFormatter,
   TimeFormatter,
@@ -57,39 +59,54 @@ import {
   parseAnnotationOpacity,
 } from '../utils/annotation';
 import { getChartPadding } from '../utils/series';
-import { TIMESERIES_CONSTANTS } from '../constants';
+import { OpacityEnum, TIMESERIES_CONSTANTS } from '../constants';
 
 export function transformSeries(
   series: SeriesOption,
   colorScale: CategoricalColorScale,
   opts: {
     area?: boolean;
+    filterState?: FilterState;
     forecastEnabled?: boolean;
     markerEnabled?: boolean;
     markerSize?: number;
-    opacity?: number;
+    areaOpacity?: number;
     seriesType?: EchartsTimeseriesSeriesType;
     stack?: boolean;
-    richTooltip?: boolean;
     yAxisIndex?: number;
+    showValue?: boolean;
+    onlyTotal?: boolean;
+    formatter?: NumberFormatter;
+    totalStackedValues?: number[];
+    showValueIndexes?: number[];
+    richTooltip?: boolean;
   },
 ): SeriesOption | undefined {
   const { name } = series;
   const {
     area,
+    filterState,
     forecastEnabled,
     markerEnabled,
     markerSize,
-    opacity,
+    areaOpacity = 1,
     seriesType,
     stack,
-    richTooltip,
     yAxisIndex = 0,
+    showValue,
+    onlyTotal,
+    formatter,
+    totalStackedValues = [],
+    showValueIndexes = [],
+    richTooltip,
   } = opts;
+
   const forecastSeries = extractForecastSeriesContext(name || '');
   const isConfidenceBand =
     forecastSeries.type === ForecastSeriesEnum.ForecastLower ||
     forecastSeries.type === ForecastSeriesEnum.ForecastUpper;
+  const isFiltered = filterState?.selectedValues && !filterState?.selectedValues.includes(name);
+  const opacity = isFiltered ? OpacityEnum.SemiTransparent : OpacityEnum.NonTransparent;
 
   // don't create a series if doing a stack or area chart and the result
   // is a confidence band
@@ -115,15 +132,39 @@ export function transformSeries(
   } else {
     plotType = seriesType === 'bar' ? 'bar' : 'line';
   }
-  const lineStyle = isConfidenceBand ? { opacity: 0 } : {};
-
+  const itemStyle = {
+    color: colorScale(forecastSeries.name),
+    opacity,
+  };
+  let emphasis = {};
+  let showSymbol = false;
+  if (!isConfidenceBand) {
+    if (plotType === 'scatter') {
+      showSymbol = true;
+    } else if (forecastEnabled && isObservation) {
+      showSymbol = true;
+    } else if (plotType === 'line' && showValue) {
+      showSymbol = true;
+    } else if (plotType === 'line' && !richTooltip && !markerEnabled) {
+      // this is hack to make timeseries line chart clickable when tooltip trigger is 'item'
+      // so that the chart can emit cross-filtering
+      showSymbol = true;
+      itemStyle.opacity = 0;
+      emphasis = {
+        itemStyle: {
+          opacity: 1,
+        },
+      };
+    } else if (markerEnabled) {
+      showSymbol = true;
+    }
+  }
+  const lineStyle = isConfidenceBand ? { opacity: OpacityEnum.Transparent } : { opacity };
   return {
     ...series,
     yAxisIndex,
     name: forecastSeries.name,
-    itemStyle: {
-      color: colorScale(forecastSeries.name),
-    },
+    itemStyle,
     // @ts-ignore
     type: plotType,
     smooth: seriesType === 'smooth',
@@ -132,15 +173,33 @@ export function transformSeries(
     stack: stackId,
     lineStyle,
     areaStyle: {
-      opacity: forecastSeries.type === ForecastSeriesEnum.ForecastUpper || area ? opacity : 0,
+      opacity:
+        forecastSeries.type === ForecastSeriesEnum.ForecastUpper || area
+          ? opacity * areaOpacity
+          : 0,
     },
-    showSymbol:
-      !isConfidenceBand &&
-      (plotType === 'scatter' ||
-        (forecastEnabled && isObservation) ||
-        markerEnabled ||
-        !richTooltip), // TODO: forcing markers when richTooltip is enabled will be removed once ECharts supports item based tooltips without markers
+    emphasis,
+    showSymbol,
     symbolSize: markerSize,
+    label: {
+      show: !!showValue,
+      position: 'top',
+      formatter: (params: any) => {
+        const {
+          value: [, numericValue],
+          dataIndex,
+          seriesIndex,
+        } = params;
+        if (!formatter) return numericValue;
+        if (!stack || !onlyTotal) {
+          return formatter(numericValue);
+        }
+        if (seriesIndex === showValueIndexes[dataIndex]) {
+          return formatter(totalStackedValues[dataIndex]);
+        }
+        return '';
+      },
+    },
   };
 }
 
@@ -336,7 +395,7 @@ export function getPadding(
   });
 }
 
-export function getTooltipFormatter(format?: string): TimeFormatter | StringConstructor {
+export function getTooltipTimeFormatter(format?: string): TimeFormatter | StringConstructor {
   if (format === smartDateFormatter.id) {
     return smartDateDetailedFormatter;
   }

@@ -22,9 +22,23 @@ import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
 const metadata = new ChartMetadata({
+  category: t('Evolution'),
   credits: ['http://nvd3.org'],
-  description: t('A line chart component where you can compare the % change over time'),
+  description: t(
+    'Visualizes many different time-series objects in a single chart. This chart is being deprecated and we recommend using the Time-series Chart instead.',
+  ),
   name: t('Time-series Percent Change'),
+  tags: [
+    t('Legacy'),
+    t('Time'),
+    t('nvd3'),
+    t('Advanced-Analytics'),
+    t('Comparison'),
+    t('Line'),
+    t('Percentages'),
+    t('Predictive'),
+    t('Trend'),
+  ],
   thumbnail,
   useLegacyApi: true,
 });

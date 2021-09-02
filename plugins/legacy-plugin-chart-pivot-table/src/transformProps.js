@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { extractTimegrain } from '@superset-ui/core';
+
 export default function transformProps(chartProps) {
-  const { height, datasource, formData, queriesData } = chartProps;
-  const { timeGrainSqla, groupby, dateFormat, metrics } = formData;
+  const { height, datasource, formData, queriesData, rawFormData } = chartProps;
+  const { groupby, dateFormat, metrics } = formData;
   const { columnFormats, verboseMap, metrics: chartPropsDatasourceMetrics } = datasource;
   let { numberFormat } = formData;
 
@@ -36,14 +38,13 @@ export default function transformProps(chartProps) {
     });
   }
 
-  // eslint-disable-next-line no-console
-  console.log(columnFormats);
+  const granularity = extractTimegrain(rawFormData);
 
   return {
     columnFormats,
     data: queriesData[0].data,
     dateFormat,
-    granularity: timeGrainSqla,
+    granularity,
     height,
     numberFormat,
     numGroups: groupby.length,

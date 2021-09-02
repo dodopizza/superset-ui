@@ -16,13 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t, validateNonEmpty } from '@superset-ui/core';
+import { QueryFormMetric, smartDateFormatter, t, validateNonEmpty } from '@superset-ui/core';
 import {
   ControlPanelConfig,
+  D3_TIME_FORMAT_OPTIONS,
   formatSelectOptions,
   sections,
   sharedControls,
+  emitFilterControl,
 } from '@superset-ui/chart-controls';
+import { MetricsLayoutEnum } from '../types';
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
@@ -60,12 +63,43 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        [
+          {
+            name: 'metricsLayout',
+            config: {
+              type: 'RadioButtonControl',
+              renderTrigger: true,
+              label: t('Apply metrics on'),
+              default: MetricsLayoutEnum.COLUMNS,
+              options: [
+                [MetricsLayoutEnum.COLUMNS, t('Columns')],
+                [MetricsLayoutEnum.ROWS, t('Rows')],
+              ],
+              description: t('Use metrics as a top level group for columns or for rows'),
+            },
+          },
+        ],
         ['adhoc_filters'],
+        emitFilterControl,
         [
           {
             name: 'row_limit',
             config: {
               ...sharedControls.row_limit,
+            },
+          },
+        ],
+        ['timeseries_limit_metric'],
+        [
+          {
+            name: 'order_desc',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Sort descending'),
+              default: true,
+              description: t(
+                'Whether to sort descending or ascending. Takes effect only when "Sort by" is set',
+              ),
             },
           },
         ],
@@ -113,12 +147,51 @@ const config: ControlPanelConfig = {
         ],
         [
           {
+            name: 'rowTotals',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show rows total'),
+              default: false,
+              renderTrigger: true,
+              description: t('Display row level total'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'colTotals',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Show columns total'),
+              default: false,
+              renderTrigger: true,
+              description: t('Display column level total'),
+            },
+          },
+        ],
+        [
+          {
             name: 'transposePivot',
             config: {
               type: 'CheckboxControl',
               label: t('Transpose pivot'),
               default: false,
               description: t('Swap rows and columns'),
+              renderTrigger: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'combineMetric',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Combine metrics'),
+              default: false,
+              description: t(
+                'Display metrics side by side within each column, as ' +
+                  'opposed to each column being displayed side by side for each metric.',
+              ),
               renderTrigger: true,
             },
           },
@@ -137,20 +210,15 @@ const config: ControlPanelConfig = {
         ],
         [
           {
-            name: 'tableRenderer',
+            name: 'date_format',
             config: {
               type: 'SelectControl',
-              label: t('Pivot table type'),
-              default: 'Table With Subtotal',
-              choices: [
-                // [value, label]
-                ['Table With Subtotal', t('Table')],
-                ['Table With Subtotal Heatmap', t('Table Heatmap')],
-                ['Table With Subtotal Col Heatmap', t('Table Col Heatmap')],
-                ['Table With Subtotal Row Heatmap', t('Table Row Heatmap')],
-              ],
+              freeForm: true,
+              label: t('Date format'),
+              default: smartDateFormatter.id,
               renderTrigger: true,
-              description: t('The type of pivot table visualization'),
+              choices: D3_TIME_FORMAT_OPTIONS,
+              description: t('D3 time format for datetime columns'),
             },
           },
         ],
@@ -172,6 +240,8 @@ const config: ControlPanelConfig = {
               description: t('Order of rows'),
             },
           },
+        ],
+        [
           {
             name: 'colOrder',
             config: {
@@ -195,7 +265,7 @@ const config: ControlPanelConfig = {
             name: 'rowSubtotalPosition',
             config: {
               type: 'SelectControl',
-              label: t('Rows subtotals position'),
+              label: t('Rows subtotal position'),
               default: false,
               choices: [
                 // [value, label]
@@ -203,14 +273,16 @@ const config: ControlPanelConfig = {
                 [false, t('Bottom')],
               ],
               renderTrigger: true,
-              description: t('Position of row level subtotals'),
+              description: t('Position of row level subtotal'),
             },
           },
+        ],
+        [
           {
             name: 'colSubtotalPosition',
             config: {
               type: 'SelectControl',
-              label: t('Cols subtotals position'),
+              label: t('Cols subtotal position'),
               default: false,
               choices: [
                 // [value, label]
@@ -218,29 +290,32 @@ const config: ControlPanelConfig = {
                 [false, t('Right')],
               ],
               renderTrigger: true,
-              description: t('Position of column level subtotals'),
+              description: t('Position of column level subtotal'),
             },
           },
         ],
         [
           {
-            name: 'rowTotals',
+            name: 'conditional_formatting',
             config: {
-              type: 'CheckboxControl',
-              label: t('Show rows totals'),
-              default: true,
+              type: 'ConditionalFormattingControl',
               renderTrigger: true,
-              description: t('Display row level totals'),
-            },
-          },
-          {
-            name: 'colTotals',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Show cols totals'),
-              default: true,
-              renderTrigger: true,
-              description: t('Display column level totals'),
+              label: t('Conditional formatting'),
+              description: t('Apply conditional color formatting to metrics'),
+              mapStateToProps(explore) {
+                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) ?? [];
+                const verboseMap = explore?.datasource?.verbose_map ?? {};
+                const metricColumn = values.map(value => {
+                  if (typeof value === 'string') {
+                    return { value, label: verboseMap[value] ?? value };
+                  }
+                  return { value: value.label, label: value.label };
+                });
+                return {
+                  columnOptions: metricColumn,
+                  verboseMap,
+                };
+              },
             },
           },
         ],

@@ -18,11 +18,20 @@
  */
 export { default as EchartsBoxPlotChartPlugin } from './BoxPlot';
 export { default as EchartsTimeseriesChartPlugin } from './Timeseries';
+export { default as EchartsAreaChartPlugin } from './Timeseries/Area';
+export { default as EchartsTimeseriesBarChartPlugin } from './Timeseries/Regular/Bar';
+export { default as EchartsTimeseriesLineChartPlugin } from './Timeseries/Regular/Line';
+export { default as EchartsTimeseriesScatterChartPlugin } from './Timeseries/Regular/Scatter';
+export { default as EchartsTimeseriesSmoothLineChartPlugin } from './Timeseries/Regular/SmoothLine';
+export { default as EchartsTimeseriesStepChartPlugin } from './Timeseries/Step';
 export { default as EchartsMixedTimeseriesChartPlugin } from './MixedTimeseries';
 export { default as EchartsPieChartPlugin } from './Pie';
 export { default as EchartsGraphChartPlugin } from './Graph';
 export { default as EchartsGaugeChartPlugin } from './Gauge';
 export { default as EchartsRadarChartPlugin } from './Radar';
+export { default as EchartsFunnelChartPlugin } from './Funnel';
+export { default as EchartsTreeChartPlugin } from './Tree';
+export { default as EchartsTreemapChartPlugin } from './Treemap';
 
 /**
  * Note: this file exports the default export from EchartsTimeseries.tsx.

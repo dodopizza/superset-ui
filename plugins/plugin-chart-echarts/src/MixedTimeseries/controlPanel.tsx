@@ -22,19 +22,14 @@ import {
   ControlPanelConfig,
   ControlPanelSectionConfig,
   ControlSetRow,
+  emitFilterControl,
   sections,
   sharedControls,
 } from '@superset-ui/chart-controls';
 
 import { DEFAULT_FORM_DATA } from './types';
 import { EchartsTimeseriesSeriesType } from '../Timeseries/types';
-import {
-  legendMarginControl,
-  legendOrientationControl,
-  legendTypeControl,
-  noopControl,
-  showLegendControl,
-} from '../controls';
+import { legendSection } from '../controls';
 
 const {
   area,
@@ -80,6 +75,14 @@ function createQuerySection(label: string, controlSuffix: string): ControlPanelS
           config: sharedControls.adhoc_filters,
         },
       ],
+      emitFilterControl.length > 0
+        ? [
+            {
+              ...emitFilterControl[0],
+              name: `emit_filter${controlSuffix}`,
+            },
+          ]
+        : [],
       [
         {
           name: `limit${controlSuffix}`,
@@ -240,7 +243,7 @@ const config: ControlPanelConfig = {
               type: 'AnnotationLayerControl',
               label: '',
               default: annotationLayers,
-              description: 'Annotation Layers',
+              description: t('Annotation Layers'),
             },
           },
         ],
@@ -289,10 +292,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        [<h1 className="section-header">{t('Legend')}</h1>],
-        [showLegendControl],
-        [legendTypeControl, legendOrientationControl],
-        [legendMarginControl, noopControl],
+        ...legendSection,
         [<h1 className="section-header">{t('X Axis')}</h1>],
         ['x_axis_time_format'],
         [

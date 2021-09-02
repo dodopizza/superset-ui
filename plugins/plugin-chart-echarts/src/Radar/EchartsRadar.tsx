@@ -60,8 +60,6 @@ export default function EchartsRadar({
         },
         filterState: {
           value: groupbyValues.length ? groupbyValues : null,
-        },
-        ownState: {
           selectedValues: values.length ? values : null,
         },
       });
@@ -76,7 +74,7 @@ export default function EchartsRadar({
       if (values.includes(name)) {
         handleChange(values.filter(v => v !== name));
       } else {
-        handleChange([...values, name]);
+        handleChange([name]);
       }
     },
   };

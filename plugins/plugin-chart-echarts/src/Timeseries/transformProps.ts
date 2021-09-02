@@ -20,19 +20,29 @@
 import {
   AnnotationLayer,
   CategoricalColorNamespace,
-  ChartProps,
   getNumberFormatter,
   isEventAnnotationLayer,
   isFormulaAnnotationLayer,
   isIntervalAnnotationLayer,
   isTimeseriesAnnotationLayer,
   TimeseriesChartDataResponseResult,
+  DataRecordValue,
 } from '@superset-ui/core';
 import { EChartsOption, SeriesOption } from 'echarts';
-import { DEFAULT_FORM_DATA, EchartsTimeseriesFormData } from './types';
-import { EchartsProps, ForecastSeriesEnum, ProphetValue } from '../types';
+import {
+  DEFAULT_FORM_DATA,
+  EchartsTimeseriesChartProps,
+  EchartsTimeseriesFormData,
+  TimeseriesChartTransformedProps,
+} from './types';
+import { ForecastSeriesEnum, ProphetValue } from '../types';
 import { parseYAxisBound } from '../utils/controls';
-import { dedupSeries, extractTimeseriesSeries, getLegendProps } from '../utils/series';
+import {
+  dedupSeries,
+  extractTimeseriesSeries,
+  getLegendProps,
+  currentSeries,
+} from '../utils/series';
 import { extractAnnotationLabels } from '../utils/annotation';
 import {
   extractForecastSeriesContext,
@@ -43,7 +53,7 @@ import {
 import { defaultGrid, defaultTooltip, defaultYAxis } from '../defaults';
 import {
   getPadding,
-  getTooltipFormatter,
+  getTooltipTimeFormatter,
   getXAxisFormatter,
   transformEventAnnotation,
   transformFormulaAnnotation,
@@ -53,8 +63,11 @@ import {
 } from './transformers';
 import { TIMESERIES_CONSTANTS } from '../constants';
 
-export default function transformProps(chartProps: ChartProps): EchartsProps {
-  const { width, height, formData, queriesData } = chartProps;
+export default function transformProps(
+  chartProps: EchartsTimeseriesChartProps,
+): TimeseriesChartTransformedProps {
+  const { width, height, filterState, formData, hooks, queriesData, datasource } = chartProps;
+  const { verboseMap = {} } = datasource;
   const {
     annotation_data: annotationData_,
     data = [],
@@ -79,8 +92,6 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     stack,
     truncateYAxis,
     yAxisFormat,
-    xAxisShowMinLabel,
-    xAxisShowMaxLabel,
     xAxisTimeFormat,
     yAxisBounds,
     yAxisTitle,
@@ -88,29 +99,75 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     zoomable,
     richTooltip,
     xAxisLabelRotation,
+    emitFilter,
+    groupby,
+    showValue,
+    onlyTotal,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
-  const rebasedData = rebaseTimeseriesDatum(data);
+  const rebasedData = rebaseTimeseriesDatum(data, verboseMap);
   const rawSeries = extractTimeseriesSeries(rebasedData, {
     fillNeighborValue: stack && !forecastEnabled ? 0 : undefined,
   });
   const series: SeriesOption[] = [];
   const formatter = getNumberFormatter(contributionMode ? ',.0%' : yAxisFormat);
 
+  const totalStackedValues: number[] = [];
+  const showValueIndexes: number[] = [];
+
+  rebasedData.forEach(data => {
+    const values = Object.keys(data).reduce((prev, curr) => {
+      if (curr === '__timestamp') {
+        return prev;
+      }
+      const value = data[curr] || 0;
+      return prev + (value as number);
+    }, 0);
+    totalStackedValues.push(values);
+  });
+
+  if (stack) {
+    rawSeries.forEach((entry, seriesIndex) => {
+      const { data = [] } = entry;
+      (data as [Date, number][]).forEach((datum, dataIndex) => {
+        if (datum[1] !== null) {
+          showValueIndexes[dataIndex] = seriesIndex;
+        }
+      });
+    });
+  }
+
   rawSeries.forEach(entry => {
     const transformedSeries = transformSeries(entry, colorScale, {
       area,
+      filterState,
       forecastEnabled,
       markerEnabled,
       markerSize,
-      opacity,
+      areaOpacity: opacity,
       seriesType,
       stack,
+      formatter,
+      showValue,
+      onlyTotal,
+      totalStackedValues,
+      showValueIndexes,
       richTooltip,
     });
     if (transformedSeries) series.push(transformedSeries);
   });
+
+  const selectedValues = (filterState.selectedValues || []).reduce(
+    (acc: Record<string, number>, selectedValue: string) => {
+      const index = series.findIndex(({ name }) => name === selectedValue);
+      return {
+        ...acc,
+        [index]: selectedValue,
+      };
+    },
+    {},
+  );
 
   annotationLayers
     .filter((layer: AnnotationLayer) => layer.show)
@@ -135,11 +192,22 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     if (max === undefined) max = 1;
   }
 
-  const tooltipFormatter = getTooltipFormatter(tooltipTimeFormat);
+  const tooltipFormatter = getTooltipTimeFormatter(tooltipTimeFormat);
   const xAxisFormatter = getXAxisFormatter(xAxisTimeFormat);
+
+  const labelMap = series.reduce((acc: Record<string, DataRecordValue[]>, datum) => {
+    const name: string = datum.name as string;
+    return {
+      ...acc,
+      [name]: [name],
+    };
+  }, {});
+
+  const { setDataMask = () => {} } = hooks;
 
   const addYAxisLabelOffset = !!yAxisTitle;
   const padding = getPadding(showLegend, legendOrientation, addYAxisLabelOffset, zoomable);
+
   const echartOptions: EChartsOption = {
     useUTC: true,
     grid: {
@@ -149,8 +217,6 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     xAxis: {
       type: 'time',
       axisLabel: {
-        showMinLabel: xAxisShowMinLabel,
-        showMaxLabel: xAxisShowMaxLabel,
         formatter: xAxisFormatter,
         rotate: xAxisLabelRotation,
       },
@@ -168,6 +234,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     },
     tooltip: {
       ...defaultTooltip,
+      appendToBody: true,
       trigger: richTooltip ? 'axis' : 'item',
       formatter: (params: any) => {
         const value: number = !richTooltip ? params.value : params[0].value[0];
@@ -180,13 +247,16 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
-          rows.push(
-            formatProphetTooltipSeries({
-              ...value,
-              seriesName: key,
-              formatter,
-            }),
-          );
+          const content = formatProphetTooltipSeries({
+            ...value,
+            seriesName: key,
+            formatter,
+          });
+          if (currentSeries.name === key) {
+            rows.push(`<span style="font-weight: 700">${content}</span>`);
+          } else {
+            rows.push(`<span style="opacity: 0.7">${content}</span>`);
+          }
         });
         return rows.join('<br />');
       },
@@ -197,8 +267,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
       data: rawSeries
         .filter(
           entry =>
-            extractForecastSeriesContext((entry.name || '') as string).type ===
-            ForecastSeriesEnum.Observation,
+            extractForecastSeriesContext(entry.name || '').type === ForecastSeriesEnum.Observation,
         )
         .map(entry => entry.name || '')
         .concat(extractAnnotationLabels(annotationLayers, annotationData)),
@@ -232,7 +301,13 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
 
   return {
     echartOptions,
-    width,
+    emitFilter,
+    formData,
+    groupby,
     height,
+    labelMap,
+    selectedValues,
+    setDataMask,
+    width,
   };
 }

@@ -40,8 +40,10 @@ import {
   getChartPadding,
   getColtypesMapping,
   getLegendProps,
+  sanitizeHtml,
 } from '../utils/series';
 import { defaultGrid, defaultTooltip } from '../defaults';
+import { OpacityEnum } from '../constants';
 
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
@@ -49,12 +51,15 @@ export function formatPieLabel({
   params,
   labelType,
   numberFormatter,
+  sanitizeName = false,
 }: {
-  params: CallbackDataParams;
+  params: Pick<CallbackDataParams, 'name' | 'value' | 'percent'>;
   labelType: EchartsPieLabelType;
   numberFormatter: NumberFormatter;
+  sanitizeName?: boolean;
 }): string {
-  const { name = '', value, percent } = params;
+  const { name: rawName = '', value, percent } = params;
+  const name = sanitizeName ? sanitizeHtml(rawName) : rawName;
   const formattedValue = numberFormatter(value as number);
   const formattedPercent = percentFormatter((percent as number) / 100);
 
@@ -77,7 +82,16 @@ export function formatPieLabel({
 }
 
 export default function transformProps(chartProps: EchartsPieChartProps): PieChartTransformedProps {
-  const { formData, height, hooks, ownState, queriesData, width, datasource } = chartProps;
+  const {
+    formData,
+    height,
+    hooks,
+    ownState,
+    filterState,
+    queriesData,
+    width,
+    datasource,
+  } = chartProps;
   const { metrics: chartPropsDatasourceMetrics, columnFormats } = datasource;
   const { data = [] } = queriesData[0];
   const coltypeMapping = getColtypesMapping(queriesData[0]);
@@ -159,16 +173,19 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
       timeFormatter: getTimeFormatter(dateFormat),
     });
 
+    const isFiltered = filterState.selectedValues && !filterState.selectedValues.includes(name);
+
     return {
       value: datum[metricLabel],
       name,
       itemStyle: {
         color: colorFn(name),
+        opacity: isFiltered ? OpacityEnum.SemiTransparent : OpacityEnum.NonTransparent,
       },
     };
   });
 
-  const selectedValues = (ownState.selectedValues || []).reduce(
+  const selectedValues = (filterState.selectedValues || []).reduce(
     (acc: Record<string, number>, selectedValue: string) => {
       const index = transformedData.findIndex(({ name }) => name === selectedValue);
       return {
@@ -236,6 +253,7 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
           params,
           numberFormatter,
           labelType: EchartsPieLabelType.KeyValuePercent,
+          sanitizeName: true,
         }),
     },
     legend: {

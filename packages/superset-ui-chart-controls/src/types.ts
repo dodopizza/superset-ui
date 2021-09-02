@@ -18,14 +18,7 @@
  * under the License.
  */
 import React, { ReactNode, ReactText, ReactElement } from 'react';
-import {
-  QueryFormData,
-  DatasourceType,
-  Metric,
-  JsonValue,
-  Column,
-  ColumnType,
-} from '@superset-ui/core';
+import { QueryFormData, DatasourceType, Metric, JsonValue, Column } from '@superset-ui/core';
 import sharedControls from './shared-controls';
 import sharedControlComponents from './shared-controls/components';
 
@@ -45,9 +38,8 @@ export type SharedControlComponents = typeof sharedControlComponents;
 /** ----------------------------------------------
  * Input data/props while rendering
  * ---------------------------------------------*/
-export type ColumnMeta = Omit<Column, 'id' | 'type'> & {
+export type ColumnMeta = Omit<Column, 'id'> & {
   id?: number;
-  type?: ColumnType;
 } & AnyDict;
 
 export interface DatasourceMeta {
@@ -198,7 +190,7 @@ export interface BaseControlConfig<
    */
   mapStateToProps?: (
     state: ControlPanelState,
-    controlState: this & ExtraControlProps,
+    controlState: ControlState,
     // TODO: add strict `chartState` typing (see superset-frontend/src/explore/types)
     chartState?: AnyDict,
   ) => ExtraControlProps;
@@ -329,5 +321,42 @@ export type ControlOverrides = {
 export type SectionOverrides = {
   [P in SharedSectionAlias]?: Partial<ControlPanelSectionConfig>;
 };
+
+// Ref:
+//  - superset-frontend/src/explore/components/ConditionalFormattingControl.tsx
+export enum COMPARATOR {
+  NONE = 'None',
+  GREATER_THAN = '>',
+  LESS_THAN = '<',
+  GREATER_OR_EQUAL = '≥',
+  LESS_OR_EQUAL = '≤',
+  EQUAL = '=',
+  NOT_EQUAL = '≠',
+  BETWEEN = '< x <',
+  BETWEEN_OR_EQUAL = '≤ x ≤',
+  BETWEEN_OR_LEFT_EQUAL = '≤ x <',
+  BETWEEN_OR_RIGHT_EQUAL = '< x ≤',
+}
+
+export const MULTIPLE_VALUE_COMPARATORS = [
+  COMPARATOR.BETWEEN,
+  COMPARATOR.BETWEEN_OR_EQUAL,
+  COMPARATOR.BETWEEN_OR_LEFT_EQUAL,
+  COMPARATOR.BETWEEN_OR_RIGHT_EQUAL,
+];
+
+export type ConditionalFormattingConfig = {
+  operator?: COMPARATOR;
+  targetValue?: number;
+  targetValueLeft?: number;
+  targetValueRight?: number;
+  column?: string;
+  colorScheme?: string;
+};
+
+export type ColorFormatters = {
+  column: string;
+  getColorFromValue: (value: number) => string | undefined;
+}[];
 
 export default {};

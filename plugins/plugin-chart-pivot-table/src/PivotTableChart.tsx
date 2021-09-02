@@ -16,56 +16,95 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
-import { styled, AdhocMetric, getNumberFormatter } from '@superset-ui/core';
+import React, { useCallback, useMemo } from 'react';
+import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
+import {
+  styled,
+  AdhocMetric,
+  getNumberFormatter,
+  DataRecordValue,
+  NumberFormatter,
+  useTheme,
+} from '@superset-ui/core';
 // @ts-ignore
 import PivotTable from '@superset-ui/react-pivottable/PivotTable';
 // @ts-ignore
 import { sortAs, aggregatorTemplates } from '@superset-ui/react-pivottable/Utilities';
 import '@superset-ui/react-pivottable/pivottable.css';
-import { PivotTableProps, PivotTableStylesProps } from './types';
+import {
+  FilterType,
+  MetricsLayoutEnum,
+  PivotTableProps,
+  PivotTableStylesProps,
+  SelectedFiltersType,
+} from './types';
 
 const Styles = styled.div<PivotTableStylesProps>`
-  padding: ${({ theme }) => theme.gridUnit * 4}px;
-  height: ${({ height }) => height}px;
-  width: ${({ width }) => width}px;
-  overflow-y: scroll;
-  }
+  ${({ height, width, margin }) => `
+      margin: ${margin}px;
+      height: ${height - margin * 2}px;
+      width: ${width - margin * 2}px;
+ `}
 `;
 
-// TODO: remove eslint-disable when click callbacks are implemented
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const clickCellCallback = (
-  e: MouseEvent,
-  value: number,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-) => {
-  // TODO: Implement a callback
-};
+const PivotTableWrapper = styled.div`
+  height: 100%;
+  max-width: fit-content;
+  overflow: auto;
+`;
 
-const clickColumnHeaderCallback = (
-  e: MouseEvent,
-  value: string,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-  isSubtotal: boolean,
-  isGrandTotal: boolean,
-) => {
-  // TODO: Implement a callback
-};
+const METRIC_KEY = 'metric';
+const iconStyle = { stroke: 'black', strokeWidth: '16px' };
 
-const clickRowHeaderCallback = (
-  e: MouseEvent,
-  value: string,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-  isSubtotal: boolean,
-  isGrandTotal: boolean,
-) => {
-  // TODO: Implement a callback
-};
+const aggregatorsFactory = (formatter: NumberFormatter) => ({
+  Count: aggregatorTemplates.count(formatter),
+  'Count Unique Values': aggregatorTemplates.countUnique(formatter),
+  'List Unique Values': aggregatorTemplates.listUnique(', ', formatter),
+  Sum: aggregatorTemplates.sum(formatter),
+  Average: aggregatorTemplates.average(formatter),
+  Median: aggregatorTemplates.median(formatter),
+  'Sample Variance': aggregatorTemplates.var(1, formatter),
+  'Sample Standard Deviation': aggregatorTemplates.stdev(1, formatter),
+  Minimum: aggregatorTemplates.min(formatter),
+  Maximum: aggregatorTemplates.max(formatter),
+  First: aggregatorTemplates.first(formatter),
+  Last: aggregatorTemplates.last(formatter),
+  'Sum as Fraction of Total': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.sum(),
+    'total',
+    formatter,
+  ),
+  'Sum as Fraction of Rows': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.sum(),
+    'row',
+    formatter,
+  ),
+  'Sum as Fraction of Columns': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.sum(),
+    'col',
+    formatter,
+  ),
+  'Count as Fraction of Total': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.count(),
+    'total',
+    formatter,
+  ),
+  'Count as Fraction of Rows': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.count(),
+    'row',
+    formatter,
+  ),
+  'Count as Fraction of Columns': aggregatorTemplates.fractionOf(
+    aggregatorTemplates.count(),
+    'col',
+    formatter,
+  ),
+});
 
+/* If you change this logic, please update the corresponding Python
+ * function (https://github.com/apache/superset/blob/master/superset/charts/post_processing.py),
+ * or reach out to @betodealmeida.
+ */
 export default function PivotTableChart(props: PivotTableProps) {
   const {
     data,
@@ -74,88 +113,190 @@ export default function PivotTableChart(props: PivotTableProps) {
     groupbyRows,
     groupbyColumns,
     metrics,
-    tableRenderer,
     colOrder,
     rowOrder,
     aggregateFunction,
     transposePivot,
+    combineMetric,
     rowSubtotalPosition,
     colSubtotalPosition,
     colTotals,
     rowTotals,
     valueFormat,
+    emitFilter,
+    setDataMask,
+    selectedFilters,
+    verboseMap,
+    columnFormats,
+    metricsLayout,
+    metricColorFormatters,
+    dateFormatters,
   } = props;
 
-  const adaptiveFormatter = getNumberFormatter(valueFormat);
+  const theme = useTheme();
+  const defaultFormatter = getNumberFormatter(valueFormat);
+  const columnFormatsArray = Object.entries(columnFormats);
+  const hasCustomMetricFormatters = columnFormatsArray.length > 0;
+  const metricFormatters =
+    hasCustomMetricFormatters &&
+    Object.fromEntries(
+      columnFormatsArray.map(([metric, format]) => [metric, getNumberFormatter(format)]),
+    );
 
-  const aggregators = (tpl => ({
-    Count: tpl.count(adaptiveFormatter),
-    'Count Unique Values': tpl.countUnique(adaptiveFormatter),
-    'List Unique Values': tpl.listUnique(', '),
-    Sum: tpl.sum(adaptiveFormatter),
-    Average: tpl.average(adaptiveFormatter),
-    Median: tpl.median(adaptiveFormatter),
-    'Sample Variance': tpl.var(1, adaptiveFormatter),
-    'Sample Standard Deviation': tpl.stdev(1, adaptiveFormatter),
-    Minimum: tpl.min(adaptiveFormatter),
-    Maximum: tpl.max(adaptiveFormatter),
-    First: tpl.first(adaptiveFormatter),
-    Last: tpl.last(adaptiveFormatter),
-    'Sum as Fraction of Total': tpl.fractionOf(tpl.sum(), 'total', adaptiveFormatter),
-    'Sum as Fraction of Rows': tpl.fractionOf(tpl.sum(), 'row', adaptiveFormatter),
-    'Sum as Fraction of Columns': tpl.fractionOf(tpl.sum(), 'col', adaptiveFormatter),
-    'Count as Fraction of Total': tpl.fractionOf(tpl.count(), 'total', adaptiveFormatter),
-    'Count as Fraction of Rows': tpl.fractionOf(tpl.count(), 'row', adaptiveFormatter),
-    'Count as Fraction of Columns': tpl.fractionOf(tpl.count(), 'col', adaptiveFormatter),
-  }))(aggregatorTemplates);
-
-  const metricNames = metrics.map((metric: string | AdhocMetric) =>
-    typeof metric === 'string' ? metric : (metric.label as string),
+  const metricNames = useMemo(
+    () =>
+      metrics.map((metric: string | AdhocMetric) =>
+        typeof metric === 'string' ? metric : (metric.label as string),
+      ),
+    [metrics],
   );
 
-  const unpivotedData = data.reduce(
-    (acc: Record<string, any>[], record: Record<string, any>) => [
-      ...acc,
-      ...metricNames.map((name: string) => ({
-        ...record,
-        metric: name,
-        value: record[name],
-      })),
-    ],
-    [],
+  const unpivotedData = useMemo(
+    () =>
+      data.reduce(
+        (acc: Record<string, any>[], record: Record<string, any>) => [
+          ...acc,
+          ...metricNames
+            .map((name: string) => ({
+              ...record,
+              [METRIC_KEY]: name,
+              value: record[name],
+            }))
+            .filter(record => record.value !== null),
+        ],
+        [],
+      ),
+    [data, metricNames],
   );
 
-  const [rows, cols] = transposePivot
-    ? [groupbyColumns, ['metric', ...groupbyRows]]
-    : [groupbyRows, ['metric', ...groupbyColumns]];
+  let [rows, cols] = transposePivot ? [groupbyColumns, groupbyRows] : [groupbyRows, groupbyColumns];
+
+  if (metricsLayout === MetricsLayoutEnum.ROWS) {
+    rows = combineMetric ? [...rows, METRIC_KEY] : [METRIC_KEY, ...rows];
+  } else {
+    cols = combineMetric ? [...cols, METRIC_KEY] : [METRIC_KEY, ...cols];
+  }
+
+  const handleChange = useCallback(
+    (filters: SelectedFiltersType) => {
+      const groupBy = Object.keys(filters);
+      setDataMask({
+        extraFormData: {
+          filters:
+            groupBy.length === 0
+              ? undefined
+              : groupBy.map(col => {
+                  const val = filters?.[col];
+                  if (val === null || val === undefined)
+                    return {
+                      col,
+                      op: 'IS NULL',
+                    };
+                  return {
+                    col,
+                    op: 'IN',
+                    val: val as (string | number | boolean)[],
+                  };
+                }),
+        },
+        filterState: {
+          value: filters && Object.keys(filters).length ? Object.values(filters) : null,
+          selectedFilters: filters && Object.keys(filters).length ? filters : null,
+        },
+      });
+    },
+    [setDataMask],
+  );
+
+  const toggleFilter = useCallback(
+    (
+      e: MouseEvent,
+      value: string,
+      filters: FilterType,
+      pivotData: Record<string, any>,
+      isSubtotal: boolean,
+      isGrandTotal: boolean,
+    ) => {
+      if (isSubtotal || isGrandTotal || !emitFilter) {
+        return;
+      }
+
+      const isActiveFilterValue = (key: string, val: DataRecordValue) =>
+        !!selectedFilters && selectedFilters[key]?.includes(val);
+
+      const filtersCopy = { ...filters };
+      delete filtersCopy[METRIC_KEY];
+
+      const filtersEntries = Object.entries(filtersCopy);
+      if (filtersEntries.length === 0) {
+        return;
+      }
+
+      const [key, val] = filtersEntries[filtersEntries.length - 1];
+
+      let updatedFilters = { ...(selectedFilters || {}) };
+      // multi select
+      // if (selectedFilters && isActiveFilterValue(key, val)) {
+      //   updatedFilters[key] = selectedFilters[key].filter((x: DataRecordValue) => x !== val);
+      // } else {
+      //   updatedFilters[key] = [...(selectedFilters?.[key] || []), val];
+      // }
+      // single select
+      if (selectedFilters && isActiveFilterValue(key, val)) {
+        updatedFilters = {};
+      } else {
+        updatedFilters = {
+          [key]: [val],
+        };
+      }
+      if (Array.isArray(updatedFilters[key]) && updatedFilters[key].length === 0) {
+        delete updatedFilters[key];
+      }
+      handleChange(updatedFilters);
+    },
+    [emitFilter, selectedFilters, handleChange],
+  );
 
   return (
-    <Styles height={height} width={width}>
-      <PivotTable
-        data={unpivotedData}
-        rows={rows}
-        cols={cols}
-        aggregators={aggregators}
-        aggregatorName={aggregateFunction}
-        vals={['value']}
-        rendererName={tableRenderer}
-        colOrder={colOrder}
-        rowOrder={rowOrder}
-        sorters={{
-          metric: sortAs(metricNames),
-        }}
-        tableOptions={{
-          clickCallback: clickCellCallback,
-          clickRowHeaderCallback,
-          clickColumnHeaderCallback,
-          colTotals,
-          rowTotals,
-        }}
-        subtotalOptions={{
-          colSubtotalDisplay: { displayOnTop: colSubtotalPosition },
-          rowSubtotalDisplay: { displayOnTop: rowSubtotalPosition },
-        }}
-      />
+    <Styles height={height} width={width} margin={theme.gridUnit * 4}>
+      <PivotTableWrapper>
+        <PivotTable
+          data={unpivotedData}
+          rows={rows}
+          cols={cols}
+          aggregatorsFactory={aggregatorsFactory}
+          defaultFormatter={defaultFormatter}
+          customFormatters={
+            hasCustomMetricFormatters ? { [METRIC_KEY]: metricFormatters } : undefined
+          }
+          aggregatorName={aggregateFunction}
+          vals={['value']}
+          rendererName="Table With Subtotal"
+          colOrder={colOrder}
+          rowOrder={rowOrder}
+          sorters={{
+            metric: sortAs(metricNames),
+          }}
+          tableOptions={{
+            clickRowHeaderCallback: toggleFilter,
+            clickColumnHeaderCallback: toggleFilter,
+            colTotals,
+            rowTotals,
+            highlightHeaderCellsOnHover: emitFilter,
+            highlightedHeaderCells: selectedFilters,
+            omittedHighlightHeaderGroups: [METRIC_KEY],
+            cellColorFormatters: { [METRIC_KEY]: metricColorFormatters },
+            dateFormatters,
+          }}
+          subtotalOptions={{
+            colSubtotalDisplay: { displayOnTop: colSubtotalPosition },
+            rowSubtotalDisplay: { displayOnTop: rowSubtotalPosition },
+            arrowCollapsed: <PlusSquareOutlined style={iconStyle} />,
+            arrowExpanded: <MinusSquareOutlined style={iconStyle} />,
+          }}
+          namesMapping={verboseMap}
+        />
+      </PivotTableWrapper>
     </Styles>
   );
 }

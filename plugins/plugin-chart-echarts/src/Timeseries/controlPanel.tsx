@@ -17,12 +17,14 @@
  * under the License.
  */
 import React from 'react';
-import { legacyValidateInteger, legacyValidateNumber, t } from '@superset-ui/core';
+import { t } from '@superset-ui/core';
 import {
   ControlPanelConfig,
+  ControlPanelsContainerProps,
   D3_TIME_FORMAT_DOCS,
   sections,
   sharedControls,
+  emitFilterControl,
 } from '@superset-ui/chart-controls';
 
 import {
@@ -30,24 +32,11 @@ import {
   EchartsTimeseriesContributionType,
   EchartsTimeseriesSeriesType,
 } from './types';
-import {
-  legendMarginControl,
-  legendOrientationControl,
-  legendTypeControl,
-  noopControl,
-  showLegendControl,
-} from '../controls';
+import { legendSection, showValueSection } from '../controls';
 
 const {
   area,
-  annotationLayers,
   contributionMode,
-  forecastEnabled,
-  forecastInterval,
-  forecastPeriods,
-  forecastSeasonalityDaily,
-  forecastSeasonalityWeekly,
-  forecastSeasonalityYearly,
   logAxis,
   markerEnabled,
   markerSize,
@@ -55,14 +44,11 @@ const {
   opacity,
   rowLimit,
   seriesType,
-  stack,
   tooltipTimeFormat,
   truncateYAxis,
   yAxisBounds,
   zoomable,
   xAxisLabelRotation,
-  xAxisShowMinLabel,
-  xAxisShowMaxLabel,
 } = DEFAULT_FORM_DATA;
 const config: ControlPanelConfig = {
   controlPanelSections: [
@@ -90,7 +76,9 @@ const config: ControlPanelConfig = {
           },
         ],
         ['adhoc_filters'],
-        ['limit', 'timeseries_limit_metric'],
+        emitFilterControl,
+        ['limit'],
+        ['timeseries_limit_metric'],
         [
           {
             name: 'order_desc',
@@ -102,121 +90,12 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        ['row_limit', null],
+        ['row_limit'],
       ],
     },
-    {
-      label: t('Annotations and Layers'),
-      expanded: false,
-      controlSetRows: [
-        [
-          {
-            name: 'annotation_layers',
-            config: {
-              type: 'AnnotationLayerControl',
-              label: '',
-              default: annotationLayers,
-              description: 'Annotation Layers',
-            },
-          },
-        ],
-      ],
-    },
-    {
-      label: t('Predictive Analytics'),
-      expanded: false,
-      controlSetRows: [
-        [
-          {
-            name: 'forecastEnabled',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Enable forecast'),
-              renderTrigger: false,
-              default: forecastEnabled,
-              description: t('Enable forecasting'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'forecastPeriods',
-            config: {
-              type: 'TextControl',
-              label: t('Forecast periods'),
-              validators: [legacyValidateInteger],
-              default: forecastPeriods,
-              description: t('How many periods into the future do we want to predict'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'forecastInterval',
-            config: {
-              type: 'TextControl',
-              label: t('Confidence interval'),
-              validators: [legacyValidateNumber],
-              default: forecastInterval,
-              description: t('Width of the confidence interval. Should be between 0 and 1'),
-            },
-          },
-          {
-            name: 'forecastSeasonalityYearly',
-            config: {
-              type: 'SelectControl',
-              freeForm: true,
-              label: 'Yearly seasonality',
-              choices: [
-                [null, 'default'],
-                [true, 'Yes'],
-                [false, 'No'],
-              ],
-              default: forecastSeasonalityYearly,
-              description: t(
-                'Should yearly seasonality be applied. An integer value will specify Fourier order of seasonality.',
-              ),
-            },
-          },
-        ],
-        [
-          {
-            name: 'forecastSeasonalityWeekly',
-            config: {
-              type: 'SelectControl',
-              freeForm: true,
-              label: 'Weekly seasonality',
-              choices: [
-                [null, 'default'],
-                [true, 'Yes'],
-                [false, 'No'],
-              ],
-              default: forecastSeasonalityWeekly,
-              description: t(
-                'Should weekly seasonality be applied. An integer value will specify Fourier order of seasonality.',
-              ),
-            },
-          },
-          {
-            name: 'forecastSeasonalityDaily',
-            config: {
-              type: 'SelectControl',
-              freeForm: true,
-              label: 'Daily seasonality',
-              choices: [
-                [null, 'default'],
-                [true, 'Yes'],
-                [false, 'No'],
-              ],
-              default: forecastSeasonalityDaily,
-              description: t(
-                'Should daily seasonality be applied. An integer value will specify Fourier order of seasonality.',
-              ),
-            },
-          },
-        ],
-      ],
-    },
+    sections.advancedAnalyticsControls,
+    sections.annotationsAndLayersControls,
+    sections.forecastIntervalControls,
     {
       label: t('Chart Options'),
       expanded: true,
@@ -243,18 +122,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        [
-          {
-            name: 'stack',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Stack Lines'),
-              renderTrigger: true,
-              default: stack,
-              description: t('Stack series on top of each other'),
-            },
-          },
-        ],
+        ...showValueSection,
         [
           {
             name: 'area',
@@ -266,17 +134,21 @@ const config: ControlPanelConfig = {
               description: t('Draw area under curves. Only applicable for line types.'),
             },
           },
+        ],
+        [
           {
             name: 'opacity',
             config: {
               type: 'SliderControl',
-              label: t('Opacity'),
+              label: t('Area chart opacity'),
               renderTrigger: true,
               min: 0,
               max: 1,
               step: 0.1,
               default: opacity,
               description: t('Opacity of Area Chart. Also applies to confidence band.'),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                Boolean(controls?.area?.value),
             },
           },
         ],
@@ -291,6 +163,8 @@ const config: ControlPanelConfig = {
               description: t('Draw a marker on data points. Only applicable for line types.'),
             },
           },
+        ],
+        [
           {
             name: 'markerSize',
             config: {
@@ -298,9 +172,11 @@ const config: ControlPanelConfig = {
               label: t('Marker Size'),
               renderTrigger: true,
               min: 0,
-              max: 100,
+              max: 20,
               default: markerSize,
               description: t('Size of marker. Also applies to forecast observations.'),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                Boolean(controls?.markerEnabled?.value),
             },
           },
         ],
@@ -316,10 +192,7 @@ const config: ControlPanelConfig = {
             },
           },
         ],
-        [<h1 className="section-header">{t('Legend')}</h1>],
-        [showLegendControl],
-        [legendTypeControl, legendOrientationControl],
-        [legendMarginControl, noopControl],
+        ...legendSection,
         [<h1 className="section-header">{t('X Axis')}</h1>],
         [
           {
@@ -330,30 +203,6 @@ const config: ControlPanelConfig = {
               description: `${D3_TIME_FORMAT_DOCS}. ${t(
                 'When using other than adaptive formatting, labels may overlap.',
               )}`,
-            },
-          },
-        ],
-        [
-          {
-            name: 'xAxisShowMinLabel',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Show Min Label'),
-              default: xAxisShowMinLabel,
-              renderTrigger: true,
-              description: t('Show Min Label'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'xAxisShowMaxLabel',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Show Max Label'),
-              default: xAxisShowMaxLabel,
-              renderTrigger: true,
-              description: t('Show Max Label'),
             },
           },
         ],
@@ -414,6 +263,8 @@ const config: ControlPanelConfig = {
               description: t('Logarithmic y-axis'),
             },
           },
+        ],
+        [
           {
             name: 'minorSplitLine',
             config: {
@@ -465,6 +316,8 @@ const config: ControlPanelConfig = {
                   "this feature will only expand the axis range. It won't " +
                   "narrow the data's extent.",
               ),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                Boolean(controls?.truncateYAxis?.value),
             },
           },
         ],

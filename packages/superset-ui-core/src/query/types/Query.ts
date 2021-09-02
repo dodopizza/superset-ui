@@ -25,9 +25,12 @@ import { QueryFields, QueryFormMetric } from './QueryFormData';
 import { Maybe } from '../../types';
 import { PostProcessingRule } from './PostProcessing';
 import { JsonObject } from '../../connection';
+import { TimeGranularity } from '../../time-format';
 
 export type QueryObjectFilterClause = {
   col: string;
+  grain?: TimeGranularity;
+  isExtra?: boolean;
 } & (
   | {
       op: BinaryOperator;
@@ -50,7 +53,7 @@ export type QueryObjectExtras = Partial<{
   having?: string;
   relative_start?: string;
   relative_end?: string;
-  time_grain_sqla?: string;
+  time_grain_sqla?: TimeGranularity;
   time_range_endpoints?: TimeRangeEndpoints;
   /** WHERE condition */
   where?: string;

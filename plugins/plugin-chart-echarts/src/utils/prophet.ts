@@ -20,6 +20,7 @@ import { TimeseriesDataRecord, NumberFormatter } from '@superset-ui/core';
 import { CallbackDataParams, OptionName } from 'echarts/types/src/util/types';
 import { TooltipMarker } from 'echarts/types/src/util/format';
 import { ForecastSeriesContext, ForecastSeriesEnum, ProphetValue } from '../types';
+import { sanitizeHtml } from './series';
 
 const seriesTypeRegex = new RegExp(
   `(.+)(${ForecastSeriesEnum.ForecastLower}|${ForecastSeriesEnum.ForecastTrend}|${ForecastSeriesEnum.ForecastUpper})$`,
@@ -80,7 +81,7 @@ export const formatProphetTooltipSeries = ({
   marker: TooltipMarker;
   formatter: NumberFormatter;
 }): string => {
-  let row = `${marker}${seriesName}: `;
+  let row = `${marker}${sanitizeHtml(seriesName)}: `;
   let isObservation = false;
   if (observation) {
     isObservation = true;
@@ -96,7 +97,10 @@ export const formatProphetTooltipSeries = ({
   return `${row.trim()}`;
 };
 
-export function rebaseTimeseriesDatum(data: TimeseriesDataRecord[]) {
+export function rebaseTimeseriesDatum(
+  data: TimeseriesDataRecord[],
+  verboseMap: Record<string, string> = {},
+) {
   const keys = data.length > 0 ? Object.keys(data[0]) : [];
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -114,7 +118,8 @@ export function rebaseTimeseriesDatum(data: TimeseriesDataRecord[]) {
       ) {
         value -= row[lowerKey] as number;
       }
-      newRow[key] = value;
+      const newKey = key !== '__timestamp' && verboseMap[key] ? verboseMap[key] : key;
+      newRow[newKey] = value;
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return newRow;
