@@ -150,19 +150,14 @@ export default function PivotTableChart(props: PivotTableProps) {
     rowTotals,
     valueFormat,
     verboseMap,
-    // columnFormats,
+    columnFormats,
     metricsLayout,
     combineMetric,
     columnsObjects,
   } = props;
 
-  console.log(props, 'props');
-
   const findElementByKey = (arr: any[], elementName: string, key: string) =>
     arr.filter(el => el[key] === elementName);
-
-  console.log('columnsObjects', columnsObjects);
-  // TODO: groupbyRows, groupbyColumns => qs, columnsObjects => qs => "TIMESTAMP WITHOUT TIME ZONE"
 
   const columnsAndRowsWithTypes = [] as { name: string; type: string }[];
 
@@ -180,10 +175,15 @@ export default function PivotTableChart(props: PivotTableProps) {
     }
   });
 
-  console.log('columnsAndRowsWithTypes', columnsAndRowsWithTypes);
-
   const theme = useTheme();
   const defaultFormatter = getNumberFormatter(valueFormat);
+  const columnFormatsArray = Object.entries(columnFormats);
+  const hasCustomMetricFormatters = columnFormatsArray.length > 0;
+  const metricFormatters =
+    hasCustomMetricFormatters &&
+    Object.fromEntries(
+      columnFormatsArray.map(([metric, format]) => [metric, getNumberFormatter(format)]),
+    );
 
   const metricNames = useMemo(
     () =>
@@ -207,7 +207,7 @@ export default function PivotTableChart(props: PivotTableProps) {
         finalObject = {
           ...finalObject,
           [key]:
-          // TODO: need to map this type dynamicaly
+          // TODO: need to check this properly, probably there are more types with dates
             foundElement.type === 'TIMESTAMP WITHOUT TIME ZONE'
               ? isValidDate(value)
                 ? convertDate(value)
@@ -257,9 +257,9 @@ export default function PivotTableChart(props: PivotTableProps) {
           cols={cols}
           aggregatorsFactory={aggregatorsFactory}
           defaultFormatter={defaultFormatter}
-          // customFormatters={
-          //   hasCustomMetricFormatters ? { [METRIC_KEY]: metricFormatters } : undefined
-          // }
+          customFormatters={
+            hasCustomMetricFormatters ? { [METRIC_KEY]: metricFormatters } : undefined
+          }
           aggregatorName={aggregateFunction}
           vals={['value']}
           rendererName="Table With Subtotal"

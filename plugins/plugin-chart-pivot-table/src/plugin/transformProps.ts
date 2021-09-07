@@ -54,6 +54,7 @@ export default function transformProps(chartProps: ChartProps) {
     queriesData,
     formData,
     rawDatasource: { columns: columnsObjects },
+    datasource: { verboseMap = {}, columnFormats = {} },
   } = chartProps;
   const data = queriesData[0].data as DataRecord[];
   const {
@@ -69,6 +70,8 @@ export default function transformProps(chartProps: ChartProps) {
     colSubtotalPosition,
     colTotals,
     rowTotals,
+    combineMetric,
+    metricsLayout,
     valueFormat,
   } = formData;
 
@@ -99,5 +102,9 @@ export default function transformProps(chartProps: ChartProps) {
     rowTotals,
     valueFormat,
     columnsObjects,
+    combineMetric,
+    metricsLayout,
+    columnFormats,
+    verboseMap,
   };
 }
