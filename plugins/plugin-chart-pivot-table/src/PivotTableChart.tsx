@@ -206,13 +206,11 @@ export default function PivotTableChart(props: PivotTableProps) {
         const foundElement = found[0];
         finalObject = {
           ...finalObject,
-          [key]:
-          // TODO: need to check this properly, probably there are more types with dates
-            foundElement.type === 'TIMESTAMP WITHOUT TIME ZONE'
-              ? isValidDate(value)
-                ? convertDate(value)
-                : value
-              : value,
+          [key]: foundElement.type.includes('TIMESTAMP')
+            ? isValidDate(value)
+              ? convertDate(value)
+              : value
+            : value,
         };
       }
     });
