@@ -39,9 +39,11 @@ export const extractProphetValuesFromTooltipParams = (
 ): Record<string, ProphetValue> => {
   const values: Record<string, ProphetValue> = {};
   params.forEach(param => {
+    console.log('param', param);
     const { marker, seriesId, seriesName, seriesType, value } = param;
     const context = extractForecastSeriesContext(seriesId);
     const numericValue = (value as [Date, number])[1];
+    console.log('numericValue', numericValue);
     if (numericValue) {
       if (!(context.name in values))
         values[context.name] = {
