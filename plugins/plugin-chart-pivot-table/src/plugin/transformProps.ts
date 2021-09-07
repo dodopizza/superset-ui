@@ -48,7 +48,14 @@ export default function transformProps(chartProps: ChartProps) {
    * function during development with hot reloading, changes won't
    * be seen until restarting the development server.
    */
-  const { width, height, queriesData, formData } = chartProps;
+  const {
+    width,
+    height,
+    queriesData,
+    formData,
+    rawDatasource: { columns: columnsObjects },
+    datasource: { verboseMap = {}, columnFormats = {} },
+  } = chartProps;
   const data = queriesData[0].data as DataRecord[];
   const {
     groupbyRows,
@@ -63,8 +70,19 @@ export default function transformProps(chartProps: ChartProps) {
     colSubtotalPosition,
     colTotals,
     rowTotals,
+    combineMetric,
+    metricsLayout,
     valueFormat,
   } = formData;
+
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering (feat-2665292)');
+  // eslint-disable-next-line no-console
+  console.log('formData:', formData);
+  // eslint-disable-next-line no-console
+  console.log('chartProps:', chartProps);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
 
   return {
     width,
@@ -83,5 +101,10 @@ export default function transformProps(chartProps: ChartProps) {
     colTotals,
     rowTotals,
     valueFormat,
+    columnsObjects,
+    combineMetric,
+    metricsLayout,
+    columnFormats,
+    verboseMap,
   };
 }

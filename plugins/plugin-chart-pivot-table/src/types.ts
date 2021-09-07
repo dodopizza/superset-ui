@@ -16,12 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { QueryFormData, DataRecord, AdhocMetric } from '@superset-ui/core';
+import {
+  QueryFormData,
+  DataRecord,
+  AdhocMetric,
+  DataRecordValue,
+  JsonObject,
+  TimeFormatter,
+  NumberFormatter,
+  QueryFormMetric,
+} from '@superset-ui/core';
 
 export interface PivotTableStylesProps {
   height: number;
   width: number;
+  margin: number;
 }
+
+export type DateFormatter = TimeFormatter | NumberFormatter | ((value: DataRecordValue) => string);
+export type SelectedFiltersType = Record<string, DataRecordValue[]>;
 
 interface PivotTableCustomizeProps {
   groupbyRows: string[];
@@ -32,11 +45,32 @@ interface PivotTableCustomizeProps {
   rowOrder: string;
   aggregateFunction: string;
   transposePivot: boolean;
+  combineMetric: boolean;
   rowSubtotalPosition: boolean;
   colSubtotalPosition: boolean;
   colTotals: boolean;
   rowTotals: boolean;
   valueFormat: string;
+  emitFilter?: boolean;
+  selectedFilters?: SelectedFiltersType;
+  verboseMap: JsonObject;
+  columnFormats: JsonObject;
+  metricsLayout?: MetricsLayoutEnum;
+  metricColorFormatters: any;
+  dateFormatters: Record<string, DateFormatter | undefined>;
+  timeseries_limit_metric: QueryFormMetric[] | QueryFormMetric | null;
+  order_desc: boolean;
+  columnsObjects: {
+    column_name: string;
+    description: string | null;
+    expression: string;
+    filterable: boolean;
+    groupby: boolean;
+    id: number;
+    is_dttm: boolean;
+    python_date_format: string | null;
+    type: string;
+  }[];
 }
 
 export type PivotTableQueryFormData = QueryFormData &
@@ -47,3 +81,8 @@ export type PivotTableProps = PivotTableStylesProps &
   PivotTableCustomizeProps & {
     data: DataRecord[];
   };
+
+export enum MetricsLayoutEnum {
+  ROWS = 'ROWS',
+  COLUMNS = 'COLUMNS',
+}
