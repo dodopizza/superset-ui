@@ -63,19 +63,6 @@ const config: ControlPanelConfig = {
         ['color_scheme'],
         [
           {
-            name: 'isSeriesDate',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Is series date format'),
-              renderTrigger: true,
-              // TODO: move to a variable
-              default: false,
-              description: t('Temp solution'),
-            },
-          },
-        ],
-        [
-          {
             name: 'showValuesTotal',
             config: {
               type: 'CheckboxControl',

@@ -16,52 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import {
-  CategoricalColorNamespace,
-  // DataRecordValue,
-  // getMetricLabel,
-  getNumberFormatter,
-  // getTimeFormatter,
-  NumberFormats,
-  // NumberFormatter,
-} from '@superset-ui/core';
-import { EChartsOption /* BarSeriesOption */ } from 'echarts';
+import { CategoricalColorNamespace, getNumberFormatter, NumberFormats } from '@superset-ui/core';
+import { EChartsOption } from 'echarts';
 import moment from 'moment';
 
 import {
   DEFAULT_FORM_DATA,
   EchartsBarChartProps,
   EchartsBarFormData,
-  // EchartsBarLabelType,
   BarChartTransformedProps,
 } from './types';
 import { DEFAULT_LEGEND_FORM_DATA } from '../types';
 import { parseYAxisBound } from '../utils/controls';
 import { createTooltipElement } from '../utils/tooltipGeneration';
-// import { /* extractGroupbyLabel, */ getColtypesMapping } from '../utils/series';
 
 export default function transformProps(chartProps: EchartsBarChartProps): BarChartTransformedProps {
-  const { formData, height, queriesData, width, datasource } = chartProps;
+  const {
+    formData,
+    height,
+    queriesData,
+    width,
+    datasource,
+    datasource: { columns: datasourceColumns },
+  } = chartProps;
   const { metrics: chartPropsDatasourceMetrics, columnFormats } = datasource;
   const { data = [] } = queriesData[0];
-  // const coltypeMapping = getColtypesMapping(queriesData[0]);
 
   const {
     colorScheme,
-    // dateFormat,
-    // showLabels,
     emitFilter,
-    // numberFormat,
-
     showValuesTotal,
     showValuesSeparately,
     stack,
     contribution = false,
     yAxisBounds,
-    // showLegend = false,
+    showLegend = false,
     orderBars = false,
-    // orderDesc = false,
-    isSeriesDate,
   }: EchartsBarFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_FORM_DATA, ...formData };
 
   const { metrics, groupby, columns } = formData;
@@ -73,6 +63,8 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   // eslint-disable-next-line no-console
   console.groupCollapsed('Custom fix by Dodo Engineering (feat-2666390)');
   // eslint-disable-next-line no-console
+  console.log('chartProps', chartProps);
+  // eslint-disable-next-line no-console
   console.log('metric: =>', metrics);
   // eslint-disable-next-line no-console
   console.log('columns (breakdowns):', '->', columns);
@@ -80,8 +72,6 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   console.log('groupby (series):', '->', groupby);
   // eslint-disable-next-line no-console
   console.log('formData', formData);
-  // eslint-disable-next-line no-console
-  console.log('data', data);
   // eslint-disable-next-line no-console
   console.groupEnd();
 
@@ -122,33 +112,31 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     }, {});
 
   const calculateSum = (arr: number[]) =>
-    arr.reduce((previousValue: any, currentValue: any) => previousValue + currentValue);
+    arr.reduce((previousValue: number, currentValue: number) => previousValue + currentValue);
 
-  const convertToPercentages = (arr: number[]) => {
-    const transformedArray = arr.map(n => Number(n.toFixed(20)));
+  const makeNumber = (el: string | number | null | undefined) =>
+    el !== undefined ? Number(el) : 0;
+
+  const convertToPercentages = (arr: (number | string)[]) => {
+    const transformedArray = arr.map(n => makeNumber(makeNumber(n).toFixed(20)));
     const sum = calculateSum(transformedArray);
     const convertedValues = [] as any;
 
     transformedArray.forEach(element => {
-      // we are rounding this, so that javascript will calculate correctly (100.00002 -> 100)
-      const number = element / sum;
-      const roundedNumber = Number(number.toFixed(20));
+      if (sum === 0) convertedValues.push(0);
+      else {
+        // we are rounding this, so that javascript will calculate correctly (100.00002 -> 100)
+        const number = element / sum;
+        const roundedNumber = makeNumber(makeNumber(number).toFixed(20));
 
-      convertedValues.push(roundedNumber);
+        convertedValues.push(roundedNumber);
+      }
     });
-
-    if (calculateSum(convertedValues) !== 1) {
-      console.groupCollapsed('NOT 100%:', calculateSum(convertedValues));
-      console.log('arr: => ', arr);
-      console.log('transformedArray: => ', transformedArray);
-      console.log('convertedValues: => ', convertedValues);
-      console.groupEnd();
-    }
 
     return convertedValues;
   };
 
-  const convertDate = (date: Date) => moment(date).format('YYYY-MM-DD');
+  const convertDate = (date: Date) => moment(date).format('DD-MM-YYYY');
 
   const addMissingData = (values: any[], expectedNames: string[]) =>
     expectedNames.map(name => {
@@ -159,10 +147,11 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       return found || fallbackObj;
     });
 
-  const seriesesVals = [] as any;
+  // const seriesesVals = [] as any;
   const seriesesValsOriginal = [] as any;
 
   const expectedDataNames = [] as any;
+  const expectedLegendNames = [] as any;
 
   const sortedData = !orderBars
     ? data
@@ -172,13 +161,23 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
         return 0;
       });
 
+  const findElementByKey = (arr: any[], elementName: string, key: string) =>
+    arr.filter(el => el[key] === elementName);
+
+  const isItDateFormat = (el: string | null) =>
+    !el ? false : el.toLowerCase().includes('time') || el.toLowerCase().includes('date');
+
   const originalData = sortedData
     .map(datum => {
       const value = getValuesFromObj(groupby, datum)[0];
       const checkedValue = value || FALLBACK_NAME;
+      const columnnType = findElementByKey(datasourceColumns, groupby[0], 'column_name');
 
-      seriesesVals.push(isSeriesDate ? convertDate(new Date(checkedValue)) : checkedValue);
-      seriesesValsOriginal.push(checkedValue);
+      const isSeriesDateFormat = isItDateFormat(columnnType[0] ? columnnType[0].type : null);
+
+      seriesesValsOriginal.push(
+        isSeriesDateFormat ? convertDate(new Date(checkedValue)) : checkedValue,
+      );
 
       const groupedValues = groupby?.map(groupingKey => {
         // groupingKey = Date (series) -> only 1 is supported now
@@ -189,8 +188,15 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
          */
 
         const values = finalMetrics.map(metricName => {
-          const breakdownName = columns?.map(colName => datum[colName]);
+          const breakdownName = columns?.map(colName => {
+            const columnnType = findElementByKey(datasourceColumns, colName, 'column_name');
+            const isSeriesDateFormat = isItDateFormat(columnnType[0] ? columnnType[0].type : null);
+            // @ts-ignore
+            return isSeriesDateFormat ? convertDate(new Date(datum[colName])) : datum[colName];
+          });
           const finalBrName = breakdownName?.length ? breakdownName.join() : null;
+
+          expectedLegendNames.push(finalBrName);
 
           // when there is only 1 metric, no need to print it's name
           const dataName = finalMetrics.length > 1 ? `${metricName}, ${finalBrName}` : finalBrName;
@@ -213,11 +219,11 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     .flat();
 
   const uniqExpectedDataNames = [...new Set(expectedDataNames)] as string[];
-
-  console.group('1');
-  console.log('originalData', originalData);
-  console.log('uniqExpectedDataNames', uniqExpectedDataNames);
-  console.groupEnd();
+  const uniqExpectedLegendNames = [...new Set(expectedLegendNames)].sort((a: any, b: any) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  }) as string[];
 
   // TODO: for now only 1 series is supported, hence - groupby[0]
   const groupByArrayDate = groupByArrayByObjKey(originalData, groupby[0]);
@@ -255,10 +261,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     almostFinalValues.push(addMissingDataResult);
   });
 
-  // TODO: make it pretty
   const uniqueSeriesNames = [...new Set(seriesesValsOriginal)];
-  const uniqueSeriesNamesDate = [...new Set(seriesesVals)];
-
   const uniqFinalValues = [...new Set(almostFinalValues.flat())];
 
   const groupByArray = groupByArrayByObjKey(uniqFinalValues, 'dataName');
@@ -272,7 +275,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       const value = groupByArrayForTotal[key];
 
       const pureObject = {
-        totalSum: calculateSum(value.map((vv: any) => vv.dataValue)),
+        totalSum: calculateSum(value.map((vv: any) => makeNumber(vv.dataValue))),
         name: key,
       } as any;
 
@@ -295,34 +298,22 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   const sorted = finalyParsedData;
 
-  console.group('2');
-  console.log('uniqueSeriesNames', uniqueSeriesNames);
-  console.log('uniqueSeriesNamesDate', uniqueSeriesNamesDate);
-  console.log('uniqFinalValues', uniqFinalValues);
-  console.log('groupByArray', groupByArray);
-  console.log('finalyParsedData', finalyParsedData);
-  console.log('sorted', sorted);
-  console.groupEnd();
-
-  // TODO: legend
-  // const namesForLegend = [] as any;
-  // console.log('namesForLegend', namesForLegend);
-
   /**
    * Used for tooltip for d3 formating
    */
-  const findMetricNameInArray = (metrics: any[], originalSName: string) => {
+  const findMetricNameInArray = (metrics: any[] | undefined, originalSName: string) => {
     let metricName = originalSName;
 
     // We either get ['count'] or ['count', 'LA'] or ['LA', '2003']
     const srsNames = originalSName.split(',');
 
     // we default the metric name to the metrics[0] A or B
-    if (srsNames.length === 1) metricName = metrics[0];
-    if (metrics.length === 1) metricName = metrics[0];
+    if (metrics && srsNames.length === 1) metricName = metrics[0];
+    if (metrics && metrics.length === 1) metricName = metrics[0];
     else {
       // we find the metric name in array
-      metrics.forEach((metr: string) => {
+      // @ts-ignore
+      metrics.forEach(metr => {
         const index = srsNames?.indexOf(metr);
         if (index >= 0 && srsNames) metricName = srsNames[index];
       });
@@ -331,8 +322,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     return metricName;
   };
 
-  const getMetricNameFromGroups = (sType: string, sName: string) => ({
-    // @ts-ignore
+  const getMetricNameFromGroups = (sName: string) => ({
     metricName: findMetricNameInArray(metrics, sName),
   });
 
@@ -354,7 +344,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
      * to indetify what metrics are behind those metrics names
      */
 
-    const overrideMetricParams = getMetricNameFromGroups(sType, sName);
+    const overrideMetricParams = getMetricNameFromGroups(sName);
     const { metricName } = overrideMetricParams;
     const tt = getD3OrOriginalFormat(yAxisFormat, metricName, columnFormats);
     return tt;
@@ -418,11 +408,6 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   const series: any[] = getSeries(sorted);
 
-  console.group('3');
-  console.log('uniqueSeriesNames', uniqueSeriesNames);
-  console.log('series', series);
-  console.groupEnd();
-
   // yAxisBounds need to be parsed to replace incompatible values with undefined
   let [min, max] = (yAxisBounds || []).map(parseYAxisBound);
 
@@ -457,12 +442,15 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   const echartOptions: EChartsOption = {
     grid: {
-      top: '5%',
+      top: '10%',
     },
-    // legend: {
-    //   data: showLegend ? namesForLegend.map((v: any) => v.key) : [],
-    //   align: 'auto',
-    // },
+    legend: {
+      data: showLegend ? uniqExpectedLegendNames : [],
+      align: 'auto',
+      orient: 'horizontal',
+      type: 'scroll',
+      top: 5,
+    },
     // @ts-ignore
     dataZoom: dataZoomConfig,
     tooltip: {
@@ -496,7 +484,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     // @ts-ignore
     xAxis: {
       type: 'category',
-      data: isSeriesDate ? uniqueSeriesNamesDate : uniqueSeriesNames,
+      data: uniqueSeriesNames,
     },
     yAxis: {
       type: 'value',

@@ -206,11 +206,13 @@ export default function PivotTableChart(props: PivotTableProps) {
         const foundElement = found[0];
         finalObject = {
           ...finalObject,
-          [key]: foundElement.type.includes('TIMESTAMP')
-            ? isValidDate(value)
-              ? convertDate(value)
-              : value
-            : value,
+          [key]:
+            foundElement.type.toLowerCase().includes('time') ||
+            foundElement.type.toLowerCase().includes('date')
+              ? isValidDate(value)
+                ? convertDate(value)
+                : value
+              : value,
         };
       }
     });
