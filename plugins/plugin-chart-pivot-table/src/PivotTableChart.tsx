@@ -16,14 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { useMemo } from 'react';
-import { styled, AdhocMetric, getNumberFormatter, useTheme } from '@superset-ui/core';
+import React, { useMemo, useCallback } from 'react';
+import {
+  styled,
+  AdhocMetric,
+  getNumberFormatter,
+  useTheme,
+  DataRecordValue,
+} from '@superset-ui/core';
 // @ts-ignore
 import PivotTable from '@superset-ui/react-pivottable/PivotTable';
 // @ts-ignore
 import { sortAs, aggregatorTemplates } from '@superset-ui/react-pivottable/Utilities';
 import '@superset-ui/react-pivottable/pivottable.css';
-import { PivotTableProps, PivotTableStylesProps, MetricsLayoutEnum } from './types';
+import {
+  PivotTableProps,
+  PivotTableStylesProps,
+  MetricsLayoutEnum,
+  FilterType,
+  SelectedFiltersType,
+} from './types';
 
 const Styles = styled.div<PivotTableStylesProps>`
   ${({ height, width, margin }) => `
@@ -95,41 +107,9 @@ const convertDate = (date: Date) => {
   const dateObj = new Date(date);
   return `${getFullYear(dateObj)}-${addZero(getMonth(dateObj) + 1)}-${addZero(getDate(dateObj))}`;
 };
+
 // TODO: Math.abs is to consider dates before 1970 (-157766400000)
 const isValidDate = (str: number) => Date.parse(String(new Date(Math.abs(str)))) > 0;
-
-// TODO: remove eslint-disable when click callbacks are implemented
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const clickCellCallback = (
-  e: MouseEvent,
-  value: number,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-) => {
-  // TODO: Implement a callback
-};
-
-const clickColumnHeaderCallback = (
-  e: MouseEvent,
-  value: string,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-  isSubtotal: boolean,
-  isGrandTotal: boolean,
-) => {
-  // TODO: Implement a callback
-};
-
-const clickRowHeaderCallback = (
-  e: MouseEvent,
-  value: string,
-  filters: Record<string, any>,
-  pivotData: Record<string, any>,
-  isSubtotal: boolean,
-  isGrandTotal: boolean,
-) => {
-  // TODO: Implement a callback
-};
 
 export default function PivotTableChart(props: PivotTableProps) {
   const {
@@ -139,7 +119,7 @@ export default function PivotTableChart(props: PivotTableProps) {
     groupbyRows,
     groupbyColumns,
     metrics,
-    // tableRenderer,
+    tableRenderer,
     colOrder,
     rowOrder,
     aggregateFunction,
@@ -154,6 +134,11 @@ export default function PivotTableChart(props: PivotTableProps) {
     metricsLayout,
     combineMetric,
     columnsObjects,
+    emitFilter,
+    // @ts-ignore
+    setDataMask,
+    selectedFilters,
+    dateFormatters,
   } = props;
 
   const findElementByKey = (arr: any[], elementName: string, key: string) =>
@@ -193,7 +178,9 @@ export default function PivotTableChart(props: PivotTableProps) {
     [metrics],
   );
 
-  // TODO: add d3 format from metrics
+  const isItDateFormat = (el: string | null) =>
+    !el ? false : el.toLowerCase().includes('time') || el.toLowerCase().includes('date');
+
   const transformObjectValue = (
     obj: Record<string, any>,
     columnsAndRows: { name: string; type: string }[],
@@ -206,13 +193,11 @@ export default function PivotTableChart(props: PivotTableProps) {
         const foundElement = found[0];
         finalObject = {
           ...finalObject,
-          [key]:
-            foundElement.type.toLowerCase().includes('time') ||
-            foundElement.type.toLowerCase().includes('date')
-              ? isValidDate(value)
-                ? convertDate(value)
-                : value
-              : value,
+          [key]: isItDateFormat(foundElement.type)
+            ? isValidDate(value)
+              ? convertDate(value)
+              : value
+            : value,
         };
       }
     });
@@ -220,6 +205,80 @@ export default function PivotTableChart(props: PivotTableProps) {
   };
 
   const alteredData = data.map((d: any) => transformObjectValue(d, columnsAndRowsWithTypes));
+
+  const handleChange = useCallback(
+    (filters: SelectedFiltersType) => {
+      const groupBy = Object.keys(filters);
+      setDataMask({
+        extraFormData: {
+          filters:
+            groupBy.length === 0
+              ? undefined
+              : groupBy.map(col => {
+                  const val = filters?.[col];
+                  if (val === null || val === undefined)
+                    return {
+                      col,
+                      op: 'IS NULL',
+                    };
+                  return {
+                    col,
+                    op: 'IN',
+                    val: val as (string | number | boolean)[],
+                  };
+                }),
+        },
+        filterState: {
+          value: filters && Object.keys(filters).length ? Object.values(filters) : null,
+          selectedFilters: filters && Object.keys(filters).length ? filters : null,
+        },
+      });
+    },
+    [setDataMask],
+  );
+
+  const toggleFilter = useCallback(
+    (
+      e: MouseEvent,
+      value: string,
+      filters: FilterType,
+      pivotData: Record<string, any>,
+      isSubtotal: boolean,
+      isGrandTotal: boolean,
+    ) => {
+      if (isSubtotal || isGrandTotal || !emitFilter) {
+        return;
+      }
+
+      const isActiveFilterValue = (key: string, val: DataRecordValue) =>
+        !!selectedFilters && selectedFilters[key]?.includes(val);
+
+      const filtersCopy = { ...filters };
+      delete filtersCopy[METRIC_KEY];
+
+      const filtersEntries = Object.entries(filtersCopy);
+      if (filtersEntries.length === 0) {
+        return;
+      }
+
+      const [key, val] = filtersEntries[filtersEntries.length - 1];
+
+      let updatedFilters = { ...(selectedFilters || {}) };
+
+      if (selectedFilters && isActiveFilterValue(key, val)) {
+        updatedFilters = {};
+      } else {
+        updatedFilters = {
+          [key]: [val],
+        };
+      }
+      if (Array.isArray(updatedFilters[key]) && updatedFilters[key].length === 0) {
+        delete updatedFilters[key];
+      }
+      handleChange(updatedFilters);
+    },
+    [emitFilter, selectedFilters, handleChange],
+  );
 
   const unpivotedData = useMemo(
     () =>
@@ -262,18 +321,21 @@ export default function PivotTableChart(props: PivotTableProps) {
           }
           aggregatorName={aggregateFunction}
           vals={['value']}
-          rendererName="Table With Subtotal"
+          rendererName={tableRenderer}
           colOrder={colOrder}
           rowOrder={rowOrder}
           sorters={{
             metric: sortAs(metricNames),
           }}
           tableOptions={{
-            clickCallback: clickCellCallback,
-            clickRowHeaderCallback,
-            clickColumnHeaderCallback,
+            clickRowHeaderCallback: toggleFilter,
+            clickColumnHeaderCallback: toggleFilter,
             colTotals,
             rowTotals,
+            highlightHeaderCellsOnHover: emitFilter,
+            highlightedHeaderCells: selectedFilters,
+            omittedHighlightHeaderGroups: [METRIC_KEY],
+            dateFormatters,
           }}
           subtotalOptions={{
             colSubtotalDisplay: { displayOnTop: colSubtotalPosition },

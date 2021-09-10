@@ -22,6 +22,8 @@ import {
   formatSelectOptions,
   sections,
   sharedControls,
+  D3_TIME_FORMAT_OPTIONS,
+  D3_FORMAT_DOCS,
 } from '@superset-ui/chart-controls';
 import { MetricsLayoutEnum } from '../types';
 
@@ -78,6 +80,18 @@ const config: ControlPanelConfig = {
           },
         ],
         ['adhoc_filters'],
+        [
+          {
+            name: 'emit_filter',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Emit dashboard cross filters'),
+              default: false,
+              renderTrigger: true,
+              description: t('Emit dashboard cross filters.'),
+            },
+          },
+        ],
         [
           {
             name: 'row_limit',
@@ -165,6 +179,20 @@ const config: ControlPanelConfig = {
           {
             name: 'valueFormat',
             config: { ...sharedControls.y_axis_format, label: t('Value format') },
+          },
+        ],
+        [
+          {
+            name: 'date_format',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              label: t('Date format'),
+              renderTrigger: true,
+              choices: D3_TIME_FORMAT_OPTIONS,
+              default: 'smart_date',
+              description: D3_FORMAT_DOCS,
+            },
           },
         ],
         [

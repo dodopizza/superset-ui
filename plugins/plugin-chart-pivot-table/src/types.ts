@@ -32,7 +32,7 @@ export interface PivotTableStylesProps {
   width: number;
   margin: number;
 }
-
+export type FilterType = Record<string, DataRecordValue>;
 export type DateFormatter = TimeFormatter | NumberFormatter | ((value: DataRecordValue) => string);
 export type SelectedFiltersType = Record<string, DataRecordValue[]>;
 

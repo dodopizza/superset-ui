@@ -16,7 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ChartProps, DataRecord } from '@superset-ui/core';
+import {
+  ChartProps,
+  DataRecord,
+  GenericDataType,
+  smartDateFormatter,
+  TimeFormats,
+  getTimeFormatter,
+  getTimeFormatterForGranularity,
+} from '@superset-ui/core';
+import { DateFormatter } from '../types';
+
+const { DATABASE_DATETIME } = TimeFormats;
+
+function isNumeric(key: string, data: DataRecord[] = []) {
+  return data.every(
+    record => record[key] === null || record[key] === undefined || typeof record[key] === 'number',
+  );
+}
 
 export default function transformProps(chartProps: ChartProps) {
   /**
@@ -54,9 +71,11 @@ export default function transformProps(chartProps: ChartProps) {
     queriesData,
     formData,
     rawDatasource: { columns: columnsObjects },
+    hooks: { setDataMask = () => {} },
+    filterState,
     datasource: { verboseMap = {}, columnFormats = {} },
   } = chartProps;
-  const data = queriesData[0].data as DataRecord[];
+  const { data, colnames, coltypes } = queriesData[0];
   const {
     groupbyRows,
     groupbyColumns,
@@ -73,7 +92,10 @@ export default function transformProps(chartProps: ChartProps) {
     combineMetric,
     metricsLayout,
     valueFormat,
+    emitFilter,
+    dateFormat,
   } = formData;
+  const { selectedFilters } = filterState;
 
   // eslint-disable-next-line no-console
   console.groupCollapsed('Custom fix by Dodo Engineering (feat-2665292)');
@@ -83,6 +105,33 @@ export default function transformProps(chartProps: ChartProps) {
   console.log('chartProps:', chartProps);
   // eslint-disable-next-line no-console
   console.groupEnd();
+
+  // TODO
+  const granularity = false;
+
+  const dateFormatters = colnames
+    .filter((colname: string, index: number) => coltypes[index] === GenericDataType.TEMPORAL)
+    .reduce((acc: Record<string, DateFormatter | undefined>, temporalColname: string) => {
+      let formatter: DateFormatter | undefined;
+      if (dateFormat === smartDateFormatter.id) {
+        // eslint-disable-next-line no-constant-condition
+        if (granularity) {
+          // time column use formats based on granularity
+          formatter = getTimeFormatterForGranularity(granularity);
+        } else if (isNumeric(temporalColname, data)) {
+          formatter = getTimeFormatter(DATABASE_DATETIME);
+        } else {
+          // if no column-specific format, print cell as is
+          formatter = String;
+        }
+      } else if (dateFormat) {
+        formatter = getTimeFormatter(dateFormat);
+      }
+      if (formatter) {
+        acc[temporalColname] = formatter;
+      }
+      return acc;
+    }, {});
 
   return {
     width,
@@ -106,5 +155,10 @@ export default function transformProps(chartProps: ChartProps) {
     metricsLayout,
     columnFormats,
     verboseMap,
+    emitFilter,
+    setDataMask,
+    selectedFilters,
+    dateFormatters,
+    dateFormat,
   };
 }
