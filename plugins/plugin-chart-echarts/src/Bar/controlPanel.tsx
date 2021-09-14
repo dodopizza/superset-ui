@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import React from 'react';
 import { t, validateNonEmpty } from '@superset-ui/core';
 import { ControlPanelConfig, sections } from '@superset-ui/chart-controls';
 
@@ -126,6 +127,31 @@ const config: ControlPanelConfig = {
           },
         ],
         ['y_axis_format'],
+        [<h1 className="section-header">{t('Show zoom controls')}</h1>],
+        [
+          {
+            name: 'zoomableY',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Data Zoom Y'),
+              default: false,
+              renderTrigger: true,
+              description: t('Enable data zooming controls (Y)'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'zoomableX',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Data Zoom X'),
+              default: false,
+              renderTrigger: true,
+              description: t('Enable data zooming controls (X)'),
+            },
+          },
+        ],
       ],
     },
     // {

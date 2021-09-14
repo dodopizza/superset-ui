@@ -26,6 +26,7 @@ import {
   EchartsBarFormData,
   BarChartTransformedProps,
 } from './types';
+import { BAR_CHART_CONSTANTS } from '../constants';
 import { DEFAULT_LEGEND_FORM_DATA } from '../types';
 import { parseYAxisBound } from '../utils/controls';
 import { createTooltipElement } from '../utils/tooltipGeneration';
@@ -52,7 +53,12 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     yAxisBounds,
     showLegend = false,
     orderBars = false,
+    zoomableY,
+    zoomableX,
   }: EchartsBarFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_FORM_DATA, ...formData };
+
+  // TODO:
+  // const chartPadding = getPadding(showLegend, legendOrientation, addYAxisLabelOffset, zoomable);
 
   const { metrics, groupby, columns } = formData;
   let { yAxisFormat } = formData;
@@ -346,8 +352,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
     const overrideMetricParams = getMetricNameFromGroups(sName);
     const { metricName } = overrideMetricParams;
-    const tt = getD3OrOriginalFormat(yAxisFormat, metricName, columnFormats);
-    return tt;
+    return getD3OrOriginalFormat(yAxisFormat, metricName, columnFormats);
   };
 
   const formatValue = (dataValue: number, seriesType: string, seriesName: string) => {
@@ -384,7 +389,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
         const { data, seriesType, seriesName } = params;
         const dataValue = data;
-        return formatValue(dataValue, seriesType, seriesName);
+        return dataValue ? formatValue(dataValue, seriesType, seriesName) : '';
       },
     };
 
@@ -418,27 +423,28 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
     if (max === undefined) max = 1.002;
   }
 
-  const dataZoomConfig = [
-    {
-      show: true,
-      start: 0,
-      end: 100,
-    },
-    {
-      type: 'inside',
-      start: 0,
-      end: 100,
-    },
-    {
-      show: true,
-      yAxisIndex: 0,
-      filterMode: 'empty',
-      width: 30,
-      height: '80%',
-      showDataShadow: false,
-      right: 30,
-    },
-  ];
+  const dataZoomConfig = (zoomableX: boolean, zoomableY: boolean) => {
+    const initialArray = [];
+    if (zoomableX) {
+      initialArray.push({
+        type: 'slider',
+        start: BAR_CHART_CONSTANTS.dataZoomStart,
+        end: BAR_CHART_CONSTANTS.dataZoomEnd,
+      });
+    }
+    if (zoomableY) {
+      initialArray.push({
+        yAxisIndex: 0,
+        filterMode: 'empty',
+        width: 30,
+        height: '80%',
+        showDataShadow: false,
+        right: BAR_CHART_CONSTANTS.zoomRight,
+      });
+    }
+
+    return initialArray;
+  };
 
   const echartOptions: EChartsOption = {
     grid: {
@@ -452,10 +458,9 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
       top: 5,
     },
     // @ts-ignore
-    dataZoom: dataZoomConfig,
+    dataZoom: dataZoomConfig(zoomableX, zoomableY),
     tooltip: {
       trigger: 'axis',
-      // trigger: 'item',
       axisPointer: {
         type: 'shadow',
       },
