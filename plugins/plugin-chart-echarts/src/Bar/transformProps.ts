@@ -425,13 +425,14 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
   const dataZoomConfig = (zoomableX: boolean, zoomableY: boolean) => {
     const initialArray = [];
+
     if (zoomableX) {
       initialArray.push({
-        type: 'slider',
         start: BAR_CHART_CONSTANTS.dataZoomStart,
         end: BAR_CHART_CONSTANTS.dataZoomEnd,
       });
     }
+
     if (zoomableY) {
       initialArray.push({
         yAxisIndex: 0,
@@ -440,6 +441,14 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
         height: '80%',
         showDataShadow: false,
         right: BAR_CHART_CONSTANTS.zoomRight,
+      });
+    }
+
+    if (zoomableY || zoomableX) {
+      initialArray.push({
+        type: 'inside',
+        start: 0,
+        end: 100,
       });
     }
 
