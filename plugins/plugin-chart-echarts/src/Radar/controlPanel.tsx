@@ -19,9 +19,7 @@
 import React from 'react';
 import {
   ChartDataResponseResult,
-  FeatureFlag,
   GenericDataType,
-  isFeatureEnabled,
   QueryFormMetric,
   t,
   validateNumber,
@@ -33,14 +31,14 @@ import {
   D3_TIME_FORMAT_OPTIONS,
   sections,
   sharedControls,
+  emitFilterControl,
 } from '@superset-ui/chart-controls';
 import { ControlFormItemSpec } from '@superset-ui/chart-controls/lib/components/ControlForm';
 import { DEFAULT_FORM_DATA } from './types';
-import { legendOrientationControl, legendTypeControl, showLegendControl } from '../controls';
 import { LABEL_POSITION } from '../constants';
+import { legendSection } from '../controls';
 
-const { labelType, labelPosition, numberFormat, showLabels, isCircle, emitFilter } =
-  DEFAULT_FORM_DATA;
+const { labelType, labelPosition, numberFormat, showLabels, isCircle } = DEFAULT_FORM_DATA;
 
 const radarMetricMaxValue: { name: string; config: ControlFormItemSpec } = {
   name: 'radarMetricMaxValue',
@@ -64,7 +62,9 @@ const config: ControlPanelConfig = {
       controlSetRows: [
         ['groupby'],
         ['metrics'],
+        ['timeseries_limit_metric'],
         ['adhoc_filters'],
+        emitFilterControl,
         [
           {
             name: 'row_limit',
@@ -81,24 +81,7 @@ const config: ControlPanelConfig = {
       expanded: true,
       controlSetRows: [
         ['color_scheme'],
-        [<h1 className="section-header">{t('Legend')}</h1>],
-        isFeatureEnabled(FeatureFlag.DASHBOARD_CROSS_FILTERS)
-          ? [
-              {
-                name: 'emit_filter',
-                config: {
-                  type: 'CheckboxControl',
-                  label: t('Enable emitting filters'),
-                  default: emitFilter,
-                  renderTrigger: true,
-                  description: t('Enable emmiting filters.'),
-                },
-              },
-            ]
-          : [],
-        [showLegendControl],
-        [legendTypeControl],
-        [legendOrientationControl],
+        ...legendSection,
         [<h1 className="section-header">{t('Labels')}</h1>],
         [
           {
@@ -185,7 +168,7 @@ const config: ControlPanelConfig = {
                 [GenericDataType.NUMERIC]: [[radarMetricMaxValue]],
               },
               mapStateToProps(explore, control, chart) {
-                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) || [];
+                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) ?? [];
                 const metricColumn = values.map(value => {
                   if (typeof value === 'string') {
                     return value;

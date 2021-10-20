@@ -18,20 +18,23 @@
  */
 import {
   QueryFormMetric,
-  ChartProps,
   CategoricalColorNamespace,
   CategoricalColorScale,
   DataRecord,
   getNumberFormatter,
   getMetricLabel,
+  DataRecordValue,
 } from '@superset-ui/core';
 import { EChartsOption, GaugeSeriesOption } from 'echarts';
 import { GaugeDataItemOption } from 'echarts/types/src/chart/gauge/GaugeSeries';
+import range from 'lodash/range';
 import { parseNumbersList } from '../utils/controls';
 import {
   DEFAULT_FORM_DATA as DEFAULT_GAUGE_FORM_DATA,
   EchartsGaugeFormData,
   AxisTickLineStyle,
+  GaugeChartTransformedProps,
+  EchartsGaugeChartProps,
 } from './types';
 import {
   DEFAULT_GAUGE_SERIES_OPTION,
@@ -39,6 +42,7 @@ import {
   OFFSETS,
   FONT_SIZE_MULTIPLIERS,
 } from './constants';
+import { OpacityEnum } from '../constants';
 
 const setIntervalBoundsAndColors = (
   intervals: string,
@@ -70,8 +74,10 @@ const setIntervalBoundsAndColors = (
 const calculateAxisLineWidth = (data: DataRecord[], fontSize: number, overlap: boolean): number =>
   overlap ? fontSize : data.length * fontSize;
 
-export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queriesData } = chartProps;
+export default function transformProps(
+  chartProps: EchartsGaugeChartProps,
+): GaugeChartTransformedProps {
+  const { width, height, formData, queriesData, hooks, filterState } = chartProps;
   const {
     groupby,
     metric,
@@ -93,12 +99,18 @@ export default function transformProps(chartProps: ChartProps) {
     intervals,
     intervalColorIndices,
     valueFormatter,
+    emitFilter,
   }: EchartsGaugeFormData = { ...DEFAULT_GAUGE_FORM_DATA, ...formData };
   const data = (queriesData[0]?.data || []) as DataRecord[];
   const numberFormatter = getNumberFormatter(numberFormat);
   const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
   const normalizer = maxVal;
   const axisLineWidth = calculateAxisLineWidth(data, fontSize, overlap);
+  const axisLabels = range(minVal, maxVal, (maxVal - minVal) / splitNumber);
+  const axisLabelLength = Math.max(
+    ...axisLabels.map(label => numberFormatter(label).length).concat([1]),
+  );
+  const formatValue = (value: number) => valueFormatter.replace('{value}', numberFormatter(value));
   const axisTickLength = FONT_SIZE_MULTIPLIERS.axisTickLength * fontSize;
   const splitLineLength = FONT_SIZE_MULTIPLIERS.splitLineLength * fontSize;
   const titleOffsetFromTitle = FONT_SIZE_MULTIPLIERS.titleOffsetFromTitle * fontSize;
@@ -109,26 +121,51 @@ export default function transformProps(chartProps: ChartProps) {
     colorFn,
     normalizer,
   );
-  const transformedData: GaugeDataItemOption[] = data.map((data_point, index) => ({
-    value: data_point[getMetricLabel(metric as QueryFormMetric)] as number,
-    name: groupby.map(column => `${column}: ${data_point[column]}`).join(', '),
-    itemStyle: {
-      color: colorFn(index),
-    },
-    title: {
-      offsetCenter: ['0%', `${index * titleOffsetFromTitle + OFFSETS.titleFromCenter}%`],
-      fontSize,
-    },
-    detail: {
-      offsetCenter: [
-        '0%',
-        `${index * titleOffsetFromTitle + OFFSETS.titleFromCenter + detailOffsetFromTitle}%`,
-      ],
-      fontSize: FONT_SIZE_MULTIPLIERS.detailFontSize * fontSize,
-    },
-  }));
+  const columnsLabelMap = new Map<string, DataRecordValue[]>();
 
-  const formatValue = (value: number) => valueFormatter.replace('{value}', numberFormatter(value));
+  const transformedData: GaugeDataItemOption[] = data.map((data_point, index) => {
+    const name = groupby.map(column => `${column}: ${data_point[column]}`).join(', ');
+    columnsLabelMap.set(
+      name,
+      groupby.map(col => data_point[col]),
+    );
+    let item: GaugeDataItemOption = {
+      value: data_point[getMetricLabel(metric as QueryFormMetric)] as number,
+      name,
+      itemStyle: {
+        color: colorFn(index),
+      },
+      title: {
+        offsetCenter: ['0%', `${index * titleOffsetFromTitle + OFFSETS.titleFromCenter}%`],
+        fontSize,
+      },
+      detail: {
+        offsetCenter: [
+          '0%',
+          `${index * titleOffsetFromTitle + OFFSETS.titleFromCenter + detailOffsetFromTitle}%`,
+        ],
+        fontSize: FONT_SIZE_MULTIPLIERS.detailFontSize * fontSize,
+      },
+    };
+    if (filterState.selectedValues && !filterState.selectedValues.includes(name)) {
+      item = {
+        ...item,
+        itemStyle: {
+          color: colorFn(index),
+          opacity: OpacityEnum.SemiTransparent,
+        },
+        detail: {
+          show: false,
+        },
+        title: {
+          show: false,
+        },
+      };
+    }
+    return item;
+  });
+
+  const { setDataMask = () => {} } = hooks;
 
   const progress = {
     show: showProgress,
@@ -155,8 +192,12 @@ export default function transformProps(chartProps: ChartProps) {
   const axisLabel = {
     distance:
       axisLineWidth -
-      FONT_SIZE_MULTIPLIERS.axisLabelDistance * fontSize -
+      FONT_SIZE_MULTIPLIERS.axisLabelDistance *
+        fontSize *
+        FONT_SIZE_MULTIPLIERS.axisLabelLength *
+        axisLabelLength -
       (showSplitLine ? splitLineLength : 0) -
+      (showAxisTick ? axisTickLength : 0) -
       OFFSETS.ticksFromLine,
     fontSize,
     formatter: numberFormatter,
@@ -215,8 +256,14 @@ export default function transformProps(chartProps: ChartProps) {
   };
 
   return {
+    formData,
     width,
     height,
     echartOptions,
+    setDataMask,
+    emitFilter,
+    labelMap: Object.fromEntries(columnsLabelMap),
+    groupby,
+    selectedValues: filterState.selectedValues || [],
   };
 }

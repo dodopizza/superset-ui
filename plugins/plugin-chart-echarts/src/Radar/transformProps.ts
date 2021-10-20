@@ -19,6 +19,7 @@
 import {
   CategoricalColorNamespace,
   DataRecordValue,
+  ensureIsInt,
   getMetricLabel,
   getNumberFormatter,
   getTimeFormatter,
@@ -37,6 +38,7 @@ import {
 import { DEFAULT_LEGEND_FORM_DATA } from '../types';
 import { extractGroupbyLabel, getColtypesMapping, getLegendProps } from '../utils/series';
 import { defaultGrid, defaultTooltip } from '../defaults';
+import { OpacityEnum } from '../constants';
 
 export function formatLabel({
   params,
@@ -63,7 +65,7 @@ export function formatLabel({
 export default function transformProps(
   chartProps: EchartsRadarChartProps,
 ): RadarChartTransformedProps {
-  const { formData, height, hooks, ownState, queriesData, width } = chartProps;
+  const { formData, height, hooks, filterState, queriesData, width } = chartProps;
   const { data = [] } = queriesData[0];
   const coltypeMapping = getColtypesMapping(queriesData[0]);
 
@@ -99,6 +101,7 @@ export default function transformProps(
 
   const metricsLabel = metrics.map(metric => getMetricLabel(metric));
 
+  const metricLabelAndMaxValueMap = new Map<string, number>();
   const columnsLabelMap = new Map<string, DataRecordValue[]>();
   const transformedData: RadarSeriesDataItemOption[] = [];
   data.forEach(datum => {
@@ -114,12 +117,35 @@ export default function transformProps(
       groupby.map(col => datum[col]),
     );
 
+    // put max value of series into metricLabelAndMaxValueMap
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [metricLabel, value] of Object.entries(datum)) {
+      if (metricLabelAndMaxValueMap.has(metricLabel)) {
+        metricLabelAndMaxValueMap.set(
+          metricLabel,
+          Math.max(
+            value as number,
+            ensureIsInt(metricLabelAndMaxValueMap.get(metricLabel), Number.MIN_SAFE_INTEGER),
+          ),
+        );
+      } else {
+        metricLabelAndMaxValueMap.set(metricLabel, value as number);
+      }
+    }
+
+    const isFiltered =
+      filterState.selectedValues && !filterState.selectedValues.includes(joinedName);
+
     // generate transformedData
     transformedData.push({
       value: metricsLabel.map(metricLabel => datum[metricLabel]),
       name: joinedName,
       itemStyle: {
         color: colorFn(joinedName),
+        opacity: isFiltered ? OpacityEnum.Transparent : OpacityEnum.NonTransparent,
+      },
+      lineStyle: {
+        opacity: isFiltered ? OpacityEnum.SemiTransparent : OpacityEnum.NonTransparent,
       },
       label: {
         show: showLabels,
@@ -129,7 +155,7 @@ export default function transformProps(
     } as RadarSeriesDataItemOption);
   });
 
-  const selectedValues = (ownState.selectedValues || []).reduce(
+  const selectedValues = (filterState.selectedValues || []).reduce(
     (acc: Record<string, number>, selectedValue: string) => {
       const index = transformedData.findIndex(({ name }) => name === selectedValue);
       return {
@@ -140,10 +166,19 @@ export default function transformProps(
     {},
   );
 
-  const indicator = metricsLabel.map(metricLabel => ({
-    name: metricLabel,
-    max: columnConfig?.[metricLabel]?.radarMetricMaxValue,
-  }));
+  const indicator = metricsLabel.map(metricLabel => {
+    const maxValueInControl = columnConfig?.[metricLabel]?.radarMetricMaxValue;
+    // Ensure that 0 is at the center of the polar coordinates
+    const metricValueAsMax =
+      metricLabelAndMaxValueMap.get(metricLabel) === 0
+        ? Number.MAX_SAFE_INTEGER
+        : metricLabelAndMaxValueMap.get(metricLabel);
+    const max = maxValueInControl === null ? metricValueAsMax : maxValueInControl;
+    return {
+      name: metricLabel,
+      max,
+    };
+  });
 
   const series: RadarSeriesOption[] = [
     {

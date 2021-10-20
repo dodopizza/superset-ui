@@ -40,8 +40,10 @@ import {
   getChartPadding,
   getColtypesMapping,
   getLegendProps,
+  sanitizeHtml,
 } from '../utils/series';
 import { defaultGrid, defaultTooltip } from '../defaults';
+import { OpacityEnum } from '../constants';
 
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
@@ -49,12 +51,15 @@ export function formatPieLabel({
   params,
   labelType,
   numberFormatter,
+  sanitizeName = false,
 }: {
-  params: CallbackDataParams;
+  params: Pick<CallbackDataParams, 'name' | 'value' | 'percent'>;
   labelType: EchartsPieLabelType;
   numberFormatter: NumberFormatter;
+  sanitizeName?: boolean;
 }): string {
-  const { name = '', value, percent } = params;
+  const { name: rawName = '', value, percent } = params;
+  const name = sanitizeName ? sanitizeHtml(rawName) : rawName;
   const formattedValue = numberFormatter(value as number);
   const formattedPercent = percentFormatter((percent as number) / 100);
 
@@ -77,8 +82,7 @@ export function formatPieLabel({
 }
 
 export default function transformProps(chartProps: EchartsPieChartProps): PieChartTransformedProps {
-  const { formData, height, hooks, ownState, queriesData, width, datasource } = chartProps;
-  const { metrics: chartPropsDatasourceMetrics, columnFormats } = datasource;
+  const { formData, height, hooks, filterState, queriesData, width } = chartProps;
   const { data = [] } = queriesData[0];
   const coltypeMapping = getColtypesMapping(queriesData[0]);
 
@@ -94,6 +98,7 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     legendOrientation,
     legendType,
     metric = '',
+    numberFormat,
     dateFormat,
     outerRadius,
     showLabels,
@@ -101,29 +106,8 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     showLabelsThreshold,
     emitFilter,
   }: EchartsPieFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_PIE_FORM_DATA, ...formData };
-  let { numberFormat } = formData;
   const metricLabel = getMetricLabel(metric);
   const minShowLabelAngle = (showLabelsThreshold || 0) * 3.6;
-
-  // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (feat/2630862)');
-  // eslint-disable-next-line no-console
-  console.log('metric: =>', metric);
-  // eslint-disable-next-line no-console
-  console.log('columnFormats: =>', columnFormats);
-  // eslint-disable-next-line no-console
-  console.log('numberFormat: =>', numberFormat);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
-
-  const findMetric = (arr: any[], metricName: string) =>
-    arr.filter(metric => metric.metric_name === metricName);
-
-  if (!numberFormat && chartProps.datasource && chartPropsDatasourceMetrics && metric) {
-    const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metric);
-
-    if (foundMetric && foundMetric.d3format) numberFormat = foundMetric.d3format;
-  }
 
   const keys = data.map(datum =>
     extractGroupbyLabel({
@@ -159,16 +143,19 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
       timeFormatter: getTimeFormatter(dateFormat),
     });
 
+    const isFiltered = filterState.selectedValues && !filterState.selectedValues.includes(name);
+
     return {
       value: datum[metricLabel],
       name,
       itemStyle: {
         color: colorFn(name),
+        opacity: isFiltered ? OpacityEnum.SemiTransparent : OpacityEnum.NonTransparent,
       },
     };
   });
 
-  const selectedValues = (ownState.selectedValues || []).reduce(
+  const selectedValues = (filterState.selectedValues || []).reduce(
     (acc: Record<string, number>, selectedValue: string) => {
       const index = transformedData.findIndex(({ name }) => name === selectedValue);
       return {
@@ -236,6 +223,7 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
           params,
           numberFormatter,
           labelType: EchartsPieLabelType.KeyValuePercent,
+          sanitizeName: true,
         }),
     },
     legend: {

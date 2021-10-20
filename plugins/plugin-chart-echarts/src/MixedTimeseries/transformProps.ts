@@ -42,7 +42,7 @@ import {
 import { defaultGrid, defaultTooltip, defaultYAxis } from '../defaults';
 import {
   getPadding,
-  getTooltipFormatter,
+  getTooltipTimeFormatter,
   getXAxisFormatter,
   transformEventAnnotation,
   transformFormulaAnnotation,
@@ -229,7 +229,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
       area,
       markerEnabled,
       markerSize,
-      opacity,
+      areaOpacity: opacity,
       seriesType,
       stack,
       richTooltip,
@@ -242,7 +242,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
       area: areaB,
       markerEnabled: markerEnabledB,
       markerSize: markerSizeB,
-      opacity: opacityB,
+      areaOpacity: opacityB,
       seriesType: seriesTypeB,
       stack: stackB,
       richTooltip,
@@ -274,7 +274,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
     if (max === undefined) max = 1;
   }
 
-  const tooltipFormatter = getTooltipFormatter(tooltipTimeFormat);
+  const tooltipFormatter = getTooltipTimeFormatter(tooltipTimeFormat);
   const xAxisFormatter = getXAxisFormatter(xAxisTimeFormat);
 
   const addYAxisLabelOffset = !!(yAxisTitle || yAxisTitleSecondary);
@@ -287,9 +287,8 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         const prophetValue = [params];
         let finalValue;
 
-        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
-          prophetValue,
-        );
+        const prophetValues: Record<string, ProphetValue> =
+          extractProphetValuesFromTooltipParams(prophetValue);
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
@@ -339,6 +338,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         max,
         minorTick: { show: true },
         minorSplitLine: { show: minorSplitLine },
+        // @ts-ignore
         axisLabel: { formatter: primaryFormatter },
         scale: truncateYAxis,
         name: yAxisTitle,
@@ -351,6 +351,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         minorTick: { show: true },
         splitLine: { show: false },
         minorSplitLine: { show: minorSplitLine },
+        // @ts-ignore
         axisLabel: { formatter: secondaryFormatter },
         scale: truncateYAxis,
         name: yAxisTitleSecondary,
@@ -364,9 +365,8 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         const prophetValue = !richTooltip ? [params] : params;
 
         const rows: Array<string> = [`${tooltipFormatter(value)}`];
-        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
-          prophetValue,
-        );
+        const prophetValues: Record<string, ProphetValue> =
+          extractProphetValuesFromTooltipParams(prophetValue);
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];

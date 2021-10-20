@@ -16,8 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { AnnotationLayer, TimeGranularity } from '@superset-ui/core';
-import { DEFAULT_LEGEND_FORM_DATA, EchartsLegendFormData } from '../types';
+import {
+  AnnotationLayer,
+  ChartDataResponseResult,
+  ChartProps,
+  QueryFormData,
+  TimeGranularity,
+} from '@superset-ui/core';
+import { sections } from '@superset-ui/chart-controls';
+import { DEFAULT_LEGEND_FORM_DATA, EchartsLegendFormData, EChartTransformedProps } from '../types';
 
 export enum EchartsTimeseriesContributionType {
   Row = 'row',
@@ -34,7 +41,7 @@ export enum EchartsTimeseriesSeriesType {
   End = 'end',
 }
 
-export type EchartsTimeseriesFormData = {
+export type EchartsTimeseriesFormData = QueryFormData & {
   annotationLayers: AnnotationLayer[];
   area: boolean;
   colorScheme?: string;
@@ -54,8 +61,6 @@ export type EchartsTimeseriesFormData = {
   rowLimit: number;
   seriesType: EchartsTimeseriesSeriesType;
   stack: boolean;
-  showValuesA: boolean;
-  showValuesB: boolean;
   tooltipTimeFormat?: string;
   truncateYAxis: boolean;
   yAxisFormat?: string;
@@ -68,18 +73,22 @@ export type EchartsTimeseriesFormData = {
   zoomable: boolean;
   richTooltip: boolean;
   xAxisLabelRotation: number;
+  emitFilter: boolean;
+  groupby: string[];
+  showValue: boolean;
 } & EchartsLegendFormData;
 
+// @ts-ignore
 export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   ...DEFAULT_LEGEND_FORM_DATA,
-  annotationLayers: [],
+  annotationLayers: sections.annotationLayers,
   area: false,
-  forecastEnabled: false,
-  forecastInterval: 0.8,
-  forecastPeriods: 10,
-  forecastSeasonalityDaily: null,
-  forecastSeasonalityWeekly: null,
-  forecastSeasonalityYearly: null,
+  forecastEnabled: sections.FORECAST_DEFAULT_DATA.forecastEnabled,
+  forecastInterval: sections.FORECAST_DEFAULT_DATA.forecastInterval,
+  forecastPeriods: sections.FORECAST_DEFAULT_DATA.forecastPeriods,
+  forecastSeasonalityDaily: sections.FORECAST_DEFAULT_DATA.forecastSeasonalityDaily,
+  forecastSeasonalityWeekly: sections.FORECAST_DEFAULT_DATA.forecastSeasonalityWeekly,
+  forecastSeasonalityYearly: sections.FORECAST_DEFAULT_DATA.forecastSeasonalityYearly,
   logAxis: false,
   markerEnabled: false,
   markerSize: 6,
@@ -89,15 +98,21 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   rowLimit: 10000,
   seriesType: EchartsTimeseriesSeriesType.Line,
   stack: false,
-  showValuesA: false,
-  showValuesB: false,
   tooltipTimeFormat: 'smart_date',
   truncateYAxis: true,
   yAxisBounds: [null, null],
-  xAxisShowMinLabel: false,
-  xAxisShowMaxLabel: false,
   zoomable: false,
   richTooltip: true,
   xAxisLabelRotation: 0,
+  emitFilter: false,
+  groupby: [],
   yAxisTitle: '',
+  showValue: false,
 };
+
+export interface EchartsTimeseriesChartProps extends ChartProps {
+  formData: EchartsTimeseriesFormData;
+  queriesData: ChartDataResponseResult[];
+}
+
+export type TimeseriesChartTransformedProps = EChartTransformedProps<EchartsTimeseriesFormData>;

@@ -16,7 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { AnnotationLayer, TimeGranularity } from '@superset-ui/core';
+import { EChartsOption } from 'echarts';
+import {
+  AnnotationLayer,
+  TimeGranularity,
+  SetDataMaskHook,
+  DataRecordValue,
+} from '@superset-ui/core';
 import { DEFAULT_LEGEND_FORM_DATA, EchartsLegendFormData } from '../types';
 import {
   DEFAULT_FORM_DATA as TIMESERIES_DEFAULTS,
@@ -71,6 +77,22 @@ export type EchartsMixedTimeseriesFormData = {
   yAxisIndex?: number;
   yAxisIndexB?: number;
 } & EchartsLegendFormData;
+
+export type EchartsMixedTimeseriesChartTransformedProps = {
+  formData: EchartsMixedTimeseriesFormData;
+  height: number;
+  width: number;
+  echartOptions: EChartsOption;
+  emitFilter: boolean;
+  emitFilterB: boolean;
+  setDataMask: SetDataMaskHook;
+  groupby: string[];
+  groupbyB: string[];
+  labelMap: Record<string, DataRecordValue[]>;
+  labelMapB: Record<string, DataRecordValue[]>;
+  selectedValues: Record<number, string>;
+  seriesBreakdown: number;
+};
 
 export const DEFAULT_FORM_DATA: EchartsMixedTimeseriesFormData = {
   ...DEFAULT_LEGEND_FORM_DATA,

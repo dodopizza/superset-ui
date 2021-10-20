@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -206,15 +207,8 @@ class ChoroplethMap extends React.PureComponent<
   }
 
   render() {
-    const {
-      height,
-      width,
-      encoding,
-      tooltipOpen,
-      tooltipLeft,
-      tooltipTop,
-      tooltipData,
-    } = this.props;
+    const { height, width, encoding, tooltipOpen, tooltipLeft, tooltipTop, tooltipData } =
+      this.props;
     const { showMiniMap } = this.state;
     const encoder = this.createEncoder(encoding);
 
@@ -319,4 +313,4 @@ class ChoroplethMap extends React.PureComponent<
   }
 }
 
-export default withTooltip(ChoroplethMap);
+export default withTooltip(ChoroplethMap) as any;
