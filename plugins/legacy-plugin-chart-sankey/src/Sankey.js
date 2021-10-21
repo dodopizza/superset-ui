@@ -149,7 +149,7 @@ function Sankey(element, props) {
   }
 
   function checkVisibility() {
-    const elements = div.selectAll('.node')[0] ?? [];
+    const elements = div.selectAll('.node')[0] || [];
     const overlappingElements = getOverlappingElements(elements);
 
     elements.forEach(el => {

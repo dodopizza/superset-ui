@@ -26,7 +26,7 @@ export const GAP_WIDTH = 2;
 export const BORDER_COLOR = '#fff';
 
 export const extractTreePathInfo = (treePathInfo: TreePathInfo[] | undefined) => {
-  const treePath = (treePathInfo ?? [])
+  const treePath = (treePathInfo || [])
     .map(pathInfo => pathInfo?.name || '')
     .filter(path => path !== '');
 

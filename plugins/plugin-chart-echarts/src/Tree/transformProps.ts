@@ -39,7 +39,7 @@ export function formatTooltip({
   metricLabel: string;
 }): string {
   const { value, treeAncestors } = params;
-  const treePath = (treeAncestors ?? [])
+  const treePath = (treeAncestors || [])
     .map(pathInfo => pathInfo?.name || '')
     .filter(path => path !== '');
 

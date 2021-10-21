@@ -105,17 +105,7 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const yAxisFormatSecondaryOriginal = yAxisFormatSecondary;
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (fix/2586885, feat/2617781)');
-  // eslint-disable-next-line no-console
-  console.log('metrics:', columnFormats);
-  // eslint-disable-next-line no-console
-  console.log('groups:', 'A ->', groupby, 'B ->', groupbyB);
-  // eslint-disable-next-line no-console
-  console.log('yAxis:', 'A ->', yAxisFormatOriginal, 'B ->', yAxisFormatSecondaryOriginal);
-  // eslint-disable-next-line no-console
-  console.log('showValues:', 'A ->', showValuesA, 'B ->', showValuesB);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
+  console.log('[plugin-chart-echarts - MixedTimeseries]:0.17.84', 'DODO was here');
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rawSeriesA = extractTimeseriesSeries(rebaseTimeseriesDatum(data1), {

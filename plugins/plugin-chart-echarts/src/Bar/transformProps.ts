@@ -67,19 +67,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
   const FALLBACK_NAME = '<NULL>';
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (feat-2666390)');
-  // eslint-disable-next-line no-console
-  console.log('chartProps', chartProps);
-  // eslint-disable-next-line no-console
-  console.log('metric: =>', metrics);
-  // eslint-disable-next-line no-console
-  console.log('columns (breakdowns):', '->', columns);
-  // eslint-disable-next-line no-console
-  console.log('groupby (series):', '->', groupby);
-  // eslint-disable-next-line no-console
-  console.log('formData', formData);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
+  console.log('[plugin-chart-echarts - Bar chart]:0.17.84', 'DODO was here');
 
   // TODO: fix this
   // @ts-ignore

@@ -23,7 +23,7 @@ export default function transformProps(chartProps) {
   let { numberFormat } = formData;
 
   // eslint-disable-next-line no-console
-  console.log('Custom fix by Dodo Engineering');
+  console.log('[legacy-plugin-chart-pivot-table]:0.17.41', 'DODO was here');
 
   const findMetric = (arr, metricName) => arr.filter(metric => metric.metric_name === metricName);
 
@@ -35,9 +35,6 @@ export default function transformProps(chartProps) {
       else numberFormat = null;
     });
   }
-
-  // eslint-disable-next-line no-console
-  console.log(columnFormats);
 
   return {
     columnFormats,

@@ -84,8 +84,8 @@ const processColumns = memoizeOne(function processColumns(props: TableChartProps
   } = props;
   const { data: records, colnames, coltypes } = queriesData[0] || {};
   // convert `metrics` and `percentMetrics` to the key names in `data.records`
-  const metrics = (metrics_ ?? []).map(getMetricLabel);
-  const rawPercentMetrics = (percentMetrics_ ?? []).map(getMetricLabel);
+  const metrics = (metrics_ || []).map(getMetricLabel);
+  const rawPercentMetrics = (percentMetrics_ || []).map(getMetricLabel);
   // column names for percent metrics always starts with a '%' sign.
   const percentMetrics = rawPercentMetrics.map((x: string) => `%${x}`);
   const metricsSet = new Set(metrics);

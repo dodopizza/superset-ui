@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// DODO new created plugins
+// created plugins by DODO
 export { default as EchartsBarChartPlugin } from './Bar';
 // SUPERSET plugins
 export { default as EchartsBoxPlotChartPlugin } from './BoxPlot';

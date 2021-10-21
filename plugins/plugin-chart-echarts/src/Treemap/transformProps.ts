@@ -154,7 +154,7 @@ export default function transformProps(
       return transform(
         currGrouping,
         (result, value, key) => {
-          (value ?? []).forEach(datum => {
+          (value || []).forEach(datum => {
             const name = formatSeriesName(key, {
               numberFormatter,
               timeFormatter: getTimeFormatter(dateFormat),

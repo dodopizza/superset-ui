@@ -98,13 +98,7 @@ export default function transformProps(chartProps: ChartProps) {
   const { selectedFilters } = filterState;
 
   // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (feat-2665292)');
-  // eslint-disable-next-line no-console
-  console.log('formData:', formData);
-  // eslint-disable-next-line no-console
-  console.log('chartProps:', chartProps);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
+  console.log('[plugin-chart-pivot-table]:0.17.41', 'DODO was here');
 
   // TODO
   const granularity = false;
