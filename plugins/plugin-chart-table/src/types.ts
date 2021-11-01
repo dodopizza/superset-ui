@@ -31,7 +31,7 @@ import {
   QueryFormData,
   SetDataMaskHook,
 } from '@superset-ui/core';
-import { ColumnConfig } from '@superset-ui/chart-controls';
+import { ColorFormatters, ColumnConfig } from '@superset-ui/chart-controls';
 
 export type CustomFormatter = (value: DataRecordValue) => string;
 
@@ -68,7 +68,7 @@ export type TableChartFormData = QueryFormData & {
   order_desc?: boolean;
   show_cell_bars?: boolean;
   table_timestamp_format?: string;
-  table_filter?: boolean;
+  emit_filter?: boolean;
   time_grain_sqla?: TimeGranularity;
   column_config?: Record<string, ColumnConfig>;
 };
@@ -83,6 +83,7 @@ export interface TableChartProps extends ChartProps {
 }
 
 export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
+  timeGrain?: TimeGranularity;
   height: number;
   width: number;
   rowCount?: number;
@@ -107,6 +108,7 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   filters?: DataRecordFilters;
   emitFilter?: boolean;
   onChangeFilter?: ChartProps['hooks']['onAddFilter'];
+  columnColorFormatters?: ColorFormatters;
 }
 
 export default {};

@@ -52,11 +52,12 @@ export default class EchartsFunnelChartPlugin extends ChartPlugin<
         name: t('Funnel Chart'),
         tags: [
           t('Business'),
-          t('ECharts'),
           t('Progressive'),
           t('Report'),
           t('Sequential'),
           t('Trend'),
+          t('ECharts'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

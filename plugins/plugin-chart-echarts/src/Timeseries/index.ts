@@ -61,11 +61,13 @@ export default class EchartsTimeseriesChartPlugin extends ChartPlugin<
         name: t('Time-series Chart'),
         tags: [
           t('Advanced-Analytics'),
+          t('ECharts'),
           t('Aesthetic'),
           t('Line'),
           t('Predictive'),
           t('Time'),
           t('Transformable'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

@@ -71,6 +71,7 @@ export default class EchartsPieChartPlugin extends ChartPlugin<
           t('Popular'),
           t('Proportional'),
           t('ECharts'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

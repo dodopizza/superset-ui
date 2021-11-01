@@ -67,6 +67,7 @@ export default class EchartsTimeseriesScatterChartPlugin extends ChartPlugin<
           t('Transformable'),
           t('Scatter'),
           t('Popular'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

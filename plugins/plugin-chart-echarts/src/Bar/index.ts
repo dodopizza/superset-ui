@@ -45,8 +45,10 @@ export default class EchartsPieChartPlugin extends ChartPlugin<
       metadata: new ChartMetadata({
         behaviors: [Behavior.INTERACTIVE_CHART],
         credits: ['https://echarts.apache.org'],
-        description: 'Bar Chart (Apache ECharts)',
+        description: 'Bar Chart (Apache ECharts) with D3 format support',
         name: t('Echarts Bar Chart'),
+        exampleGallery: [],
+        tags: [t('Popular'), t('ECharts'), t('DODOIS_friendly')],
         thumbnail,
       }),
       transformProps,

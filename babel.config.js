@@ -19,6 +19,9 @@ config.plugins = [
   ['babel-plugin-transform-dev', { evaluate: false }],
   ['babel-plugin-typescript-to-proptypes', { loose: true }],
   ['@babel/plugin-proposal-class-properties', { loose: true }],
+  ['@babel/plugin-proposal-optional-chaining', { loose: true }],
+  '@babel/plugin-proposal-nullish-coalescing-operator',
+  '@babel/plugin-syntax-nullish-coalescing-operator',
 ];
 config.presets.push([
   '@emotion/babel-preset-css-prop',

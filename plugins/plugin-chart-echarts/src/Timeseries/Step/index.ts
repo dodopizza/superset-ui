@@ -57,6 +57,7 @@ export default class EchartsTimeseriesStepChartPlugin extends ChartPlugin<
           t('Time'),
           t('Transformable'),
           t('Stacked'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

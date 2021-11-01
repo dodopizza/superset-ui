@@ -71,6 +71,7 @@ export default class EchartsTimeseriesBarChartPlugin extends ChartPlugin<
           t('Vertical'),
           t('Bar'),
           t('Popular'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

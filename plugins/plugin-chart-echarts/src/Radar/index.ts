@@ -50,6 +50,7 @@ export default class EchartsRadarChartPlugin extends ChartPlugin<
         description: t(
           'Visualize a parallel set of metrics across multiple groups. Each group is visualized using its own line of points and each metric is represented as an edge in the chart.',
         ),
+        exampleGallery: [],
         name: t('Radar Chart'),
         tags: [
           t('Business'),
@@ -59,6 +60,7 @@ export default class EchartsRadarChartPlugin extends ChartPlugin<
           t('Report'),
           t('Web'),
           t('ECharts'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

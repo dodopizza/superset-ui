@@ -63,6 +63,7 @@ export default class EchartsTreemapChartPlugin extends ChartPlugin<
           t('Multi-Levels'),
           t('Percentages'),
           t('Proportional'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

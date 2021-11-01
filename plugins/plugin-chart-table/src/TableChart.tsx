@@ -16,11 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
+import React, { CSSProperties, useCallback, useMemo } from 'react';
 import { ColumnInstance, ColumnWithLooseAccessor, DefaultSortTypes } from 'react-table';
 import { extent as d3Extent, max as d3Max } from 'd3-array';
-import { FaSort, FaSortDown as FaSortDesc, FaSortUp as FaSortAsc } from 'react-icons/fa';
-import { DataRecord, DataRecordValue, GenericDataType, t, tn } from '@superset-ui/core';
+import { FaSort } from '@react-icons/all-files/fa/FaSort';
+import { FaSortDown as FaSortDesc } from '@react-icons/all-files/fa/FaSortDown';
+import { FaSortUp as FaSortAsc } from '@react-icons/all-files/fa/FaSortUp';
+import {
+  DataRecord,
+  DataRecordValue,
+  DTTM_ALIAS,
+  ensureIsArray,
+  GenericDataType,
+  getTimeFormatterForGranularity,
+  t,
+  tn,
+} from '@superset-ui/core';
 
 import { DataColumnMeta, TableChartTransformedProps } from './types';
 import DataTable, {
@@ -144,6 +155,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   },
 ) {
   const {
+    timeGrain,
     height,
     width,
     data,
@@ -161,11 +173,14 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     showCellBars = true,
     emitFilter = false,
     sortDesc = false,
-    filters: initialFilters = {},
+    filters,
     sticky = true, // whether to use sticky header
+    columnColorFormatters,
   } = props;
-
-  const [filters, setFilters] = useState(initialFilters);
+  const timestampFormatter = useCallback(
+    value => getTimeFormatterForGranularity(timeGrain)(value),
+    [timeGrain],
+  );
 
   const handleChange = useCallback(
     (filters: { [x: string]: DataRecordValue[] }) => {
@@ -175,14 +190,25 @@ export default function TableChart<D extends DataRecord = DataRecord>(
 
       const groupBy = Object.keys(filters);
       const groupByValues = Object.values(filters);
+      const labelElements: string[] = [];
+      groupBy.forEach(col => {
+        const isTimestamp = col === DTTM_ALIAS;
+        const filterValues = ensureIsArray(filters?.[col]);
+        if (filterValues.length) {
+          const valueLabels = filterValues.map(value =>
+            isTimestamp ? timestampFormatter(value) : value,
+          );
+          labelElements.push(`${valueLabels.join(', ')}`);
+        }
+      });
       setDataMask({
         extraFormData: {
           filters:
             groupBy.length === 0
               ? []
               : groupBy.map(col => {
-                  const val = filters?.[col];
-                  if (val === null || val === undefined)
+                  const val = ensureIsArray(filters?.[col]);
+                  if (!val.length)
                     return {
                       col,
                       op: 'IS NULL',
@@ -190,12 +216,15 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   return {
                     col,
                     op: 'IN',
-                    val: val as (string | number | boolean)[],
+                    val: val.map(el => (el instanceof Date ? el.getTime() : el!)),
+                    grain: col === DTTM_ALIAS ? timeGrain : undefined,
                   };
                 }),
         },
         filterState: {
+          label: labelElements.join(', '),
           value: groupByValues.length ? groupByValues : null,
+          filters: filters && Object.keys(filters).length ? filters : null,
         },
       });
     },
@@ -214,9 +243,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     function getValueRange(key: string, alignPositiveNegative: boolean) {
       if (typeof data?.[0]?.[key] === 'number') {
         const nums = data.map(row => row[key]) as number[];
-        return (alignPositiveNegative
-          ? [0, d3Max(nums.map(Math.abs))]
-          : d3Extent(nums)) as ValueRange;
+        return (
+          alignPositiveNegative ? [0, d3Max(nums.map(Math.abs))] : d3Extent(nums)
+        ) as ValueRange;
       }
       return null;
     },
@@ -230,18 +259,25 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     [filters],
   );
 
+  function getEmitTarget(col: string) {
+    const meta = columnsMeta?.find(x => x.key === col);
+    return meta?.config?.emitTarget || col;
+  }
+
   const toggleFilter = useCallback(
     function toggleFilter(key: string, val: DataRecordValue) {
-      const updatedFilters = { ...(filters || {}) };
-      if (filters && isActiveFilterValue(key, val)) {
-        updatedFilters[key] = filters[key].filter((x: DataRecordValue) => x !== val);
+      let updatedFilters = { ...(filters || {}) };
+      const target = getEmitTarget(key);
+      if (filters && isActiveFilterValue(target, val)) {
+        updatedFilters = {};
       } else {
-        updatedFilters[key] = [...(filters?.[key] || []), val];
+        updatedFilters = {
+          [target]: [val],
+        };
       }
-      if (Array.isArray(updatedFilters[key]) && updatedFilters[key].length === 0) {
-        delete updatedFilters[key];
+      if (Array.isArray(updatedFilters[target]) && updatedFilters[target].length === 0) {
+        delete updatedFilters[target];
       }
-      setFilters(updatedFilters);
       handleChange(updatedFilters);
     },
     [filters, handleChange, isActiveFilterValue],
@@ -275,7 +311,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       const colorPositiveNegative =
         config.colorPositiveNegative === undefined ? defaultColorPN : config.colorPositiveNegative;
 
+      const hasColumnColorFormatters =
+        isNumeric && Array.isArray(columnColorFormatters) && columnColorFormatters.length > 0;
+
       const valueRange =
+        !hasColumnColorFormatters &&
         (config.showCellBars === undefined ? showCellBars : config.showCellBars) &&
         (isMetric || isRawRecords) &&
         getValueRange(key, alignPositiveNegative);
@@ -294,6 +334,19 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         Cell: ({ value }: { value: DataRecordValue }) => {
           const [isHtml, text] = formatColumnValue(column, value);
           const html = isHtml ? { __html: text } : undefined;
+
+          let backgroundColor;
+          if (hasColumnColorFormatters) {
+            columnColorFormatters!
+              .filter(formatter => formatter.column === column.key)
+              .forEach(formatter => {
+                const formatterResult = formatter.getColorFromValue(value as number);
+                if (formatterResult) {
+                  backgroundColor = formatterResult;
+                }
+              });
+          }
+
           const cellProps = {
             // show raw number in title in case of numeric values
             title: typeof value === 'number' ? String(value) : undefined,
@@ -305,14 +358,16 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             ].join(' '),
             style: {
               ...sharedStyle,
-              background: valueRange
-                ? cellBar({
-                    value: value as number,
-                    valueRange,
-                    alignPositiveNegative,
-                    colorPositiveNegative,
-                  })
-                : undefined,
+              background:
+                backgroundColor ||
+                (valueRange
+                  ? cellBar({
+                      value: value as number,
+                      valueRange,
+                      alignPositiveNegative,
+                      colorPositiveNegative,
+                    })
+                  : undefined),
             },
           };
           if (html) {
@@ -371,6 +426,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       sortDesc,
       toggleFilter,
       totals,
+      columnColorFormatters,
     ],
   );
 

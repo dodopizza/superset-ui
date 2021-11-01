@@ -66,6 +66,7 @@ export default class EchartsTimeseriesLineChartPlugin extends ChartPlugin<
           t('Aesthetic'),
           t('Line'),
           t('Popular'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

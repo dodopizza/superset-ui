@@ -19,6 +19,14 @@ describe('PivotTableChart buildQuery', () => {
     viz_type: 'my_chart',
     width: 800,
     height: 600,
+    combineMetric: false,
+    verboseMap: {},
+    columnFormats: {},
+    metricColorFormatters: [],
+    dateFormatters: {},
+    setDataMask: () => {},
+    timeseries_limit_metric: 'count',
+    order_desc: true,
   };
 
   it('should build groupby with series in form data', () => {

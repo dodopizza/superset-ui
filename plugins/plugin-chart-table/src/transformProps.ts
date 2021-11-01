@@ -19,6 +19,7 @@
 import memoizeOne from 'memoize-one';
 import {
   DataRecord,
+  extractTimegrain,
   GenericDataType,
   getMetricLabel,
   getNumberFormatter,
@@ -30,6 +31,7 @@ import {
   TimeFormats,
   TimeFormatter,
 } from '@superset-ui/core';
+import { getColorFormatters } from '@superset-ui/chart-controls';
 
 import isEqualColumns from './utils/isEqualColumns';
 import DateWithFormatter from './utils/DateWithFormatter';
@@ -75,17 +77,17 @@ const processColumns = memoizeOne(function processColumns(props: TableChartProps
     datasource: { columnFormats, verboseMap },
     rawFormData: {
       table_timestamp_format: tableTimestampFormat,
-      time_grain_sqla: granularity,
       metrics: metrics_,
       percent_metrics: percentMetrics_,
       column_config: columnConfig = {},
     },
     queriesData,
   } = props;
+  const granularity = extractTimegrain(props.rawFormData);
   const { data: records, colnames, coltypes } = queriesData[0] || {};
   // convert `metrics` and `percentMetrics` to the key names in `data.records`
-  const metrics = (metrics_ || []).map(getMetricLabel);
-  const rawPercentMetrics = (percentMetrics_ || []).map(getMetricLabel);
+  const metrics = (metrics_ ?? []).map(getMetricLabel);
+  const rawPercentMetrics = (percentMetrics_ ?? []).map(getMetricLabel);
   // column names for percent metrics always starts with a '%' sign.
   const percentMetrics = rawPercentMetrics.map((x: string) => `%${x}`);
   const metricsSet = new Set(metrics);
@@ -185,7 +187,7 @@ const transformProps = (chartProps: TableChartProps): TableChartTransformedProps
     width,
     rawFormData: formData,
     queriesData = [],
-    initialValues: filters = {},
+    filterState,
     ownState: serverPaginationData = {},
     hooks: { onAddFilter: onChangeFilter, setDataMask = () => {} },
   } = chartProps;
@@ -196,13 +198,15 @@ const transformProps = (chartProps: TableChartProps): TableChartTransformedProps
     show_cell_bars: showCellBars = true,
     include_search: includeSearch = false,
     page_length: pageLength,
-    table_filter: tableFilter,
+    emit_filter: emitFilter,
     server_pagination: serverPagination = false,
     server_page_length: serverPageLength = 10,
     order_desc: sortDesc = false,
     query_mode: queryMode,
     show_totals: showTotals,
+    conditional_formatting: conditionalFormatting,
   } = formData;
+  const timeGrain = extractTimegrain(formData);
 
   const [metrics, percentMetrics, columns] = processColumns(chartProps);
 
@@ -219,6 +223,7 @@ const transformProps = (chartProps: TableChartProps): TableChartTransformedProps
   }
   const data = processDataRecords(baseQuery?.data, columns);
   const totals = showTotals && queryMode === QueryMode.aggregate ? totalQuery?.data[0] : undefined;
+  const columnColorFormatters = getColorFormatters(conditionalFormatting, data) ?? [];
 
   return {
     height,
@@ -241,9 +246,11 @@ const transformProps = (chartProps: TableChartProps): TableChartTransformedProps
     pageSize: serverPagination
       ? serverPageLength
       : getPageSize(pageLength, data.length, columns.length),
-    filters,
-    emitFilter: tableFilter,
+    filters: filterState.filters,
+    emitFilter,
     onChangeFilter,
+    columnColorFormatters,
+    timeGrain,
   };
 };
 

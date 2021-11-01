@@ -74,6 +74,7 @@ export default class EchartsAreaChartPlugin extends ChartPlugin<
           t('Transformable'),
           t('Stacked'),
           t('Popular'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),

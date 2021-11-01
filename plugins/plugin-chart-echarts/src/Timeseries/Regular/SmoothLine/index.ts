@@ -66,6 +66,7 @@ export default class EchartsTimeseriesSmoothLineChartPlugin extends ChartPlugin<
           t('Time'),
           t('Line'),
           t('Transformable'),
+          t('DODOIS_friendly'),
         ],
         thumbnail,
       }),
