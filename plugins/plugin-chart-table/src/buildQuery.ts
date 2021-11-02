@@ -45,6 +45,7 @@ export function getQueryMode(formData: TableChartFormData) {
   return hasRawColumns ? QueryMode.raw : QueryMode.aggregate;
 }
 
+// @ts-ignore
 const buildQuery: BuildQuery<TableChartFormData> = (formData: TableChartFormData, options) => {
   const { percent_metrics: percentMetrics, order_desc: orderDesc = false } = formData;
   const queryMode = getQueryMode(formData);
@@ -110,6 +111,7 @@ const buildQuery: BuildQuery<TableChartFormData> = (formData: TableChartFormData
         JSON.stringify(queryObject.filters)
     ) {
       queryObject = { ...queryObject, row_offset: 0 };
+      // @ts-ignore
       updateExternalFormData(options?.hooks?.setDataMask, 0, queryObject.row_limit ?? 0);
     }
     // Because we use same buildQuery for all table on the page we need split them by id
