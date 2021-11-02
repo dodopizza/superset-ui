@@ -1,7 +1,7 @@
 {
   "name": "@superset-ui/plugin-chart-pivot-table",
   "version": "0.17.41",
-  "description": "Superset Chart - Pivot Table (DODO)",
+  "description": "Superset Chart - Pivot Table",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
@@ -37,12 +37,5 @@
     "@babel/types": "^7.13.12",
     "@types/jest": "^26.0.0",
     "jest": "^26.0.1"
-  },
-  "directories": {
-    "lib": "lib",
-    "test": "test"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

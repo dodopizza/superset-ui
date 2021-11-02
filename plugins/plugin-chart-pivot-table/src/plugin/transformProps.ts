@@ -97,6 +97,15 @@ export default function transformProps(chartProps: ChartProps) {
   } = formData;
   const { selectedFilters } = filterState;
 
+  // eslint-disable-next-line no-console
+  console.groupCollapsed('Custom fix by Dodo Engineering (feat-2665292)');
+  // eslint-disable-next-line no-console
+  console.log('formData:', formData);
+  // eslint-disable-next-line no-console
+  console.log('chartProps:', chartProps);
+  // eslint-disable-next-line no-console
+  console.groupEnd();
+
   // TODO
   const granularity = false;
 
@@ -124,7 +133,7 @@ export default function transformProps(chartProps: ChartProps) {
       return acc;
     }, {});
 
-  const propsObject = {
+  return {
     width,
     height,
     data,
@@ -152,17 +161,4 @@ export default function transformProps(chartProps: ChartProps) {
     dateFormatters,
     dateFormat,
   };
-
-  // eslint-disable-next-line no-console
-  console.groupCollapsed('Pivot v2 (DODO)');
-  // eslint-disable-next-line no-console
-  console.log('formData:', formData);
-  // eslint-disable-next-line no-console
-  console.log('chartProps:', chartProps);
-  // eslint-disable-next-line no-console
-  console.log('props:', propsObject);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
-
-  return propsObject;
 }
