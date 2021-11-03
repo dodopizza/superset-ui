@@ -303,11 +303,11 @@ const config: ControlPanelConfig = {
               label: t('Conditional formatting'),
               description: t('Apply conditional color formatting to metrics'),
               mapStateToProps(explore) {
-                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) ?? [];
-                const verboseMap = explore?.datasource?.verbose_map ?? {};
+                const values = (explore?.controls?.metrics?.value as QueryFormMetric[]) || [];
+                const verboseMap = explore?.datasource?.verbose_map || {};
                 const metricColumn = values.map(value => {
                   if (typeof value === 'string') {
-                    return { value, label: verboseMap[value] ?? value };
+                    return { value, label: verboseMap[value] || value };
                   }
                   return { value: value.label, label: value.label };
                 });
