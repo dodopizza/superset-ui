@@ -19,15 +19,19 @@
 import {
   ChartProps,
   DataRecord,
+  extractTimegrain,
   GenericDataType,
-  smartDateFormatter,
-  TimeFormats,
   getTimeFormatter,
   getTimeFormatterForGranularity,
+  QueryFormData,
+  smartDateFormatter,
+  TimeFormats,
 } from '@superset-ui/core';
+import { getColorFormatters } from '@superset-ui/chart-controls';
 import { DateFormatter } from '../types';
 
 const { DATABASE_DATETIME } = TimeFormats;
+const TIME_COLUMN = '__timestamp';
 
 function isNumeric(key: string, data: DataRecord[] = []) {
   return data.every(
@@ -35,7 +39,10 @@ function isNumeric(key: string, data: DataRecord[] = []) {
   );
 }
 
-export default function transformProps(chartProps: ChartProps) {
+// eslint-disable-next-line no-console
+console.log('[plugin-chart-pivot-table]:0.17.84', 'DODO was here');
+
+export default function transformProps(chartProps: ChartProps<QueryFormData>) {
   /**
    * This function is called after a successful response has been
    * received from the chart data endpoint, and is used to transform
@@ -70,7 +77,7 @@ export default function transformProps(chartProps: ChartProps) {
     height,
     queriesData,
     formData,
-    rawDatasource: { columns: columnsObjects },
+    rawFormData,
     hooks: { setDataMask = () => {} },
     filterState,
     datasource: { verboseMap = {}, columnFormats = {} },
@@ -85,37 +92,26 @@ export default function transformProps(chartProps: ChartProps) {
     rowOrder,
     aggregateFunction,
     transposePivot,
+    combineMetric,
     rowSubtotalPosition,
     colSubtotalPosition,
     colTotals,
     rowTotals,
-    combineMetric,
-    metricsLayout,
     valueFormat,
-    emitFilter,
     dateFormat,
+    emitFilter,
+    metricsLayout,
+    conditionalFormatting,
   } = formData;
   const { selectedFilters } = filterState;
-
-  // eslint-disable-next-line no-console
-  console.groupCollapsed('Custom fix by Dodo Engineering (feat-2665292)');
-  // eslint-disable-next-line no-console
-  console.log('formData:', formData);
-  // eslint-disable-next-line no-console
-  console.log('chartProps:', chartProps);
-  // eslint-disable-next-line no-console
-  console.groupEnd();
-
-  // TODO
-  const granularity = false;
+  const granularity = extractTimegrain(rawFormData);
 
   const dateFormatters = colnames
     .filter((colname: string, index: number) => coltypes[index] === GenericDataType.TEMPORAL)
     .reduce((acc: Record<string, DateFormatter | undefined>, temporalColname: string) => {
       let formatter: DateFormatter | undefined;
       if (dateFormat === smartDateFormatter.id) {
-        // eslint-disable-next-line no-constant-condition
-        if (granularity) {
+        if (temporalColname === TIME_COLUMN) {
           // time column use formats based on granularity
           formatter = getTimeFormatterForGranularity(granularity);
         } else if (isNumeric(temporalColname, data)) {
@@ -132,6 +128,7 @@ export default function transformProps(chartProps: ChartProps) {
       }
       return acc;
     }, {});
+  const metricColorFormatters = getColorFormatters(conditionalFormatting, data);
 
   return {
     width,
@@ -145,20 +142,19 @@ export default function transformProps(chartProps: ChartProps) {
     rowOrder,
     aggregateFunction,
     transposePivot,
+    combineMetric,
     rowSubtotalPosition,
     colSubtotalPosition,
     colTotals,
     rowTotals,
     valueFormat,
-    columnsObjects,
-    combineMetric,
-    metricsLayout,
-    columnFormats,
-    verboseMap,
     emitFilter,
     setDataMask,
     selectedFilters,
+    verboseMap,
+    columnFormats,
+    metricsLayout,
+    metricColorFormatters,
     dateFormatters,
-    dateFormat,
   };
 }
