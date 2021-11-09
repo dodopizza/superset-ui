@@ -1,7 +1,7 @@
 {
-  "name": "@superset-ui/plugin-chart-pivot-table",
+  "name": "@kazakoff/plugin-chart-pivot-table",
   "version": "0.17.84",
-  "description": "Superset Chart - Pivot Table",
+  "description": "DODO Superset Chart - Pivot Table v2",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
