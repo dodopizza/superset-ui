@@ -1,7 +1,7 @@
 {
-  "name": "@superset-ui/plugin-chart-echarts",
+  "name": "@kazakoff/plugin-chart-echarts",
   "version": "0.17.84",
-  "description": "Superset Chart - Echarts",
+  "description": "DODO Superset Chart - Echarts",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
