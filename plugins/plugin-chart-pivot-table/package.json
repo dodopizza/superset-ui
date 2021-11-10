@@ -1,7 +1,7 @@
 {
   "name": "@kazakoff/plugin-chart-pivot-table",
-  "version": "0.17.84",
-  "description": "DODO Superset Chart - Pivot Table v2",
+  "version": "0.17.85",
+  "description": "DODO Superset Chart - Pivot Table v2 (0.17.84)",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
