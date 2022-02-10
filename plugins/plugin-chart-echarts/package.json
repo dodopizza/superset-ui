@@ -1,6 +1,6 @@
 {
   "name": "@dodopizza/superset-plugin-chart-echarts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DODO Superset Chart - Echarts (0.17.84)",
   "sideEffects": false,
   "main": "lib/index.js",
