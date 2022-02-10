@@ -8,6 +8,7 @@
     "lib",
     "test"
   ],
+  "target": "esnext",
   "extends": "../../tsconfig.options.json",
   "include": [
     "src/**/*",
