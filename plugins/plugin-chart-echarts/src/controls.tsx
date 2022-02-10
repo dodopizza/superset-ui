@@ -104,3 +104,14 @@ export const showValueControl = {
     description: t('Show series values on the chart'),
   },
 };
+
+export const showValuesSeparately = {
+  name: 'showValuesSeparately',
+  config: {
+    type: 'CheckboxControl',
+    label: t('Show values separately'),
+    renderTrigger: true,
+    default: false,
+    description: t('Show values for the chart without hovering'),
+  },
+};

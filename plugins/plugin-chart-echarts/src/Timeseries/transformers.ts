@@ -61,6 +61,21 @@ import {
 import { getChartPadding } from '../utils/series';
 import { OpacityEnum, TIMESERIES_CONSTANTS } from '../constants';
 
+const getLabelPostion = ({
+  plotType,
+  showValuesSeparately,
+}: {
+  plotType: any;
+  showValuesSeparately: any;
+}): 'top' | 'inside' => {
+  if (showValuesSeparately) {
+    if (plotType === 'scatter' || plotType === 'line') return 'top';
+    if (plotType === 'bar') return 'inside';
+    return 'inside';
+  }
+  return 'top';
+};
+
 export function transformSeries(
   series: SeriesOption,
   colorScale: CategoricalColorScale,
@@ -75,10 +90,12 @@ export function transformSeries(
     stack?: boolean;
     yAxisIndex?: number;
     showValue?: boolean;
+    showValuesSeparately?: boolean;
     formatter?: NumberFormatter;
     totalStackedValues?: number[];
     showValueIndexes?: number[];
     richTooltip?: boolean;
+    separateValues?: any;
   },
 ): SeriesOption | undefined {
   const { name } = series;
@@ -93,10 +110,12 @@ export function transformSeries(
     stack,
     yAxisIndex = 0,
     showValue,
+    showValuesSeparately,
     formatter,
     totalStackedValues = [],
     showValueIndexes = [],
     richTooltip,
+    separateValues,
   } = opts;
 
   const forecastSeries = extractForecastSeriesContext(name || '');
@@ -180,15 +199,30 @@ export function transformSeries(
     showSymbol,
     symbolSize: markerSize,
     label: {
-      show: !!showValue,
-      position: 'top',
+      show: showValuesSeparately || showValue,
+      position: getLabelPostion({ plotType, showValuesSeparately }),
       formatter: (params: any) => {
         const {
           value: [, numericValue],
           dataIndex,
           seriesIndex,
         } = params;
+
+        let separateValue = 0;
+
+        if (showValuesSeparately) {
+          separateValue =
+            separateValues && Object.keys(separateValues).length !== 0
+              ? separateValues[dataIndex]
+                ? separateValues[dataIndex][seriesIndex]
+                : 0
+              : 0;
+        }
+
         if (formatter) {
+          if (showValuesSeparately) {
+            return separateValue !== 0 ? formatter(separateValue) : '';
+          }
           if (!stack) {
             return formatter(numericValue);
           }
@@ -197,6 +231,11 @@ export function transformSeries(
           }
           return '';
         }
+
+        if (showValuesSeparately) {
+          return separateValue !== 0 ? separateValue : '';
+        }
+
         return numericValue;
       },
     },

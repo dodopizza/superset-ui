@@ -96,7 +96,11 @@ export default function transformProps(
     emitFilter,
     groupby,
     showValue,
+    showValuesSeparately,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
+
+  // eslint-disable-next-line no-console
+  console.log('[plugin-chart-echarts - Time-series Bar Chart v2]:0.17.84', 'DODO was here');
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseTimeseriesDatum(data);
@@ -108,19 +112,22 @@ export default function transformProps(
 
   const totalStackedValues: number[] = [];
   const showValueIndexes: number[] = [];
+  const rawValues: number[] = [];
+
+  rebasedData.forEach(data => {
+    const values = Object.keys(data).reduce((prev, curr) => {
+      if (curr === '__timestamp') {
+        return prev;
+      }
+      const value = data[curr] || 0;
+      rawValues.push(value as number);
+
+      return prev + (value as number);
+    }, 0);
+    totalStackedValues.push(values);
+  });
 
   if (stack) {
-    rebasedData.forEach(data => {
-      const values = Object.keys(data).reduce((prev, curr) => {
-        if (curr === '__timestamp') {
-          return prev;
-        }
-        const value = data[curr] || 0;
-        return prev + (value as number);
-      }, 0);
-      totalStackedValues.push(values);
-    });
-
     rawSeries.forEach((entry, seriesIndex) => {
       const { data = [] } = entry;
       (data as [Date, number][]).forEach((datum, dataIndex) => {
@@ -130,6 +137,45 @@ export default function transformProps(
       });
     });
   }
+
+  let revertedRawValues: any = {};
+  let count = 0;
+  let maxLength = 0;
+
+  if (rawValues.length) {
+    rawValues.forEach((element, index) => {
+      if (index !== 0 && index % rawSeries.length === 0) count += 1;
+
+      const existingArray = revertedRawValues[count] || [];
+      const newArray = existingArray.concat(element);
+
+      if (newArray.length > maxLength) maxLength = newArray.length;
+
+      revertedRawValues = {
+        ...revertedRawValues,
+        [count]: newArray,
+      };
+    });
+  }
+
+  let recheckedRawValues: any = {};
+
+  // Adding missing data
+  Object.keys(revertedRawValues).forEach(key => {
+    const values = revertedRawValues[key];
+    const newValues = values;
+
+    if (values.length < maxLength) {
+      for (let i = 0; i <= maxLength - values.length; i = +1) {
+        newValues.push(0);
+      }
+    }
+
+    recheckedRawValues = {
+      ...recheckedRawValues,
+      [key]: newValues,
+    };
+  });
 
   rawSeries.forEach(entry => {
     const transformedSeries = transformSeries(entry, colorScale, {
@@ -146,6 +192,8 @@ export default function transformProps(
       totalStackedValues,
       showValueIndexes,
       richTooltip,
+      showValuesSeparately,
+      separateValues: recheckedRawValues,
     });
     if (transformedSeries) series.push(transformedSeries);
   });

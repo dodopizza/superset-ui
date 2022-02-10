@@ -28,7 +28,7 @@ import {
 } from '@superset-ui/chart-controls';
 
 import { DEFAULT_FORM_DATA, EchartsTimeseriesContributionType } from '../types';
-import { legendSection, showValueControl } from '../../controls';
+import { legendSection, showValueControl, showValuesSeparately } from '../../controls';
 
 const {
   contributionMode,
@@ -96,6 +96,7 @@ const config: ControlPanelConfig = {
       controlSetRows: [
         ['color_scheme', 'label_colors'],
         [showValueControl],
+        [showValuesSeparately],
         [
           {
             name: 'stack',
