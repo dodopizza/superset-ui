@@ -1,9 +1,6 @@
-## @superset-ui/legacy-plugin-chart-heatmap
+## Heatmap for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-plugin-chart-heatmap.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-plugin-chart-heatmap)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-plugin-chart-heatmap&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=packages/superset-ui-legacy-plugin-chart-heatmap)
-
-This plugin provides Heatmap for Superset.
+> `DODOIS: NOT FRIENDLY`
 
 ### Usage
 
@@ -11,14 +8,12 @@ Configure `key`, which can be any `string`, and register the plugin. This `key` 
 lookup this chart throughout the app.
 
 ```js
-import HeatmapChartPlugin from '@superset-ui/legacy-plugin-chart-heatmap';
+import HeatmapChartPlugin from '@dodopizza/ssp-legacy-plugin-chart-heatmap';
 
 new HeatmapChartPlugin().configure({ key: 'heatmap' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-heatmap)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,3 +26,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-plugin-chart-heatmap` [`0.18.0`]
