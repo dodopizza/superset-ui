@@ -23,6 +23,22 @@ import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import { EchartsBarChartProps, EchartsBarFormData } from './types';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Echarts Bar Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class EchartsPieChartPlugin extends ChartPlugin<
   EchartsBarFormData,
   EchartsBarChartProps
@@ -43,12 +59,13 @@ export default class EchartsPieChartPlugin extends ChartPlugin<
       controlPanel,
       loadChart: () => import('./EchartsBarChart'),
       metadata: new ChartMetadata({
+        category: t('Ranking'),
         behaviors: [Behavior.INTERACTIVE_CHART],
         credits: ['https://echarts.apache.org'],
         description: 'Bar Chart (Apache ECharts) with D3 format support',
         name: t('Echarts Bar Chart'),
         exampleGallery: [],
-        tags: [t('Popular'), t('ECharts'), t('DODOIS_friendly')],
+        tags: [t('Popular'), t('ECharts'), DODOIS_TAG],
         thumbnail,
       }),
       transformProps,

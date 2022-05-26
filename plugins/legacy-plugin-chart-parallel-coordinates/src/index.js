@@ -21,10 +21,30 @@ import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-parallel-coordinates';
+const VIZ_NAME = 'Parallel Coordinates';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Ranking'),
   credits: ['https://syntagmatic.github.io/parallel-coordinates'],
-  description: '',
+  description: t(
+    'Plots the individual metrics for each row in the data vertically and links them together as a line. This chart is useful for comparing multiple metrics across all of the samples or rows in the data.',
+  ),
   name: t('Parallel Coordinates'),
+  tags: [t('Coordinates'), t('Directional'), t('Legacy'), t('Relational'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

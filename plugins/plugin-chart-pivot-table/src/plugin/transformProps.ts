@@ -31,16 +31,12 @@ import { getColorFormatters } from '@superset-ui/chart-controls';
 import { DateFormatter } from '../types';
 
 const { DATABASE_DATETIME } = TimeFormats;
-const TIME_COLUMN = '__timestamp';
 
 function isNumeric(key: string, data: DataRecord[] = []) {
   return data.every(
     record => record[key] === null || record[key] === undefined || typeof record[key] === 'number',
   );
 }
-
-// eslint-disable-next-line no-console
-console.log('[plugin-chart-pivot-table]:0.17.84', 'DODO was here');
 
 export default function transformProps(chartProps: ChartProps<QueryFormData>) {
   /**
@@ -111,7 +107,7 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
     .reduce((acc: Record<string, DateFormatter | undefined>, temporalColname: string) => {
       let formatter: DateFormatter | undefined;
       if (dateFormat === smartDateFormatter.id) {
-        if (temporalColname === TIME_COLUMN) {
+        if (granularity) {
           // time column use formats based on granularity
           formatter = getTimeFormatterForGranularity(granularity);
         } else if (isNumeric(temporalColname, data)) {

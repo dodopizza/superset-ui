@@ -22,6 +22,7 @@ import {
   ControlPanelConfig,
   ControlPanelSectionConfig,
   ControlSetRow,
+  emitFilterControl,
   sections,
   sharedControls,
 } from '@superset-ui/chart-controls';
@@ -74,6 +75,14 @@ function createQuerySection(label: string, controlSuffix: string): ControlPanelS
           config: sharedControls.adhoc_filters,
         },
       ],
+      emitFilterControl.length > 0
+        ? [
+            {
+              ...emitFilterControl[0],
+              name: `emit_filter${controlSuffix}`,
+            },
+          ]
+        : [],
       [
         {
           name: `limit${controlSuffix}`,
@@ -234,7 +243,7 @@ const config: ControlPanelConfig = {
               type: 'AnnotationLayerControl',
               label: '',
               default: annotationLayers,
-              description: 'Annotation Layers',
+              description: t('Annotation Layers'),
             },
           },
         ],

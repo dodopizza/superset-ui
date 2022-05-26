@@ -19,12 +19,44 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
+import example1 from './images/Treemap.jpg';
+import example2 from './images/Treemap2.jpg';
+import example3 from './images/Treemap3.jpg';
+import example4 from './images/Treemap4.jpg';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-treemap';
+const VIZ_NAME = 'Treemap';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Part of a Whole'),
   credits: ['https://bl.ocks.org/mbostock/911ad09bdead40ec0061'],
-  description: '',
+  description: t(
+    'Shows the composition of a dataset by segmenting a given rectangle as smaller rectangles with areas proportional to their value or contribution to the whole. Those rectangles may also, in turn, be further segmented hierarchically.',
+  ),
+  exampleGallery: [{ url: example1 }, { url: example2 }, { url: example3 }, { url: example4 }],
   name: t('Treemap'),
+  tags: [
+    t('Categorical'),
+    t('Legacy'),
+    t('Multi-Levels'),
+    t('Percentages'),
+    t('Proportional'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

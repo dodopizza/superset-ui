@@ -18,14 +18,39 @@
  */
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from '../transformProps';
+import example1 from './images/LineChart.jpg';
+import example2 from './images/LineChart2.jpg';
+import battery from './images/battery.jpg';
 import thumbnail from './images/thumbnail.png';
 import { ANNOTATION_TYPES } from '../vendor/superset/AnnotationTypes';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Line Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
   canBeAnnotationTypes: [ANNOTATION_TYPES.TIME_SERIES],
+  category: t('Evolution'),
   credits: ['http://nvd3.org'],
-  description: '',
+  description: t('Classic chart that visualizes how metrics change over time.'),
+  exampleGallery: [
+    { url: example1 },
+    { url: example2 },
+    { url: battery, caption: t('Battery level over time') },
+  ],
   name: t('Line Chart'),
   supportedAnnotationTypes: [
     ANNOTATION_TYPES.TIME_SERIES,
@@ -33,6 +58,7 @@ const metadata = new ChartMetadata({
     ANNOTATION_TYPES.EVENT,
     ANNOTATION_TYPES.FORMULA,
   ],
+  tags: [t('Aesthetic'), t('Legacy'), t('nvd3'), t('Deprecated'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

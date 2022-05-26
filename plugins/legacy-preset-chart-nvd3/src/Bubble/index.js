@@ -21,10 +21,40 @@ import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Bubble Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Correlation'),
   credits: ['http://nvd3.org'],
-  description: '',
+  description: t(
+    'Visualizes a metric across three dimensions of data in a single chart (X axis, Y axis, and bubble size). Bubbles from the same group can be showcased using bubble color.',
+  ),
   name: t('Bubble Chart'),
+  tags: [
+    t('Multi-Dimensions'),
+    t('Aesthetic'),
+    t('Comparison'),
+    t('Legacy'),
+    t('Scatter'),
+    t('Time'),
+    t('Trend'),
+    t('nvd3'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

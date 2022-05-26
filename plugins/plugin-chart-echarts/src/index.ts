@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-// created plugins by DODO
-export { default as EchartsBarChartPlugin } from './Bar';
-// SUPERSET plugins
 export { default as EchartsBoxPlotChartPlugin } from './BoxPlot';
 export { default as EchartsTimeseriesChartPlugin } from './Timeseries';
 export { default as EchartsAreaChartPlugin } from './Timeseries/Area';
@@ -35,6 +32,7 @@ export { default as EchartsRadarChartPlugin } from './Radar';
 export { default as EchartsFunnelChartPlugin } from './Funnel';
 export { default as EchartsTreeChartPlugin } from './Tree';
 export { default as EchartsTreemapChartPlugin } from './Treemap';
+export { default as EchartsBarChartPlugin } from './Bar';
 
 /**
  * Note: this file exports the default export from EchartsTimeseries.tsx.

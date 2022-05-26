@@ -20,6 +20,9 @@ import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 
+// eslint-disable-next-line no-console
+console.log('THIS PLUGIN [BOX PLOT from legacy-preset-chart-nvd3] IS NOT USED');
+
 const metadata = new ChartMetadata({
   credits: ['http://nvd3.org'],
   description: '',

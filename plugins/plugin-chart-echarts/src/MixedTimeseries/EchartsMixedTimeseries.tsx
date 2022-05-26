@@ -20,6 +20,7 @@ import React, { useCallback } from 'react';
 import { EchartsMixedTimeseriesChartTransformedProps } from './types';
 import Echart from '../components/Echart';
 import { EventHandlers } from '../types';
+import { currentSeries } from '../utils/series';
 
 export default function EchartsMixedTimeseries({
   height,
@@ -34,14 +35,12 @@ export default function EchartsMixedTimeseries({
   formData,
   seriesBreakdown,
 }: EchartsMixedTimeseriesChartTransformedProps) {
-  const isFirstQuery = useCallback(
-    (seriesIndex: number) => seriesIndex < seriesBreakdown,
-    [seriesBreakdown],
-  );
+  const isFirstQuery = useCallback((seriesIndex: number) => seriesIndex < seriesBreakdown, [
+    seriesBreakdown,
+  ]);
 
   const handleChange = useCallback(
     (values: string[], seriesIndex: number) => {
-      // @ts-ignore
       const emitFilter = isFirstQuery(seriesIndex) ? formData.emitFilter : formData.emitFilterB;
       if (!emitFilter) {
         return;
@@ -58,7 +57,7 @@ export default function EchartsMixedTimeseries({
             values.length === 0
               ? []
               : [
-                  ...currentGroupBy.map((col: any, idx: any) => {
+                  ...currentGroupBy.map((col, idx) => {
                     const val = groupbyValues.map(v => v[idx]);
                     if (val === null || val === undefined)
                       return {
@@ -94,6 +93,12 @@ export default function EchartsMixedTimeseries({
       } else {
         handleChange([seriesName], seriesIndex);
       }
+    },
+    mousemove: params => {
+      currentSeries.name = params.seriesName;
+    },
+    mouseout: () => {
+      currentSeries.name = '';
     },
   };
 

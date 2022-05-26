@@ -62,7 +62,6 @@ export default function transformProps(chartProps) {
     richTooltip,
     sendTimeRange,
     showBarValue,
-    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,
@@ -123,9 +122,6 @@ export default function transformProps(chartProps) {
     markers = tokenizeToNumericArray(markers);
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[legacy-preset-chart-nvd3]:0.17.41', 'DODO was here');
-
   return {
     width,
     height,
@@ -162,7 +158,6 @@ export default function transformProps(chartProps) {
     ranges,
     reduceXTicks,
     showBarValue,
-    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,

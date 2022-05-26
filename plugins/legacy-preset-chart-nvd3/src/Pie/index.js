@@ -21,6 +21,9 @@ import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+// eslint-disable-next-line no-console
+console.log('THIS PLUGIN [Pie Chart from legacy-preset-chart-nvd3] IS NOT USED');
+
 const metadata = new ChartMetadata({
   credits: ['http://nvd3.org'],
   description: '',

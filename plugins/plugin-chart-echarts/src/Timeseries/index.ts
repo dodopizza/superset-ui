@@ -22,7 +22,23 @@ import controlPanel from './controlPanel';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import { EchartsTimeseriesChartProps, EchartsTimeseriesFormData } from './types';
-// import example from './images/Time-series_Chart.jpg';
+import example from './images/Time-series_Chart.jpg';
+
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Time-Series Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
 
 export default class EchartsTimeseriesChartPlugin extends ChartPlugin<
   EchartsTimeseriesFormData,
@@ -50,8 +66,7 @@ export default class EchartsTimeseriesChartPlugin extends ChartPlugin<
         description: t(
           'Swiss army knife for visualizing time series data. Choose between  step, line, scatter, and bar charts. This viz type has many customization options as well.',
         ),
-        // exampleGallery: [{ url: example }],
-        exampleGallery: [],
+        exampleGallery: [{ url: example }],
         supportedAnnotationTypes: [
           AnnotationType.Event,
           AnnotationType.Formula,
@@ -61,13 +76,12 @@ export default class EchartsTimeseriesChartPlugin extends ChartPlugin<
         name: t('Time-series Chart'),
         tags: [
           t('Advanced-Analytics'),
-          t('ECharts'),
           t('Aesthetic'),
           t('Line'),
           t('Predictive'),
           t('Time'),
           t('Transformable'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

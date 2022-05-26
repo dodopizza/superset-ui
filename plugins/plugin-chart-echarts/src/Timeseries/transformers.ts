@@ -36,7 +36,6 @@ import {
 import { SeriesOption } from 'echarts';
 import {
   CallbackDataParams,
-  // DefaultExtraStateOpts,
   ItemStyleOption,
   LineStyleOption,
   OptionName,
@@ -91,6 +90,7 @@ export function transformSeries(
     yAxisIndex?: number;
     showValue?: boolean;
     showValuesSeparately?: boolean;
+    onlyTotal?: boolean;
     formatter?: NumberFormatter;
     totalStackedValues?: number[];
     showValueIndexes?: number[];
@@ -337,11 +337,10 @@ export function transformEventAnnotation(
     const eventData: MarkLine1DDataItemOption[] = [
       {
         name: label,
-        xAxis: time as unknown as number,
+        xAxis: (time as unknown) as number,
       },
     ];
 
-    // const lineStyle: LineStyleOption & DefaultExtraStateOpts['emphasis'] = {
     const lineStyle: LineStyleOption & any['emphasis'] = {
       width,
       type: style as ZRLineType,

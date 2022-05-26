@@ -368,7 +368,7 @@ export default function transformProps(chartProps: EchartsBarChartProps): BarCha
 
           if (componentIndex === totalComponentsCount - 1) {
             const sumObj = seriesTotals[dataIndex];
-            dataValue = sumObj.totalSum;
+            dataValue = sumObj ? sumObj.totalSum : '';
             return formatValue(dataValue, seriesType, seriesName);
           }
 

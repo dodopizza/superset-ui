@@ -18,22 +18,6 @@
  */
 import { formatNumber } from '@superset-ui/core';
 
-/**
- *
- * @param arr - array of metrics
- * @param formatsObject - object with formats
- * @returns - a format as string or null
- */
-const getCleanFormat = (arr: string[], formatsObject: Record<string, any>) =>
-  arr.map(item => (formatsObject[item] ? formatsObject[item] : null)).filter(i => i)[0] || null;
-
-/**
- *
- * @param value - value as string
- * @returns - '0' or original value
- */
-const cleanUpZero = (value: string) => (value && Number(value) === 0 ? '0' : value);
-
 function formatCellValue(
   i: number,
   cols: string[],
@@ -44,19 +28,13 @@ function formatCellValue(
   dateFormatter: any,
 ) {
   const metric: string = cols[i];
-
-  const format: string = Array.isArray(metric)
-    ? getCleanFormat(metric, columnFormats)
-    : columnFormats[metric] || numberFormat || '.3s';
-
-  const finalFormat = format || numberFormat;
-
+  const format: string = columnFormats[metric] || numberFormat || '.3s';
   let textContent: string = tdText;
   let sortAttributeValue: any = tdText;
 
   if (parseFloat(tdText)) {
     const parsedValue = parseFloat(tdText);
-    textContent = formatNumber(finalFormat, parsedValue);
+    textContent = formatNumber(format, parsedValue);
     sortAttributeValue = parsedValue;
   } else {
     const regexMatch = dateRegex.exec(tdText);
@@ -70,9 +48,7 @@ function formatCellValue(
     }
   }
 
-  const cleanedUpTextContent = cleanUpZero(textContent);
-
-  return { textContent: cleanedUpTextContent, sortAttributeValue };
+  return { textContent, sortAttributeValue };
 }
 
 function formatDateCellValue(text: string, verboseMap: any, dateRegex: RegExp, dateFormatter: any) {

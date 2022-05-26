@@ -19,12 +19,46 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
+import example1 from './images/Sankey.jpg';
+import example2 from './images/Sankey2.jpg';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-sankey';
+const VIZ_NAME = 'Sankey Diagram';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.unknown;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Flow'),
   credits: ['https://github.com/d3/d3-sankey'],
-  description: '',
+  description: t(
+    "Visualizes the flow of different group's values through different stages of a system. New stages in the pipeline are visualized as nodes or layers. The thickness of the bars or edges represent the metric being visualized.",
+  ),
+  exampleGallery: [
+    { url: example1, description: t('Demographics') },
+    { url: example2, description: t('Survey Responses') },
+  ],
   name: t('Sankey Diagram'),
+  tags: [
+    t('Categorical'),
+    t('Directional'),
+    t('Legacy'),
+    t('Percentages'),
+    t('Proportional'),
+    t('Relational'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

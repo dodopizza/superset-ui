@@ -19,11 +19,43 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import controlPanel from './controlPanel';
 import transformProps, { BigNumberChartProps, BigNumberFormData } from './transformProps';
+import example from './images/Big_Number_Trendline.jpg';
 import thumbnail from './images/thumbnail.png';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-big-number';
+const VIZ_NAME = 'Big Number with Trendline';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notStable;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
-  description: '',
+  category: t('KPI'),
+  description: t(
+    'Showcases a single number accompanied by a simple line chart, to call attention to an important metric along with its change over time or other dimension.',
+  ),
+  exampleGallery: [{ url: example }],
   name: t('Big Number with Trendline'),
+  tags: [
+    t('Advanced-Analytics'),
+    t('Formattable'),
+    t('Line'),
+    t('Percentages'),
+    t('Popular'),
+    t('Report'),
+    t('Description'),
+    t('Trend'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

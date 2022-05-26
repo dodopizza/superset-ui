@@ -37,7 +37,12 @@ import {
 } from './types';
 import { ForecastSeriesEnum, ProphetValue } from '../types';
 import { parseYAxisBound } from '../utils/controls';
-import { dedupSeries, extractTimeseriesSeries, getLegendProps } from '../utils/series';
+import {
+  dedupSeries,
+  extractTimeseriesSeries,
+  getLegendProps,
+  currentSeries,
+} from '../utils/series';
 import { extractAnnotationLabels } from '../utils/annotation';
 import {
   extractForecastSeriesContext,
@@ -62,8 +67,10 @@ export default function transformProps(
   chartProps: EchartsTimeseriesChartProps,
 ): TimeseriesChartTransformedProps {
   const { width, height, filterState, formData, hooks, queriesData } = chartProps;
-  const { annotation_data: annotationData_, data = [] } =
-    queriesData[0] as TimeseriesChartDataResponseResult;
+  const {
+    annotation_data: annotationData_,
+    data = [],
+  } = queriesData[0] as TimeseriesChartDataResponseResult;
   const annotationData = annotationData_ || {};
 
   const {
@@ -96,11 +103,9 @@ export default function transformProps(
     emitFilter,
     groupby,
     showValue,
+    onlyTotal,
     showValuesSeparately,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
-
-  // eslint-disable-next-line no-console
-  console.log('[plugin-chart-echarts - Time-series Bar Chart v2]:0.17.84', 'DODO was here');
 
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseTimeseriesDatum(data);
@@ -189,9 +194,11 @@ export default function transformProps(
       stack,
       formatter,
       showValue,
+      onlyTotal,
       totalStackedValues,
       showValueIndexes,
       richTooltip,
+      // @ts-ignore
       showValuesSeparately,
       separateValues: recheckedRawValues,
     });
@@ -277,24 +284,29 @@ export default function transformProps(
     },
     tooltip: {
       ...defaultTooltip,
+      appendToBody: true,
       trigger: richTooltip ? 'axis' : 'item',
       formatter: (params: any) => {
         const value: number = !richTooltip ? params.value : params[0].value[0];
         const prophetValue = !richTooltip ? [params] : params;
 
         const rows: Array<string> = [`${tooltipFormatter(value)}`];
-        const prophetValues: Record<string, ProphetValue> =
-          extractProphetValuesFromTooltipParams(prophetValue);
+        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
+          prophetValue,
+        );
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
-          rows.push(
-            formatProphetTooltipSeries({
-              ...value,
-              seriesName: key,
-              formatter,
-            }),
-          );
+          const content = formatProphetTooltipSeries({
+            ...value,
+            seriesName: key,
+            formatter,
+          });
+          if (currentSeries.name === key) {
+            rows.push(`<span style="font-weight: 700">${content}</span>`);
+          } else {
+            rows.push(`<span style="opacity: 0.7">${content}</span>`);
+          }
         });
         return rows.join('<br />');
       },

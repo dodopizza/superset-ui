@@ -22,9 +22,25 @@ import buildQuery from './buildQuery';
 import controlPanel from './controlPanel';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
-// import example1 from './images/treemap_v2_1.png';
-// import example2 from './images/treemap_v2_2.jpg';
+import example1 from './images/treemap_v2_1.png';
+import example2 from './images/treemap_v2_2.jpg';
 import { EchartsTreemapChartProps, EchartsTreemapFormData } from './types';
+
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Treemap v2';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
 
 export default class EchartsTreemapChartPlugin extends ChartPlugin<
   EchartsTreemapFormData,
@@ -52,8 +68,7 @@ export default class EchartsTreemapChartPlugin extends ChartPlugin<
         description: t(
           'Show hierarchical relationships of data, with with the value represented by area, showing proportion and contribution to the whole.',
         ),
-        // exampleGallery: [{ url: example1 }, { url: example2 }],
-        exampleGallery: [],
+        exampleGallery: [{ url: example1 }, { url: example2 }],
         name: t('Treemap v2'),
         tags: [
           t('Aesthetic'),
@@ -63,7 +78,7 @@ export default class EchartsTreemapChartPlugin extends ChartPlugin<
           t('Multi-Levels'),
           t('Percentages'),
           t('Proportional'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

@@ -21,10 +21,30 @@ import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Bullet Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('KPI'),
   credits: ['http://nvd3.org'],
-  description: '',
+  description: t(
+    'Showcases the progress of a single metric against a given target. The higher the fill, the closer the metric is to the target.',
+  ),
   name: t('Bullet Chart'),
+  tags: [t('Business'), t('Legacy'), t('Report'), t('nvd3'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

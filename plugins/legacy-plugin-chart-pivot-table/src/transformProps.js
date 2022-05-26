@@ -16,31 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { extractTimegrain } from '@superset-ui/core';
+
 export default function transformProps(chartProps) {
-  const { height, datasource, formData, queriesData } = chartProps;
-  const { timeGrainSqla, groupby, dateFormat, metrics } = formData;
-  const { columnFormats, verboseMap, metrics: chartPropsDatasourceMetrics } = datasource;
-  let { numberFormat } = formData;
-
-  // eslint-disable-next-line no-console
-  console.log('[legacy-plugin-chart-pivot-table]:0.17.41', 'DODO was here');
-
-  const findMetric = (arr, metricName) => arr.filter(metric => metric.metric_name === metricName);
-
-  if (!numberFormat && chartProps.datasource && chartPropsDatasourceMetrics) {
-    metrics.forEach(metricName => {
-      const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metricName);
-
-      if (foundMetric && foundMetric.d3format) numberFormat = foundMetric.d3format;
-      else numberFormat = null;
-    });
-  }
+  const { height, datasource, formData, queriesData, rawFormData } = chartProps;
+  const { groupby, numberFormat, dateFormat } = formData;
+  const { columnFormats, verboseMap } = datasource;
+  const granularity = extractTimegrain(rawFormData);
 
   return {
     columnFormats,
     data: queriesData[0].data,
     dateFormat,
-    granularity: timeGrainSqla,
+    granularity,
     height,
     numberFormat,
     numGroups: groupby.length,

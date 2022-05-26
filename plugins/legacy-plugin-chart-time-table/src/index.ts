@@ -21,9 +21,38 @@ import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-time-table';
+const VIZ_NAME = 'Time-series Table';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Table'),
   name: t('Time-series Table'),
-  description: '',
+  description: t(
+    'Compare multiple time series charts (as sparklines) and related metrics quickly. ',
+  ),
+  tags: [
+    t('Multi-Variables'),
+    t('Comparison'),
+    t('Legacy'),
+    t('Percentages'),
+    t('Tabular'),
+    t('Description'),
+    t('Trend'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

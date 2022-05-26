@@ -37,6 +37,21 @@ const formData = {
   yAxisFormat: '.3s',
 };
 
+const rawFormData = {
+  metric: 'value',
+  color_picker: {
+    r: 0,
+    g: 122,
+    b: 135,
+    a: 1,
+  },
+  compare_lag: 1,
+  time_grain_sqla: 'P0.25Y' as TimeGranularity,
+  compare_suffix: 'over last quarter',
+  viz_type: 'big_number',
+  y_axis_format: '.3s',
+};
+
 function generateProps(
   data: BigNumberDatum[],
   extraFormData = {},
@@ -56,7 +71,7 @@ function generateProps(
       verboseMap: {},
     },
     rawDatasource: {},
-    rawFormData: {},
+    rawFormData,
     hooks: {},
     initialValues: {},
     formData: {
@@ -102,7 +117,7 @@ describe('BigNumber', () => {
       expect(transformed.bigNumberFallback).not.toBeNull();
 
       // should successfully formatTime by ganularity
-      expect(transformed.formatTime(new Date('2020-01-01'))).toStrictEqual('2020 Q1');
+      expect(transformed.formatTime(new Date('2020-01-01'))).toStrictEqual('2020-01-01 00:00:00');
     });
 
     it('should respect datasource d3 format', () => {

@@ -21,11 +21,27 @@ import buildQuery from './buildQuery';
 import controlPanel from './controlPanel';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
-// import example1 from './images/Pie1.jpg';
-// import example2 from './images/Pie2.jpg';
-// import example3 from './images/Pie3.jpg';
-// import example4 from './images/Pie4.jpg';
+import example1 from './images/Pie1.jpg';
+import example2 from './images/Pie2.jpg';
+import example3 from './images/Pie3.jpg';
+import example4 from './images/Pie4.jpg';
 import { EchartsPieChartProps, EchartsPieFormData } from './types';
+
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Pie Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
 
 export default class EchartsPieChartPlugin extends ChartPlugin<
   EchartsPieFormData,
@@ -50,17 +66,15 @@ export default class EchartsPieChartPlugin extends ChartPlugin<
         behaviors: [Behavior.INTERACTIVE_CHART],
         category: t('Part of a Whole'),
         credits: ['https://echarts.apache.org'],
-        description:
-          t(`The classic. Great for showing how much of a company each investor gets, what demographics follow your blog, or what portion of the budget goes to the military industrial complex.
+        description: t(`The classic. Great for showing how much of a company each investor gets, what demographics follow your blog, or what portion of the budget goes to the military industrial complex.
 
         Pie charts can be difficult to interpret precisely. If clarity of relative proportion is important, consider using a bar or other chart type instead.`),
-        // exampleGallery: [
-        //   { url: example1 },
-        //   { url: example2 },
-        //   { url: example3 },
-        //   { url: example4 },
-        // ],
-        exampleGallery: [],
+        exampleGallery: [
+          { url: example1 },
+          { url: example2 },
+          { url: example3 },
+          { url: example4 },
+        ],
         name: t('Pie Chart'),
         tags: [
           t('Aesthetic'),
@@ -71,7 +85,7 @@ export default class EchartsPieChartPlugin extends ChartPlugin<
           t('Popular'),
           t('Proportional'),
           t('ECharts'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

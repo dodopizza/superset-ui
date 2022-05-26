@@ -30,6 +30,22 @@ import transformProps from './transformProps';
 import thumbnail from '../images/thumbnail.png';
 import { PivotTableQueryFormData } from '../types';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-pivot-table';
+const VIZ_NAME = 'Pivot Table v2';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class PivotTableChartPlugin extends ChartPlugin<
   PivotTableQueryFormData,
   ChartProps<QueryFormData>
@@ -52,7 +68,7 @@ export default class PivotTableChartPlugin extends ChartPlugin<
         'Used to summarize a set of data by grouping together multiple statistics along two axes. Examples: Sales numbers by region and month, tasks by status and assignee, active users by age and location. Not the most visually stunning visualization, but highly informative and versatile.',
       ),
       name: t('Pivot Table v2'),
-      tags: [t('Additive'), t('Report'), t('Tabular'), t('Popular')],
+      tags: [t('Additive'), t('Report'), t('Tabular'), t('Popular'), DODOIS_TAG],
       thumbnail,
     });
 

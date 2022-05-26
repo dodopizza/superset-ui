@@ -28,7 +28,7 @@ import {
 } from '@superset-ui/chart-controls';
 
 import { DEFAULT_FORM_DATA, EchartsTimeseriesContributionType } from '../types';
-import { legendSection, showValueControl, showValuesSeparately } from '../../controls';
+import { legendSection, showValueSection, showValuesSeparately } from '../../controls';
 
 const {
   contributionMode,
@@ -37,7 +37,6 @@ const {
   markerSize,
   minorSplitLine,
   rowLimit,
-  stack,
   tooltipTimeFormat,
   truncateYAxis,
   yAxisBounds,
@@ -95,20 +94,8 @@ const config: ControlPanelConfig = {
       expanded: true,
       controlSetRows: [
         ['color_scheme', 'label_colors'],
-        [showValueControl],
+        ...showValueSection,
         [showValuesSeparately],
-        [
-          {
-            name: 'stack',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Stack series'),
-              renderTrigger: true,
-              default: stack,
-              description: t('Stack series on top of each other'),
-            },
-          },
-        ],
         [
           {
             name: 'markerEnabled',
@@ -129,7 +116,7 @@ const config: ControlPanelConfig = {
               label: t('Marker Size'),
               renderTrigger: true,
               min: 0,
-              max: 100,
+              max: 20,
               default: markerSize,
               description: t('Size of marker. Also applies to forecast observations.'),
               visibility: ({ controls }: ControlPanelsContainerProps) =>

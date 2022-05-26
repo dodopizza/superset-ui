@@ -21,6 +21,9 @@ import createMetadata from '../createMetadata';
 import transformProps, { LegacyBoxPlotChartProps } from './transformProps';
 import controlPanel from '../controlPanel';
 
+// eslint-disable-next-line no-console
+console.log('THIS PLUGIN [BOX PLOT from preset-chart-xy] IS NOT USED');
+
 export default class BoxPlotChartPlugin extends ChartPlugin<
   QueryFormData,
   LegacyBoxPlotChartProps

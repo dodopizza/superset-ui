@@ -20,9 +20,25 @@ import { t, ChartMetadata, ChartPlugin, Behavior } from '@superset-ui/core';
 import buildQuery from './buildQuery';
 import controlPanel from './controlPanel';
 import transformProps from './transformProps';
-// import example from './images/BoxPlot.jpg';
+import example from './images/BoxPlot.jpg';
 import thumbnail from './images/thumbnail.png';
 import { BoxPlotQueryFormData, EchartsBoxPlotChartProps } from './types';
+
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Box Plot';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.unknown;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
 
 export default class EchartsBoxPlotChartPlugin extends ChartPlugin<
   BoxPlotQueryFormData,
@@ -50,10 +66,9 @@ export default class EchartsBoxPlotChartPlugin extends ChartPlugin<
         description: t(
           'Also known as a box and whisker plot, this visualization compares the distributions of a related metric across multiple groups. The box in the middle emphasizes the mean, median, and inner 2 quartiles. The whiskers around each box visualize the min, max, range, and outer 2 quartiles.',
         ),
-        // exampleGallery: [{ url: example }],
-        exampleGallery: [],
+        exampleGallery: [{ url: example }],
         name: t('Box Plot'),
-        tags: [t('ECharts'), t('Range'), t('Statistical')],
+        tags: [t('ECharts'), t('Range'), t('Statistical'), DODOIS_TAG],
         thumbnail,
       }),
       transformProps,

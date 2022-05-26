@@ -18,13 +18,15 @@
  */
 import * as color from 'd3-color';
 import {
-  TimeGranularity,
-  getTimeFormatterForGranularity,
+  extractTimegrain,
   getNumberFormatter,
+  getTimeFormatter,
+  getTimeFormatterForGranularity,
   NumberFormats,
   ChartProps,
   LegacyQueryData,
   QueryFormData,
+  smartDateFormatter,
 } from '@superset-ui/core';
 
 const TIME_COLUMN = '__timestamp';
@@ -48,7 +50,6 @@ export type BigNumberFormData = QueryFormData & {
     | string;
   compareLag?: string | number;
   yAxisFormat?: string;
-  timeGrainSqla?: TimeGranularity;
 };
 
 export type BigNumberChartProps = ChartProps & {
@@ -59,21 +60,23 @@ export type BigNumberChartProps = ChartProps & {
 };
 
 export default function transformProps(chartProps: BigNumberChartProps) {
-  const { width, height, queriesData, formData } = chartProps;
+  const { width, height, queriesData, formData, rawFormData } = chartProps;
   const {
     colorPicker,
     compareLag: compareLag_,
     compareSuffix = '',
+    timeFormat,
     headerFontSize,
     metric = 'value',
+    showTimestamp,
     showTrendLine,
     startYAxisAtZero,
     subheader = '',
     subheaderFontSize,
-    timeGrainSqla: granularity,
     vizType,
     timeRangeFixed = false,
   } = formData;
+  const granularity = extractTimegrain(rawFormData as QueryFormData);
   let { yAxisFormat } = formData;
   const { data = [], from_dttm: fromDatetime, to_dttm: toDatetime } = queriesData[0];
   const metricName = typeof metric === 'string' ? metric : metric.label;
@@ -91,6 +94,7 @@ export default function transformProps(chartProps: BigNumberChartProps) {
   let trendLineData;
   let percentChange = 0;
   let bigNumber = data.length === 0 ? null : data[0][metricName];
+  let timestamp = data.length === 0 ? null : data[0][TIME_COLUMN];
   let bigNumberFallback;
 
   if (data.length > 0) {
@@ -100,9 +104,12 @@ export default function transformProps(chartProps: BigNumberChartProps) {
       .sort((a, b) => (a.x !== null && b.x !== null ? b.x - a.x : 0));
 
     bigNumber = sortedData[0].y;
+    timestamp = sortedData[0].x;
+
     if (bigNumber === null) {
       bigNumberFallback = sortedData.find(d => d.y !== null);
       bigNumber = bigNumberFallback ? bigNumberFallback.y : null;
+      timestamp = bigNumberFallback ? bigNumberFallback.x : null;
     }
 
     if (compareLag > 0) {
@@ -140,7 +147,10 @@ export default function transformProps(chartProps: BigNumberChartProps) {
   }
 
   const formatNumber = getNumberFormatter(yAxisFormat);
-  const formatTime = getTimeFormatterForGranularity(granularity);
+  const formatTime =
+    timeFormat === smartDateFormatter.id
+      ? getTimeFormatterForGranularity(granularity)
+      : getTimeFormatter(timeFormat);
 
   return {
     width,
@@ -153,9 +163,11 @@ export default function transformProps(chartProps: BigNumberChartProps) {
     headerFontSize,
     subheaderFontSize,
     mainColor,
+    showTimestamp,
     showTrendLine: supportAndShowTrendLine,
     startYAxisAtZero,
     subheader: formattedSubheader,
+    timestamp,
     trendLineData,
     fromDatetime,
     toDatetime,

@@ -104,9 +104,6 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
   const yAxisFormatOriginal = yAxisFormat;
   const yAxisFormatSecondaryOriginal = yAxisFormatSecondary;
 
-  // eslint-disable-next-line no-console
-  console.log('[plugin-chart-echarts - MixedTimeseries]:0.17.84', 'DODO was here');
-
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rawSeriesA = extractTimeseriesSeries(rebaseTimeseriesDatum(data1), {
     fillNeighborValue: stack ? 0 : undefined,
@@ -277,8 +274,9 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         const prophetValue = [params];
         let finalValue;
 
-        const prophetValues: Record<string, ProphetValue> =
-          extractProphetValuesFromTooltipParams(prophetValue);
+        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
+          prophetValue,
+        );
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];
@@ -355,8 +353,9 @@ export default function transformProps(chartProps: ChartProps): EchartsProps {
         const prophetValue = !richTooltip ? [params] : params;
 
         const rows: Array<string> = [`${tooltipFormatter(value)}`];
-        const prophetValues: Record<string, ProphetValue> =
-          extractProphetValuesFromTooltipParams(prophetValue);
+        const prophetValues: Record<string, ProphetValue> = extractProphetValuesFromTooltipParams(
+          prophetValue,
+        );
 
         Object.keys(prophetValues).forEach(key => {
           const value = prophetValues[key];

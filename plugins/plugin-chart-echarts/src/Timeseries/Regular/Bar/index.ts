@@ -36,6 +36,22 @@ const barTransformProps = (chartProps: EchartsTimeseriesChartProps) =>
     formData: { ...chartProps.formData, seriesType: EchartsTimeseriesSeriesType.Bar },
   });
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Time-series Bar Chart v2';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class EchartsTimeseriesBarChartPlugin extends ChartPlugin<
   EchartsTimeseriesFormData,
   EchartsTimeseriesChartProps
@@ -71,7 +87,7 @@ export default class EchartsTimeseriesBarChartPlugin extends ChartPlugin<
           t('Vertical'),
           t('Bar'),
           t('Popular'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

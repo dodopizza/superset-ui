@@ -30,6 +30,22 @@ import { TableChartFormData, TableChartProps } from './types';
 export { default as __hack__ } from './types';
 export * from './types';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-table';
+const VIZ_NAME = 'Table';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
   behaviors: [Behavior.INTERACTIVE_CHART],
   category: t('Table'),
@@ -49,7 +65,7 @@ const metadata = new ChartMetadata({
     t('Sequential'),
     t('Tabular'),
     t('Description'),
-    t('DODOIS_friendly'),
+    DODOIS_TAG,
   ],
   thumbnail,
 });
@@ -61,7 +77,6 @@ export default class TableChartPlugin extends ChartPlugin<TableChartFormData, Ta
       metadata,
       transformProps,
       controlPanel,
-      // @ts-ignore
       buildQuery,
     });
   }

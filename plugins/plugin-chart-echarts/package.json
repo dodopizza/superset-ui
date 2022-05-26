@@ -1,7 +1,7 @@
 {
-  "name": "@dodopizza/superset-plugin-chart-echarts",
-  "version": "0.2.1",
-  "description": "DODO Superset Chart - Echarts (0.17.84)",
+  "name": "@superset-ui/plugin-chart-echarts",
+  "version": "0.18.0",
+  "description": "Superset Chart - Echarts",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
@@ -11,30 +11,29 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dodopizza/superset-ui"
+    "url": "git+https://github.com/apache-superset/superset-ui.git"
   },
   "keywords": [
-    "superset",
-    "superset-ui"
+    "superset"
   ],
-  "license": "MIT",
-  "author": {
-    "name": "Kazakov Artem",
-    "email": "a.kazakovx@dodopizza.com"
+  "author": "Superset",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/apache-superset/superset-ui/issues"
   },
-  "homepage": "https://github.com/dodopizza/superset-ui",
+  "homepage": "https://github.com/apache-superset/superset-ui#readme",
   "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "dependencies": {
-    "@superset-ui/chart-controls": "0.17.84",
-    "@superset-ui/core": "0.17.81",
+    "@superset-ui/chart-controls": "0.18.0",
+    "@superset-ui/core": "0.18.0",
     "@types/mathjs": "^6.0.7",
     "d3-array": "^1.2.0",
     "echarts": "^5.1.2",
     "lodash": "^4.17.15",
-    "mathjs": "^8.0.1"
+    "mathjs": "^8.0.1",
+    "moment": "^2.29.1"
   },
   "peerDependencies": {
     "react": "^16.13.1"

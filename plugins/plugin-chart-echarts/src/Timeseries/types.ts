@@ -61,6 +61,8 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   rowLimit: number;
   seriesType: EchartsTimeseriesSeriesType;
   stack: boolean;
+  showValuesA: boolean;
+  showValuesB: boolean;
   tooltipTimeFormat?: string;
   truncateYAxis: boolean;
   yAxisFormat?: string;
@@ -76,6 +78,7 @@ export type EchartsTimeseriesFormData = QueryFormData & {
   emitFilter: boolean;
   groupby: string[];
   showValue: boolean;
+  onlyTotal: boolean;
 } & EchartsLegendFormData;
 
 // @ts-ignore
@@ -98,6 +101,8 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   rowLimit: 10000,
   seriesType: EchartsTimeseriesSeriesType.Line,
   stack: false,
+  showValuesA: false,
+  showValuesB: false,
   tooltipTimeFormat: 'smart_date',
   truncateYAxis: true,
   yAxisBounds: [null, null],
@@ -108,6 +113,7 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   groupby: [],
   yAxisTitle: '',
   showValue: false,
+  onlyTotal: false,
 };
 
 export interface EchartsTimeseriesChartProps extends ChartProps {

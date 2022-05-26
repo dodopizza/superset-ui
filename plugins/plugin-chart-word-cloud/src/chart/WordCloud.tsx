@@ -206,5 +206,5 @@ class WordCloud extends React.PureComponent<FullWordCloudProps, WordCloudState> 
     );
   }
 }
-
+// @ts-ignore
 export default withTheme(WordCloud);

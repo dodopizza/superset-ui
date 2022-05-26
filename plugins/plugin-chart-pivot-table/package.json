@@ -1,7 +1,7 @@
 {
   "name": "@dodopizza/superset-plugin-chart-pivot-table",
-  "version": "0.1.0",
-  "description": "DODO Superset Chart - Pivot Table v2 (0.17.84)",
+  "version": "0.2.0",
+  "description": "DODO Superset Chart - Pivot Table v2 (0.18.0)",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
@@ -28,8 +28,8 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "@superset-ui/chart-controls": "0.17.84",
-    "@superset-ui/core": "0.17.81",
+    "@superset-ui/chart-controls": "0.18.0",
+    "@superset-ui/core": "0.18.0",
     "@superset-ui/react-pivottable": "^0.12.12"
   },
   "peerDependencies": {

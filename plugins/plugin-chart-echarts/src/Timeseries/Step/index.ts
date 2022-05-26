@@ -25,6 +25,22 @@ import { EchartsTimeseriesChartProps, EchartsTimeseriesFormData } from '../types
 import example1 from './images/Step1.png';
 import example2 from './images/Step2.png';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Time-series Stepped Line';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class EchartsTimeseriesStepChartPlugin extends ChartPlugin<
   EchartsTimeseriesFormData,
   EchartsTimeseriesChartProps
@@ -57,7 +73,7 @@ export default class EchartsTimeseriesStepChartPlugin extends ChartPlugin<
           t('Time'),
           t('Transformable'),
           t('Stacked'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

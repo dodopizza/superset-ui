@@ -16,14 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { t, validateNonEmpty } from '@superset-ui/core';
+import { FeatureFlag, isFeatureEnabled, t, validateNonEmpty } from '@superset-ui/core';
 import {
   columnChoices,
   ControlPanelConfig,
+  ControlPanelState,
   formatSelectOptions,
   formatSelectOptionsForRange,
   sections,
 } from '@superset-ui/chart-controls';
+import { dndEntity } from '@superset-ui/chart-controls/lib/shared-controls/dndControls';
 
 const sortAxisChoices = [
   ['alpha_asc', t('Axis ascending')],
@@ -31,6 +33,25 @@ const sortAxisChoices = [
   ['value_asc', t('Metric ascending')],
   ['value_desc', t('Metric descending')],
 ];
+
+const allColumns = {
+  type: 'SelectControl',
+  default: null,
+  description: t('Columns to display'),
+  mapStateToProps: (state: ControlPanelState) => ({
+    choices: columnChoices(state.datasource),
+  }),
+  validators: [validateNonEmpty],
+};
+
+const dndAllColumns = {
+  ...dndEntity,
+  description: t('Columns to display'),
+};
+
+const columnsConfig = isFeatureEnabled(FeatureFlag.ENABLE_EXPLORE_DRAG_AND_DROP)
+  ? dndAllColumns
+  : allColumns;
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
@@ -43,27 +64,17 @@ const config: ControlPanelConfig = {
           {
             name: 'all_columns_x',
             config: {
-              type: 'SelectControl',
+              ...columnsConfig,
               label: 'X Axis',
-              default: null,
-              description: t('Columns to display'),
-              mapStateToProps: state => ({
-                choices: columnChoices(state.datasource),
-              }),
-              validators: [validateNonEmpty],
             },
           },
+        ],
+        [
           {
             name: 'all_columns_y',
             config: {
-              type: 'SelectControl',
+              ...columnsConfig,
               label: 'Y Axis',
-              default: null,
-              description: t('Columns to display'),
-              mapStateToProps: state => ({
-                choices: columnChoices(state.datasource),
-              }),
-              validators: [validateNonEmpty],
             },
           },
         ],
@@ -101,6 +112,8 @@ const config: ControlPanelConfig = {
               description: t('Number of steps to take between ticks when displaying the X scale'),
             },
           },
+        ],
+        [
           {
             name: 'yscale_interval',
             config: {
@@ -132,6 +145,8 @@ const config: ControlPanelConfig = {
               ),
             },
           },
+        ],
+        [
           {
             name: 'normalize_across',
             config: {
@@ -165,6 +180,8 @@ const config: ControlPanelConfig = {
               description: t('Left margin, in pixels, allowing for more room for axis labels'),
             },
           },
+        ],
+        [
           {
             name: 'bottom_margin',
             config: {
@@ -193,7 +210,31 @@ const config: ControlPanelConfig = {
               ),
             },
           },
-          'y_axis_format',
+        ],
+        ['y_axis_format'],
+        [
+          {
+            name: 'sort_x_axis',
+            config: {
+              type: 'SelectControl',
+              label: t('Sort X Axis'),
+              choices: sortAxisChoices,
+              clearable: false,
+              default: 'alpha_asc',
+            },
+          },
+        ],
+        [
+          {
+            name: 'sort_y_axis',
+            config: {
+              type: 'SelectControl',
+              label: t('Sort Y Axis'),
+              choices: sortAxisChoices,
+              clearable: false,
+              default: 'alpha_asc',
+            },
+          },
         ],
         [
           {
@@ -206,6 +247,8 @@ const config: ControlPanelConfig = {
               description: t('Whether to display the legend (toggles)'),
             },
           },
+        ],
+        [
           {
             name: 'show_perc',
             config: {
@@ -228,6 +271,8 @@ const config: ControlPanelConfig = {
               description: t('Whether to display the numerical values within the cells'),
             },
           },
+        ],
+        [
           {
             name: 'normalized',
             config: {
@@ -238,28 +283,6 @@ const config: ControlPanelConfig = {
                 'Whether to apply a normal distribution based on rank on the color scale',
               ),
               default: false,
-            },
-          },
-        ],
-        [
-          {
-            name: 'sort_x_axis',
-            config: {
-              type: 'SelectControl',
-              label: t('Sort X Axis'),
-              choices: sortAxisChoices,
-              clearable: false,
-              default: 'alpha_asc',
-            },
-          },
-          {
-            name: 'sort_y_axis',
-            config: {
-              type: 'SelectControl',
-              label: t('Sort Y Axis'),
-              choices: sortAxisChoices,
-              clearable: false,
-              default: 'alpha_asc',
             },
           },
         ],

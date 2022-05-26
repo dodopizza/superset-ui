@@ -21,9 +21,38 @@ import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-rose';
+const VIZ_NAME = 'Nightingale Rose Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
-  description: '',
+  category: t('Ranking'),
+  description: t(
+    'A polar coordinate chart where the circle is broken into wedges of equal angle, and the value represented by any wedge is illustrated by its area, rather than its radius or sweep angle.',
+  ),
   name: t('Nightingale Rose Chart'),
+  tags: [
+    t('Legacy'),
+    t('Advanced-Analytics'),
+    t('Circular'),
+    t('Multi-Layers'),
+    t('Pattern'),
+    t('Time'),
+    t('Trend'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

@@ -23,6 +23,22 @@ import thumbnail from './images/thumbnail.png';
 import example from './images/tree.png';
 import buildQuery from './buildQuery';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Tree Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.unknown;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class EchartsTreeChartPlugin extends ChartPlugin {
   constructor() {
     super({
@@ -43,7 +59,7 @@ export default class EchartsTreeChartPlugin extends ChartPlugin {
           t('Multi-Levels'),
           t('Relational'),
           t('Structural'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),

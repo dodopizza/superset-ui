@@ -21,10 +21,41 @@ import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Time-series Percent Change';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Evolution'),
   credits: ['http://nvd3.org'],
-  description: t('A line chart component where you can compare the % change over time'),
+  description: t(
+    'Visualizes many different time-series objects in a single chart. This chart is being deprecated and we recommend using the Time-series Chart instead.',
+  ),
   name: t('Time-series Percent Change'),
+  tags: [
+    t('Legacy'),
+    t('Time'),
+    t('nvd3'),
+    t('Advanced-Analytics'),
+    t('Comparison'),
+    t('Line'),
+    t('Percentages'),
+    t('Predictive'),
+    t('Trend'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

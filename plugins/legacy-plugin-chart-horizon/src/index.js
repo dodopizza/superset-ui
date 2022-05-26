@@ -18,13 +18,35 @@
  */
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from './transformProps';
+import example from './images/Horizon_Chart.jpg';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-horizon';
+const VIZ_NAME = 'Horizon Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Distribution'),
   credits: ['http://kmandov.github.io/d3-horizon-chart/'],
-  description: '',
+  description: t(
+    'Compares how a metric changes over time between different groups. Each group is mapped to a row and change over time is visualized bar lengths and color.',
+  ),
+  exampleGallery: [{ url: example }],
   name: t('Horizon Chart'),
+  tags: [t('Legacy'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

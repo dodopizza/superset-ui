@@ -21,10 +21,37 @@ import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Multiple Line Charts';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.unknown;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Evolution'),
   credits: ['http://nvd3.org'],
-  description: '',
+  description: t(
+    'Visualize two different time series using the same x-axis time range. This chart is being deprecated and we recommend using the Mixed Timeseries Chart instead!',
+  ),
   name: t('Multiple Line Charts'),
+  tags: [
+    t('Multi-Variables'),
+    t('Legacy'),
+    t('nvd3'),
+    t('Comparison'),
+    t('Time'),
+    t('Multi-Layers'),
+  ],
   thumbnail,
   useLegacyApi: true,
 });

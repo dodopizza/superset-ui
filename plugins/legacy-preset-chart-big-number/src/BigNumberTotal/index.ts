@@ -22,11 +22,47 @@ import transformProps, {
   BigNumberChartProps,
   BigNumberFormData,
 } from '../BigNumber/transformProps';
+import example1 from './images/BigNumber.jpg';
+import example2 from './images/BigNumber2.jpg';
 import thumbnail from './images/thumbnail.png';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-big-number';
+const VIZ_NAME = 'Big Number';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notStable;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
-  description: '',
+  category: t('KPI'),
+  description: t(
+    'Showcases a single metric front-and-center. Big number is best used to call attention to a KPI or the one thing you want your audience to focus on.',
+  ),
+  exampleGallery: [
+    { url: example1, caption: t('A Big Number') },
+    { url: example2, caption: t('With a subheader') },
+  ],
   name: t('Big Number'),
+  tags: [
+    t('Additive'),
+    t('Business'),
+    t('Formattable'),
+    t('Legacy'),
+    t('Percentages'),
+    t('Popular'),
+    t('Report'),
+    t('Description'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

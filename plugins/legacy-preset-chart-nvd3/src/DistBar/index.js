@@ -19,12 +19,52 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
+import example1 from './images/Bar_Chart.jpg';
+import example2 from './images/Bar_Chart_2.jpg';
+import example3 from './images/BarChart3.jpg';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Bar Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Ranking'),
   credits: ['http://nvd3.org'],
-  description: t('A bar chart where the x axis is time'),
+  description: t(
+    'Compares metrics from different categories using bars. Bar lengths are used to indicate the magnitude of each value and color is used to differentiate groups.',
+  ),
+  exampleGallery: [
+    { url: example1, caption: 'Stacked style' },
+    { url: example2, caption: 'Grouped style' },
+    { url: example3 },
+  ],
   name: t('Bar Chart'),
+  tags: [
+    t('Additive'),
+    t('Categorical'),
+    t('Comparison'),
+    t('Discrete'),
+    t('Legacy'),
+    t('Percentages'),
+    t('Popular'),
+    t('Stacked'),
+    t('Vertical'),
+    t('nvd3'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

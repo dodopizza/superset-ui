@@ -44,7 +44,6 @@ import {
   computeYDomain,
   computeStackedYDomain,
   drawBarValues,
-  drawBarValuesSeparately,
   generateBubbleTooltipContent,
   generateCompareTooltipContent,
   generateMultiLineTooltipContent,
@@ -126,6 +125,8 @@ const TIMESERIES_VIZ_TYPES = [
   'bar',
   'time_pivot',
 ];
+
+const CHART_ID_PREFIX = 'chart-id-';
 
 const propTypes = {
   data: PropTypes.oneOfType([
@@ -210,7 +211,6 @@ const propTypes = {
   // 'bar' or 'dist-bar'
   isBarStacked: PropTypes.bool,
   showBarValue: PropTypes.bool,
-  showBarValueSeparately: PropTypes.bool,
   // 'bar', 'dist-bar' or 'column'
   reduceXTicks: PropTypes.bool,
   // 'bar', 'dist-bar' or 'area'
@@ -281,7 +281,6 @@ function nvd3Vis(element, props) {
     ranges,
     reduceXTicks = false,
     showBarValue,
-    showBarValueSeparately,
     showBrush,
     showControls,
     showLabels,
@@ -312,10 +311,18 @@ function nvd3Vis(element, props) {
   const container = element;
   container.innerHTML = '';
   const activeAnnotationLayers = annotationLayers.filter(layer => layer.show);
-  const chartId =
-    container.parentElement && container.parentElement.id !== ''
-      ? container.parentElement.id
-      : null;
+
+  // Search for the chart id in a parent div from the nvd3 chart
+  let chartContainer = container;
+  let chartId = null;
+  while (chartContainer.parentElement) {
+    if (chartContainer.parentElement.id.startsWith(CHART_ID_PREFIX)) {
+      chartId = chartContainer.parentElement.id;
+      break;
+    }
+
+    chartContainer = chartContainer.parentElement;
+  }
 
   let chart;
   let width = maxWidth;
@@ -523,13 +530,6 @@ function nvd3Vis(element, props) {
       drawBarValues(svg, data, isBarStacked, yAxisFormat);
       chart.dispatch.on('stateChange.drawBarValues', () => {
         drawBarValues(svg, data, isBarStacked, yAxisFormat);
-      });
-    }
-
-    if (showBarValueSeparately) {
-      drawBarValuesSeparately(svg, data, isBarStacked, yAxisFormat);
-      chart.dispatch.on('stateChange.drawBarValuesSeparately', () => {
-        drawBarValuesSeparately(svg, data, isBarStacked, yAxisFormat);
       });
     }
 

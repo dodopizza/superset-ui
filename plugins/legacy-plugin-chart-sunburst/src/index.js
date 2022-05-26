@@ -19,12 +19,34 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
+import example from './images/example.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-sunburst';
+const VIZ_NAME = 'Sunburst Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Part of a Whole'),
   credits: ['https://bl.ocks.org/kerryrodden/7090426'],
-  description: '',
+  description: t(
+    'Uses circles to visualize the flow of data through different stages of a system. Hover over individual paths in the visualization to understand the stages a value took. Useful for multi-stage, multi-group visualizing funnels and pipelines.',
+  ),
+  exampleGallery: [{ url: example }],
   name: t('Sunburst Chart'),
+  tags: [t('Aesthetic'), t('Legacy'), t('Multi-Levels'), t('Proportional'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

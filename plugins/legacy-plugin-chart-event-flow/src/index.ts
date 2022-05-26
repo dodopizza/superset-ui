@@ -20,10 +20,30 @@ import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import thumbnail from './images/thumbnail.png';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-event-flow';
+const VIZ_NAME = 'Event Flow';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.unknown;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Flow'),
   credits: ['https://github.com/williaster/data-ui'],
-  description: '',
+  description: t(
+    'Compares the lengths of time different activities take in a shared timeline view.',
+  ),
   name: t('Event Flow'),
+  tags: [t('Legacy'), t('Progressive'), DODOIS_TAG],
   thumbnail,
   useLegacyApi: true,
 });

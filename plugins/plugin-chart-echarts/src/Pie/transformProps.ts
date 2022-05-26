@@ -82,7 +82,9 @@ export function formatPieLabel({
 }
 
 export default function transformProps(chartProps: EchartsPieChartProps): PieChartTransformedProps {
-  const { formData, height, hooks, filterState, queriesData, width } = chartProps;
+  const { formData, height, hooks, filterState, queriesData, width, datasource } = chartProps;
+  const { metrics: chartPropsDatasourceMetrics } = datasource;
+
   const { data = [] } = queriesData[0];
   const coltypeMapping = getColtypesMapping(queriesData[0]);
 
@@ -98,7 +100,6 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     legendOrientation,
     legendType,
     metric = '',
-    numberFormat,
     dateFormat,
     outerRadius,
     showLabels,
@@ -106,8 +107,19 @@ export default function transformProps(chartProps: EchartsPieChartProps): PieCha
     showLabelsThreshold,
     emitFilter,
   }: EchartsPieFormData = { ...DEFAULT_LEGEND_FORM_DATA, ...DEFAULT_PIE_FORM_DATA, ...formData };
+
+  let { numberFormat } = formData;
   const metricLabel = getMetricLabel(metric);
   const minShowLabelAngle = (showLabelsThreshold || 0) * 3.6;
+
+  const findMetric = (arr: any[], metricName: string) =>
+    arr.filter(metric => metric.metric_name === metricName);
+
+  if (!numberFormat && chartProps.datasource && chartPropsDatasourceMetrics && metric) {
+    const [foundMetric] = findMetric(chartPropsDatasourceMetrics, metric);
+
+    if (foundMetric && foundMetric.d3format) numberFormat = foundMetric.d3format;
+  }
 
   const keys = data.map(datum =>
     extractGroupbyLabel({

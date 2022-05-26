@@ -19,14 +19,47 @@
 import { t, ChartMetadata, ChartPlugin } from '@superset-ui/core';
 import transformProps from '../transformProps';
 import thumbnail from './images/thumbnail.png';
+import example1 from './images/Time_Series_Bar_Chart.jpg';
+import example2 from './images/Time_Series_Bar_Chart2.jpg';
+import example3 from './images/Time_Series_Bar_Chart3.jpg';
 import { ANNOTATION_TYPES } from '../vendor/superset/AnnotationTypes';
 import controlPanel from './controlPanel';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'legacy-preset-chart-nvd3';
+const VIZ_NAME = 'Time-series Bar Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.notFriendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 const metadata = new ChartMetadata({
+  category: t('Evolution'),
   credits: ['http://nvd3.org'],
-  description: 'A bar chart where the x axis is time',
+  description: t(
+    'Visualize how a metric changes over time using bars. Add a group by column to visualize group level metrics and how they change over time.',
+  ),
+  exampleGallery: [{ url: example1 }, { url: example2 }, { url: example3 }],
   name: t('Time-series Bar Chart'),
   supportedAnnotationTypes: [ANNOTATION_TYPES.INTERVAL, ANNOTATION_TYPES.EVENT],
+  tags: [
+    t('Time'),
+    t('Trend'),
+    t('Stacked'),
+    t('Vertical'),
+    t('Percentages'),
+    t('Proportional'),
+    t('Advanced-Analytics'),
+    DODOIS_TAG,
+  ],
   thumbnail,
   useLegacyApi: true,
 });

@@ -23,6 +23,22 @@ import transformProps from './transformProps';
 import thumbnail from './images/thumbnail.png';
 import { EchartsFunnelChartProps, EchartsFunnelFormData } from './types';
 
+const DODOIS = {
+  friendly: 'DODOIS: FRIENDLY',
+  notFriendly: 'DODOIS: NOT FRIENDLY',
+  notStable: 'DODOIS: NOT STABLE',
+  unknown: 'DODOIS: UNKNOWN',
+};
+
+const VIZ_PACKAGE_NAME = 'plugin-chart-echarts';
+const VIZ_NAME = 'Funnel Chart';
+const VIZ_VERSION = '0.18.0';
+
+const DODOIS_TAG = DODOIS.friendly;
+
+// eslint-disable-next-line no-console
+console.log(`[${VIZ_PACKAGE_NAME} - ${VIZ_NAME}]:${VIZ_VERSION} [${DODOIS_TAG}]`);
+
 export default class EchartsFunnelChartPlugin extends ChartPlugin<
   EchartsFunnelFormData,
   EchartsFunnelChartProps
@@ -52,12 +68,12 @@ export default class EchartsFunnelChartPlugin extends ChartPlugin<
         name: t('Funnel Chart'),
         tags: [
           t('Business'),
+          t('ECharts'),
           t('Progressive'),
           t('Report'),
           t('Sequential'),
           t('Trend'),
-          t('ECharts'),
-          t('DODOIS_friendly'),
+          DODOIS_TAG,
         ],
         thumbnail,
       }),
