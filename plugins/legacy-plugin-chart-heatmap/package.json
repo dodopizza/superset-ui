@@ -1,6 +1,6 @@
 {
   "name": "@dodopizza/ssp-legacy-plugin-chart-heatmap",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Superset Legacy Chart - Heatmap (legacy-plugin-chart-heatmap 0.18.0)",
   "sideEffects": [
     "*.css"
