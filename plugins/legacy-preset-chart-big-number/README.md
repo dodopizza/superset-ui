@@ -1,37 +1,23 @@
-## @superset-ui/legacy-preset-chart-big-number
+## Big Number for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-preset-chart-big-number.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-preset-chart-big-number)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-preset-chart-big-number&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=plugins/superset-ui-legacy-preset-chart-big-number)
-
-This plugin provides Big Number for Superset.
+> Big Number: `DODOIS: NOT STABLE` Big Number with Trendline: `DODOIS: NOT STABLE`
 
 ### Usage
 
-Import the preset and register. This will register the `BigNumber` and `BigNumberTotal` charts with
-key `big-number` and `big-number-total`, respectively.
-
-```js
-import { BigNumberChartPreset } from '@superset-ui/legacy-preset-chart-big-number';
-
-new BigNumberChartPreset().register();
-```
-
-or register charts one by one. Configure `key`, which can be any `string`, and register the plugin.
-This `key` will be used to lookup this chart throughout the app.
+Configure `key`, which can be any `string`, and register the plugin. This `key` will be used to
+lookup this chart throughout the app.
 
 ```js
 import {
   BigNumberChartPlugin,
   BigNumberTotalChartPlugin,
-} from '@superset-ui/legacy-preset-chart-big-number';
+} from '@dodopizza/ssp-legacy-preset-chart-big-number';
 
-new BigNumberChartPlugin().configure({ key: 'big-number' }).register();
-new BigNumberTotalChartPlugin().configure({ key: 'big-number-total' }).register();
+new BigNumberChartPlugin().configure({ key: 'big_number' }), // (Big Number with Trendline)
+new BigNumberTotalChartPlugin().configure({ key: 'big_number_total' }), // Big Number
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-big-number)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -44,3 +30,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-preset-chart-big-number` [`0.18.0`]
