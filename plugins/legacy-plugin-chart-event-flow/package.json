@@ -1,7 +1,7 @@
 {
-  "name": "@superset-ui/legacy-plugin-chart-event-flow",
-  "version": "0.18.0",
-  "description": "Superset Legacy Chart - Event Flow",
+  "name": "@dodopizza/ssp-legacy-plugin-chart-event-flow",
+  "version": "0.1.0",
+  "description": "Superset Legacy Chart - Event Flow (legacy-plugin-chart-event-flow 0.18.0)",
   "sideEffects": [
     "*.css"
   ],
@@ -13,19 +13,25 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apache-superset/superset-ui.git"
+    "url": "https://github.com/dodopizza/superset-ui"
   },
   "keywords": [
-    "superset"
+    "superset",
+    "superset-ui",
+    "DODOIS: NOT FRIENDLY"
   ],
-  "author": "Superset",
-  "license": "Apache-2.0",
+  "license": "MIT",
+  "author": {
+    "name": "Kazakov Artem",
+    "email": "a.kazakovx@dodopizza.com"
+  },
   "bugs": {
     "url": "https://github.com/apache-superset/superset-ui/issues"
   },
-  "homepage": "https://github.com/apache-superset/superset-ui#readme",
+  "homepage": "https://github.com/dodopizza/superset-ui",
   "publishConfig": {
-    "access": "public"
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
     "@data-ui/event-flow": "^0.0.84",

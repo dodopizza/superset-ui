@@ -1,9 +1,6 @@
-## @superset-ui/legacy-plugin-chart-event-flow
+## Event Flow for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-plugin-chart-event-flow.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-plugin-chart-event-flow)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-plugin-chart-event-flow&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=packages/superset-ui-legacy-plugin-chart-event-flow)
-
-This plugin provides Event Flow for Superset.
+> `DODOIS: UNKNOWN`
 
 ### Usage
 
@@ -11,14 +8,12 @@ Configure `key`, which can be any `string`, and register the plugin. This `key` 
 lookup this chart throughout the app.
 
 ```js
-import EventFlowChartPlugin from '@superset-ui/legacy-plugin-chart-event-flow';
+import EventFlowChartPlugin from '@dodopizza/ssp-legacy-plugin-chart-event-flow';
 
 new EventFlowChartPlugin().configure({ key: 'event-flow' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-event-flow)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,3 +26,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-plugin-chart-event-flow` [`0.18.0`]
