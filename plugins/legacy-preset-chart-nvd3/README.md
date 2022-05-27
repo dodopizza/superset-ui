@@ -1,33 +1,50 @@
-## @superset-ui/legacy-preset-chart-nvd3
+## NVD3 vizualizations for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-preset-chart-nvd3.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-preset-chart-nvd3)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-preset-chart-nvd3&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=packages/superset-ui-legacy-preset-chart-nvd3)
+> AreaChartPlugin - `DODOIS: XXXXXX`
 
-This plugin provides Big Number for Superset.
+> BarChartPlugin - `DODOIS: XXXXXX`
+
+> BubbleChartPlugin - `DODOIS: XXXXXX`
+
+> BulletChartPlugin - `DODOIS: XXXXXX`
+
+> CompareChartPlugin - `DODOIS: XXXXXX`
+
+> DistBarChartPlugin - `DODOIS: XXXXXX`
+
+> DualLineChartPlugin - `DODOIS: XXXXXX`
+
+> LineChartPlugin - `DODOIS: XXXXXX`
+
+> LineMultiChartPlugin - `DODOIS: XXXXXX`
+
+> TimePivotChartPlugin - `DODOIS: XXXXXX`
 
 ### Usage
 
-Import the preset and register. This will register all the chart plugins under nvd3.
+Configure `key`, which can be any `string`, and register the plugin. This `key` will be used to
+lookup this chart throughout the app.
 
 ```js
-import { NVD3ChartPreset } from '@superset-ui/legacy-preset-chart-nvd3';
-
-new NVD3ChartPreset().register();
-```
-
-or register charts one by one. Configure `key`, which can be any `string`, and register the plugin.
-This `key` will be used to lookup this chart throughout the app.
-
-```js
-import { AreaChartPlugin, LineChartPlugin } from '@superset-ui/legacy-preset-chart-nvd3';
+import {
+  AreaChartPlugin,
+  BarChartPlugin,
+  BubbleChartPlugin,
+  BulletChartPlugin,
+  CompareChartPlugin,
+  DistBarChartPlugin,
+  DualLineChartPlugin,
+  LineChartPlugin,
+  LineMultiChartPlugin,
+  TimePivotChartPlugin,
+} from '@superset-ui/ssp-legacy-preset-chart-nvd3';
 
 new AreaChartPlugin().configure({ key: 'area' }).register();
 new LineChartPlugin().configure({ key: 'line' }).register();
+...
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-nvd3)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -40,3 +57,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-preset-chart-nvd3` [`0.18.0`]
