@@ -1,9 +1,6 @@
-## @superset-ui/legacy-plugin-chart-sankey
+## Sankey Diagram for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-plugin-chart-sankey.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-plugin-chart-sankey)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-plugin-chart-sankey&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=packages/superset-ui-legacy-plugin-chart-sankey)
-
-This plugin provides Sankey Diagram for Superset.
+> `DODOIS: NOT FRIENDLY`
 
 ### Usage
 
@@ -11,14 +8,12 @@ Configure `key`, which can be any `string`, and register the plugin. This `key` 
 lookup this chart throughout the app.
 
 ```js
-import SankeyChartPlugin from '@superset-ui/legacy-plugin-chart-sankey';
+import SankeyChartPlugin from '@dodopizza/ssp-legacy-plugin-chart-sankey';
 
 new SankeyChartPlugin().configure({ key: 'sankey' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-sankey)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,3 +26,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-plugin-chart-sankey` [`0.18.0`]
