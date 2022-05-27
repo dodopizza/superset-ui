@@ -1,24 +1,24 @@
 ## NVD3 vizualizations for Superset
 
-> AreaChartPlugin - `DODOIS: XXXXXX`
+> AreaChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> BarChartPlugin - `DODOIS: XXXXXX`
+> BarChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> BubbleChartPlugin - `DODOIS: XXXXXX`
+> BubbleChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> BulletChartPlugin - `DODOIS: XXXXXX`
+> BulletChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> CompareChartPlugin - `DODOIS: XXXXXX`
+> CompareChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> DistBarChartPlugin - `DODOIS: XXXXXX`
+> DistBarChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> DualLineChartPlugin - `DODOIS: XXXXXX`
+> DualLineChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> LineChartPlugin - `DODOIS: XXXXXX`
+> LineChartPlugin - `DODOIS: NOT FRIENDLY`
 
-> LineMultiChartPlugin - `DODOIS: XXXXXX`
+> LineMultiChartPlugin - `DODOIS: UNKNOWN`
 
-> TimePivotChartPlugin - `DODOIS: XXXXXX`
+> TimePivotChartPlugin - `DODOIS: NOT FRIENDLY`
 
 ### Usage
 
