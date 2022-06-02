@@ -35,7 +35,7 @@ const DODOIS = {
 
 const VIZ_PACKAGE_NAME = 'ssp-plugin-chart-echarts';
 const VIZ_NAME = 'Treemap v2';
-const VIZ_VERSION = '0.1.0';
+const VIZ_VERSION = '0.1.1';
 
 const DODOIS_TAG = DODOIS.friendly;
 

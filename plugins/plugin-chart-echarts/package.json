@@ -1,6 +1,6 @@
 {
   "name": "@dodopizza/ssp-plugin-chart-echarts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Superset Chart - Echarts (plugin-chart-echarts 0.18.0)",
   "sideEffects": false,
   "main": "lib/index.js",

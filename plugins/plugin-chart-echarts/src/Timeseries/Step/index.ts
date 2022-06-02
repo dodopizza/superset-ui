@@ -34,7 +34,7 @@ const DODOIS = {
 
 const VIZ_PACKAGE_NAME = 'ssp-plugin-chart-echarts';
 const VIZ_NAME = 'Time-series Stepped Line';
-const VIZ_VERSION = '0.1.0';
+const VIZ_VERSION = '0.1.1';
 
 const DODOIS_TAG = DODOIS.friendly;
 

@@ -58,7 +58,7 @@ import {
   EchartsTreemapChartPlugin,
   EchartsMixedTimeseriesChartPlugin,
   EchartsTreeChartPlugin,
-} from '@superset-ui/ssp-plugin-chart-echarts';
+} from '@dodopizza/ssp-plugin-chart-echarts';
 
 new EchartsBarChartPlugin().configure({ key: 'echarts_bar' }),
 new EchartsPieChartPlugin().configure({ key: 'pie' }),
