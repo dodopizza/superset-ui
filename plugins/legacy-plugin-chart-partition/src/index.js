@@ -28,9 +28,9 @@ const DODOIS = {
   unknown: 'DODOIS: UNKNOWN',
 };
 
-const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-partition';
+const VIZ_PACKAGE_NAME = 'ssp-legacy-plugin-chart-partition';
 const VIZ_NAME = 'Partition Chart';
-const VIZ_VERSION = '0.18.0';
+const VIZ_VERSION = '0.1.0';
 
 const DODOIS_TAG = DODOIS.notFriendly;
 
