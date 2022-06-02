@@ -1,7 +1,7 @@
 {
-  "name": "@superset-ui/legacy-plugin-chart-pivot-table",
-  "version": "0.18.0",
-  "description": "Superset Legacy Chart - Pivot Table",
+  "name": "@dodopizza/ssp-legacy-plugin-chart-pivot-table",
+  "version": "0.1.0",
+  "description": "Superset Legacy Chart - Pivot Table (legacy-plugin-chart-pivot-table 0.18.0)",
   "sideEffects": [
     "*.css"
   ],
@@ -13,19 +13,24 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apache-superset/superset-ui.git"
+    "url": "https://github.com/dodopizza/superset-ui"
   },
   "keywords": [
-    "superset"
+    "superset",
+    "superset-ui"
   ],
-  "author": "Superset",
-  "license": "Apache-2.0",
+  "license": "MIT",
+  "author": {
+    "name": "Kazakov Artem",
+    "email": "a.kazakovx@dodopizza.com"
+  },
   "bugs": {
     "url": "https://github.com/apache-superset/superset-ui/issues"
   },
-  "homepage": "https://github.com/apache-superset/superset-ui#readme",
+  "homepage": "https://github.com/dodopizza/superset-ui",
   "publishConfig": {
-    "access": "public"
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
     "@superset-ui/chart-controls": "0.18.0",
