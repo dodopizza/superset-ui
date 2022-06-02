@@ -1,9 +1,6 @@
-## @superset-ui/legacy-plugin-chart-parallel-coordinates
+## Parallel Coordinates for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/legacy-plugin-chart-parallel-coordinates.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/legacy-plugin-chart-parallel-coordinates)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-legacy-plugin-chart-parallel-coordinates&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=packages/superset-ui-legacy-plugin-chart-parallel-coordinates)
-
-This plugin provides Parallel Coordinates for Superset.
+> `DODOIS: NOT FRIENDLY`
 
 ### Usage
 
@@ -11,14 +8,12 @@ Configure `key`, which can be any `string`, and register the plugin. This `key` 
 lookup this chart throughout the app.
 
 ```js
-import ParallelCoordinatesChartPlugin from '@superset-ui/legacy-plugin-chart-parallel-coordinates';
+import ParallelCoordinatesChartPlugin from '@dodopizza/ssp-legacy-plugin-chart-parallel-coordinates';
 
 new ParallelCoordinatesChartPlugin().configure({ key: 'parallel-coordinates' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-parallel-coordinates)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,3 +26,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/legacy-plugin-chart-parallel-coordinates` [`0.18.0`]
