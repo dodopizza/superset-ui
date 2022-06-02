@@ -56,6 +56,9 @@
       "path": "plugins/legacy-plugin-chart-partition/test"
     },
     {
+      "path": "plugins/plugin-chart-pivot-table"
+    },
+    {
       "path": "plugins/legacy-plugin-chart-pivot-table"
     },
     {

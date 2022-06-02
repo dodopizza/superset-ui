@@ -7,12 +7,6 @@
 Configure `key`, which can be any `string`, and register the plugin. This `key` will be used to
 lookup this chart throughout the app.
 
-## Important
-
-In order to build this package you need to change the name of the
-`ssp-legacy-plugin-chart-pivot-table` plugin to `@superset-ui/legacy-plugin-chart-pivot-table` in
-`package.json`
-
 After the development is finished, do not forget to change it back
 
 ```js
