@@ -1,12 +1,38 @@
-## @superset-ui/plugin-chart-echarts
+## Echarts for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/plugin-chart-echarts.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/plugin-chart-echarts)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui.svg?path=packages%2Fsuperset-ui-plugin-chart-echarts&style=flat-square)](https://david-dm.org/apache-superset/superset-ui?path=packages/superset-ui-plugin-chart-echarts)
+> EchartsBarChartPlugin - `DODOIS: FRIENDLY`
 
-This plugin provides Echarts viz plugins for Superset:
+> EchartsPieChartPlugin - `DODOIS: FRIENDLY`
 
-- Timeseries Chart (combined line, area bar with support for predictive analytics)
-- Pie Chart
+> EchartsBoxPlotChartPlugin - `DODOIS: UNKNOWN`
+
+> EchartsAreaChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesBarChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesLineChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesScatterChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesSmoothLineChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTimeseriesStepChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsGraphChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsGaugeChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsRadarChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsFunnelChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTreemapChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsMixedTimeseriesChartPlugin - `DODOIS: FRIENDLY`
+
+> EchartsTreeChartPlugin - `DODOIS: UNKNOWN`
 
 ### Usage
 
@@ -15,17 +41,45 @@ lookup this chart throughout the app.
 
 ```js
 import {
-  EchartsTimeseriesChartPlugin,
+  EchartsBarChartPlugin,
   EchartsPieChartPlugin,
-} from '@superset-ui/plugin-chart-echarts';
+  EchartsBoxPlotChartPlugin,
+  EchartsAreaChartPlugin,
+  EchartsTimeseriesChartPlugin,
+  EchartsTimeseriesBarChartPlugin,
+  EchartsTimeseriesLineChartPlugin,
+  EchartsTimeseriesScatterChartPlugin,
+  EchartsTimeseriesSmoothLineChartPlugin,
+  EchartsTimeseriesStepChartPlugin,
+  EchartsGraphChartPlugin,
+  EchartsGaugeChartPlugin,
+  EchartsRadarChartPlugin,
+  EchartsFunnelChartPlugin,
+  EchartsTreemapChartPlugin,
+  EchartsMixedTimeseriesChartPlugin,
+  EchartsTreeChartPlugin,
+} from '@superset-ui/ssp-plugin-chart-echarts';
 
-new EchartsTimeseriesChartPlugin().configure({ key: 'echarts-ts' }).register();
-new EchartsPieChartPlugin().configure({ key: 'echarts-pie' }).register();
+new EchartsBarChartPlugin().configure({ key: 'echarts_bar' }),
+new EchartsPieChartPlugin().configure({ key: 'pie' }),
+new EchartsBoxPlotChartPlugin().configure({ key: 'box_plot' }),
+new EchartsAreaChartPlugin().configure({ key: 'echarts_area' }),
+new EchartsTimeseriesChartPlugin().configure({ key: 'echarts_timeseries' }),
+new EchartsTimeseriesBarChartPlugin().configure({ key: 'echarts_timeseries_bar' }),
+new EchartsTimeseriesLineChartPlugin().configure({ key: 'echarts_timeseries_line' }),
+new EchartsTimeseriesScatterChartPlugin().configure({ key: 'echarts_timeseries_scatter' }),
+new EchartsTimeseriesSmoothLineChartPlugin().configure({ key: 'echarts_timeseries_smooth' }),
+new EchartsTimeseriesStepChartPlugin().configure({ key: 'echarts_timeseries_step' }),
+new EchartsGraphChartPlugin().configure({ key: 'graph_chart' }),
+new EchartsGaugeChartPlugin().configure({ key: 'gauge_chart' }),
+new EchartsRadarChartPlugin().configure({ key: 'radar' }),
+new EchartsFunnelChartPlugin().configure({ key: 'funnel' }),
+new EchartsTreemapChartPlugin().configure({ key: 'treemap_v2' }),
+new EchartsMixedTimeseriesChartPlugin().configure({ key: 'mixed_timeseries' }),
+new EchartsTreeChartPlugin().configure({ key: 'tree_chart' }),
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui/?selectedKind=chart-plugins-plugin-chart-echarts)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -38,3 +92,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/plugin-chart-echarts` [`0.18.0`]
