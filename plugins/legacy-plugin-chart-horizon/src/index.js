@@ -29,9 +29,9 @@ const DODOIS = {
   unknown: 'DODOIS: UNKNOWN',
 };
 
-const VIZ_PACKAGE_NAME = 'legacy-plugin-chart-horizon';
+const VIZ_PACKAGE_NAME = 'ssp-legacy-plugin-chart-horizon';
 const VIZ_NAME = 'Horizon Chart';
-const VIZ_VERSION = '0.18.0';
+const VIZ_VERSION = '0.1.0';
 
 const DODOIS_TAG = DODOIS.notFriendly;
 
