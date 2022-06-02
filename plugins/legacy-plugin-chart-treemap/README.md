@@ -17,7 +17,12 @@ Then use it via `SuperChart`
 
 ```js
 <SuperChart
-  XXXXXX
+  chartType="treemap"
+  width={600}
+  height={600}
+  formData={...}
+  queriesData={[{
+    data: {...},
   }]}
 />
 ```
