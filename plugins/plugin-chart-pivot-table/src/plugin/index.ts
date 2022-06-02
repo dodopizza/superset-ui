@@ -37,9 +37,9 @@ const DODOIS = {
   unknown: 'DODOIS: UNKNOWN',
 };
 
-const VIZ_PACKAGE_NAME = 'plugin-chart-pivot-table';
+const VIZ_PACKAGE_NAME = 'ssp-plugin-chart-pivot-table';
 const VIZ_NAME = 'Pivot Table v2';
-const VIZ_VERSION = '0.18.0';
+const VIZ_VERSION = '0.2.1';
 
 const DODOIS_TAG = DODOIS.friendly;
 

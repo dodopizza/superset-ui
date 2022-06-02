@@ -1,23 +1,27 @@
-## @superset-ui/plugin-chart-pivot-table
+## Pivot Table v2 for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/plugin-chart-pivot-table.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/plugin-chart-pivot-table)
-
-This plugin provides Pivot Table for Superset.
+> `DODOIS: FRIENDLY`
 
 ### Usage
 
 Configure `key`, which can be any `string`, and register the plugin. This `key` will be used to
 lookup this chart throughout the app.
 
+## Important
+
+In order to build this package you need to change the name of the
+`ssp-legacy-plugin-chart-pivot-table` plugin to `@superset-ui/legacy-plugin-chart-pivot-table` in
+`package.json`
+
+After the development is finished, do not forget to change it back
+
 ```js
-import PivotTableChartPlugin from '@superset-ui/plugin-chart-pivot-table';
+import PivotTableChartPlugin from '@dodopizza/ssp-plugin-chart-pivot-table';
 
 new PivotTableChartPlugin().configure({ key: 'pivot-table-v2' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui/?selectedKind=plugin-chart-pivot-table)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,25 +35,6 @@ for more details.
 />
 ```
 
-### File structure generated
+#### Reference
 
-```
-├── package.json
-├── README.md
-├── tsconfig.json
-├── src
-│   ├── PivotTableChart.tsx
-│   ├── images
-│   │   └── thumbnail.png
-│   ├── index.ts
-│   ├── plugin
-│   │   ├── buildQuery.ts
-│   │   ├── controlPanel.ts
-│   │   ├── index.ts
-│   │   └── transformProps.ts
-│   └── types.ts
-├── test
-│   └── index.test.ts
-└── types
-    └── external.d.ts
-```
+> This plugin used to be `@superset-ui/plugin-chart-pivot-table` [`0.18.0`]

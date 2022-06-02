@@ -1,7 +1,7 @@
 {
-  "name": "@dodopizza/superset-plugin-chart-pivot-table",
-  "version": "0.2.0",
-  "description": "DODO Superset Chart - Pivot Table v2 (0.18.0)",
+  "name": "@dodopizza/ssp-plugin-chart-pivot-table",
+  "version": "0.2.1",
+  "description": "DODO Superset Chart - Pivot Table v2 (plugin-chart-pivot-table 0.18.0)",
   "sideEffects": false,
   "main": "lib/index.js",
   "module": "esm/index.js",
@@ -21,6 +21,9 @@
   "author": {
     "name": "Kazakov Artem",
     "email": "a.kazakovx@dodopizza.com"
+  },
+  "bugs": {
+    "url": "https://github.com/apache-superset/superset-ui/issues"
   },
   "homepage": "https://github.com/dodopizza/superset-ui",
   "publishConfig": {
