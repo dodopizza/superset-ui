@@ -1,9 +1,6 @@
-## @superset-ui/plugin-chart-table
+## Table chart for Superset
 
-[![Version](https://img.shields.io/npm/v/@superset-ui/plugin-chart-table.svg?style=flat-square)](https://www.npmjs.com/package/@superset-ui/plugin-chart-table)
-[![David (path)](https://img.shields.io/david/apache-superset/superset-ui-plugins.svg?path=packages%2Fsuperset-ui-plugin-chart-table&style=flat-square)](https://david-dm.org/apache-superset/superset-ui-plugins?path=plugins/superset-ui-plugin-chart-table)
-
-This plugin provides Table chart for Superset.
+> `DODOIS: FRIENDLY`
 
 ### Usage
 
@@ -11,14 +8,12 @@ Configure `key`, which can be any `string`, and register the plugin. This `key` 
 lookup this chart throughout the app.
 
 ```js
-import TableChartPlugin from '@superset-ui/plugin-chart-table';
+import TableChartPlugin from '@dodopizza/ssp-plugin-chart-table';
 
 new TableChartPlugin().configure({ key: 'table' }).register();
 ```
 
-Then use it via `SuperChart`. See
-[storybook](https://apache-superset.github.io/superset-ui-plugins/?selectedKind=plugin-chart-table)
-for more details.
+Then use it via `SuperChart`
 
 ```js
 <SuperChart
@@ -31,3 +26,7 @@ for more details.
   }]}
 />
 ```
+
+#### Reference
+
+> This plugin used to be `@superset-ui/plugin-chart-table` [`0.18.0`]
